@@ -45,4 +45,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation (libs.androidx.appcompat.v120)
+    implementation (libs.androidx.core.ktx.v131)
 }

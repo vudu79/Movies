@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Movies</string>
+    <string name="menu_button">Меню</string>
+    <string name="favorites_button">Избранное</string>
+    <string name="after_button">Посмотреть позже</string>
+    <string name="collections_button">Подборки</string>
+    <string name="settings">Настройки</string>
+    <string name="disclaimer">Постеры предоставлены https://akspic.ru</string>
+    <string name="title">Movies</string>
 </resources>
