@@ -45,4 +45,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation (libs.retrofit)
+    implementation (libs.retrofit2.converter.gson)
+    implementation(libs.converter.scalars)
+
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation (libs.retrofit2.converter.moshi)
+    implementation (libs.moshi.kotlin)
+
+
 }
