@@ -27,7 +27,7 @@ class RepositoryImpl() : Repository {
     override suspend fun getMovieInfo(): ResponsePostersDto? {
         val response = service.getSearchResponse(
             1,
-            100,
+            250,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )

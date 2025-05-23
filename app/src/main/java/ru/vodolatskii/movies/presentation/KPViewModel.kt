@@ -18,9 +18,14 @@ class KPViewModel(
     val uiState: StateFlow<UIState> = _uiState
 
     init {
+        loadPosters()
+    }
+
+    fun loadPosters() {
         val handler = CoroutineExceptionHandler { _, exception ->
             Log.e("mytag", "Поймал $exception")
         }
+
         viewModelScope.launch(handler) {
             try {
                 _uiState.value =
@@ -31,7 +36,7 @@ class KPViewModel(
                         UIState.Success(listDoc = it.docs)
 
                 } ?: let {
-                    _uiState.value = UIState.Error("Сервер вернул пустой ответ")
+                    _uiState.value = UIState.Error("Ошибка при загрузке постеров!")
                 }
             } catch (e: Exception) {
                 _uiState.value = UIState.Error("Ошибка запроса - $e")
