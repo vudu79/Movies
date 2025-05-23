@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
                         is UIState.Success -> {
                             setPostersViewsVisibility( uiState)
-                            val adapter = ImageAdapter(uiState.listDoc) {
+                            val adapter = ImageAdapter(uiState.listDoc.shuffled()) {
                                 Toast.makeText(
                                     this@MainActivity,
                                     "нажат ${it.name}",
