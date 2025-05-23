@@ -23,35 +23,48 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this, factory).get(KPViewModel::class.java)
     }
 
-    val progressBar = findViewById<ProgressBar>(R.id.progress_circular)
-    val posters = findViewById<CardView>(R.id.posters)
-
-
-    val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        progressBar.visibility = View.GONE
-        posters.visibility = View.VISIBLE
+        val progressBar = findViewById<ProgressBar>(R.id.progress_circular)
 
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+//    val posters = findViewById<CardView>(R.id.posters)
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+
+        progressBar.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
+
+        recyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
+
                         is UIState.Success -> {
-                            setPostersVisible(true)
+
+                            progressBar.visibility = View.GONE
+                            recyclerView.visibility = View.VISIBLE
+
+
                             uiState.listDoc.forEach {
-                                Log.d("mytag", "результат ${it.poster.url}")
+
+                                val adapter = ImageAdapter(uiState.listDoc)
+                                recyclerView.adapter = adapter
+
+                                Log.d("mytag", "результат ${it.poster.url }")
                             }
                         }
 
                         is UIState.Error -> Log.d("mytag", "результат error")
                         is UIState.Loading -> {
-                            setPostersVisible(false)
+                            progressBar.visibility = View.VISIBLE
+                            recyclerView.visibility = View.GONE
+
                         }
                     }
                 }
@@ -59,22 +72,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setPostersVisible(isVisible: Boolean){
-        if (isVisible){
-            progressBar.visibility = View.GONE
-            posters.visibility = View.VISIBLE
-        }
-    }
 
-
-    private fun recycleViewLoad(){
-        val imageUrls = listOf(
-            "https://example.com/image1.jpg",
-            "https://example.com/image2.jpg",
-            "https://example.com/image3.jpg"
-        )
-
-        val adapter = ImageAdapter(imageUrls)
-        recyclerView.adapter = adapter
-    }
 }

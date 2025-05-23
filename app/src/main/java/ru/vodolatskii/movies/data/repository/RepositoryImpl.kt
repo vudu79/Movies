@@ -11,8 +11,6 @@ class RepositoryImpl() : Repository {
     private val BASE_URL =
         "https://api.kinopoisk.dev/v1.4/movie/"
 
-//   "search?page=1&limit=10&query=форсаж"
-
     private val moshi = Moshi.Builder() // adapter
         .add(KotlinJsonAdapterFactory())
         .build()
@@ -27,10 +25,9 @@ class RepositoryImpl() : Repository {
     }
 
     override suspend fun getMovieInfo(): ResponsePostersDto? {
-
         val response = service.getSearchResponse(
             1,
-            10,
+            100,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )

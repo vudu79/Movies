@@ -5,6 +5,6 @@
     <string name="after_button">Посмотреть позже</string>
     <string name="collections_button">Подборки</string>
     <string name="settings">Настройки</string>
-    <string name="disclaimer">Постеры предоставлены https://akspic.ru</string>
+    <string name="disclaimer">Постеры предоставлены API https://kinopoisk.dev/</string>
     <string name="title">Movies</string>
 </resources>

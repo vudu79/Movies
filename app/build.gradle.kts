@@ -80,6 +80,9 @@ dependencies {
 
     implementation (libs.glide)
 
+    implementation(libs.androidx.recyclerview)
+    annotationProcessor(libs.compiler)
+
 
 
 }
