@@ -5,8 +5,6 @@ plugins {
 
 }
 
-
-
 android {
     namespace = "ru.vodolatskii.movies"
     compileSdk = 34
@@ -79,6 +77,9 @@ dependencies {
 
     implementation (libs.retrofit2.converter.moshi)
     implementation (libs.moshi.kotlin)
+
+    implementation (libs.glide)
+
 
 
 }
