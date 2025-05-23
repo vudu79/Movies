@@ -16,3 +16,4 @@ class MyViewModelFactory(private val repository: Repository) :
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

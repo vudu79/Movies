@@ -4,7 +4,7 @@ import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.vodolatskii.movies.data.models.ResponseDto
+import ru.vodolatskii.movies.data.models.ResponsePostersDto
 
 class RepositoryImpl() : Repository {
 
@@ -26,15 +26,19 @@ class RepositoryImpl() : Repository {
         retrofit.create(KPsApiService::class.java)
     }
 
-    override suspend fun getMovieInfo(): ResponseDto? {
+    override suspend fun getMovieInfo(): ResponsePostersDto? {
 
-        val response = service.getSearchResponse(1, 1, "форсаж")
+        val response = service.getSearchResponse(
+            1,
+            10,
+            selectFields = listOf("id", "name", "description", "poster"),
+            notNullFields = listOf("name", "poster.url")
+        )
 
         if (response.code() != 200) {
             return null
         } else {
             return response.body()
         }
-
     }
 }

@@ -26,7 +26,12 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
-                        is UIState.Success -> Log.d("mytag", "результат ${uiState.title}")
+                        is UIState.Success -> {
+                            uiState.listDoc.forEach {
+                                Log.d("mytag", "результат ${it.poster.url}")
+                            }
+                        }
+
                         is UIState.Error -> Log.d("mytag", "результат error")
                         is UIState.Loading -> Log.d("mytag", "результат loading")
                     }

@@ -19,7 +19,7 @@ class KPViewModel(
         viewModelScope.launch {
             repository.getMovieInfo()?.let {
                 _uiState.value =
-                    UIState.Success(it.docs.first().name, it.docs.first().poster.url ?: "____")
+                    UIState.Success(listDoc = it.docs)
             } ?: let {
                 _uiState.value = UIState.Error
             }

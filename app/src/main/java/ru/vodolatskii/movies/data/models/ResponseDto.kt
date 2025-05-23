@@ -1,14 +1,14 @@
 package ru.vodolatskii.movies.data.models
 
 class ResponseDto (
-    val docs: List<Doc>,
+    val docs: List<Docs>,
     val total: Long,
     val limit: Long,
     val page: Long,
     val pages: Long,
 )
 
-data class Doc(
+data class Docs(
     val id: Long,
     val name: String,
     val alternativeName: String,
@@ -58,7 +58,7 @@ data class Logo(
     val previewUrl: String?,
 )
 
-data class Poster(
+data class Posters(
     val url: String?,
     val previewUrl: String?,
 )
