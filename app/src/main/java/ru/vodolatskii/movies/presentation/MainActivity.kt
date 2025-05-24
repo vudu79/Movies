@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         val factory = MyViewModelFactory(RepositoryImpl())
         ViewModelProvider(this, factory).get(KPViewModel::class.java)
     }
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +89,28 @@ class MainActivity : AppCompatActivity() {
 
         binding.buttonPostersError.setOnClickListener {
             viewModel.loadPosters()
+        }
+
+        binding.topAppBar.setNavigationOnClickListener {
+            Toast.makeText(this, "Когда-нибудь здесь будет навигация...", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.fav -> {
+                    Toast.makeText(this, "Избранное", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.search -> {
+                    Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.more -> {
+                    Toast.makeText(this, "Еще", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
         }
     }
 

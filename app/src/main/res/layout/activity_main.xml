@@ -8,38 +8,56 @@
     tools:context=".presentation.MainActivity">
 
 
-<!--    topAppBar     -->
-    <LinearLayout
-        android:id="@+id/topAppBar"
+    <!--    topAppBar     -->
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/topAppBar"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="60dp"-->
+    <!--        android:background="@drawable/button_ripple"-->
+    <!--        android:gravity="center_vertical|start"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="start|center_vertical"-->
+    <!--            android:textSize="20sp"-->
+    <!--            android:layout_margin="10dp"-->
+    <!--            android:textColor="@color/white"-->
+    <!--            android:text="@string/title"-->
+    <!--            />-->
+    <!--    </LinearLayout>-->
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/topAppBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@drawable/button_ripple"
-        android:gravity="center_vertical|start"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center_vertical"
-            android:textSize="20sp"
-            android:layout_margin="10dp"
-            android:textColor="@color/white"
-            android:text="@string/title"
-            />
-    </LinearLayout>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/button_ripple"
+            app:menu="@menu/top_app_bar_menu"
+            app:navigationIcon="@drawable/baseline_menu_24"
+            app:title="Skillfactory"
+            app:titleTextColor="@android:color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
 
 
-<!--    Posters    -->
+    <!--    Posters    -->
     <FrameLayout
         android:id="@+id/posters_conteqner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topAppBar">
+        app:layout_constraintTop_toBottomOf="@id/topAppBarLayout">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/posters"
@@ -76,12 +94,12 @@
                 android:id="@+id/textview_error_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:layout_margin="10dp"
-                android:textColor="@color/design_default_color_error"
-                android:maxLines="3"
                 android:layout_gravity="center"
-                android:layout_weight="1"/>
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:maxLines="3"
+                android:textColor="@color/design_default_color_error"
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/button_posters_error"
@@ -89,31 +107,29 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:textSize="10sp"
-                android:text="@string/button_repeat"/>
+                android:text="@string/button_repeat"
+                android:textSize="10sp" />
 
         </LinearLayout>
     </FrameLayout>
 
 
-
-<!--    Disclaimer    -->
+    <!--    Disclaimer    -->
     <TextView
         android:id="@+id/contr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:autoLink="web"
+        android:gravity="center"
         android:linksClickable="true"
         android:text="@string/disclaimer"
         app:layout_constraintEnd_toEndOf="@+id/posters_conteqner"
         app:layout_constraintStart_toStartOf="@+id/posters_conteqner"
-        app:layout_constraintTop_toBottomOf="@+id/posters_conteqner"
-        android:gravity="center"/>
+        app:layout_constraintTop_toBottomOf="@+id/posters_conteqner" />
 
 
-
-<!--    Menu   -->
+    <!--    Menu   -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -168,7 +184,7 @@
 
     </LinearLayout>
 
-<!--    BottomAppBar    -->
+    <!--    BottomAppBar    -->
     <LinearLayout
         android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
