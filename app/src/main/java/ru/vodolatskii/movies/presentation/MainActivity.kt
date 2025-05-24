@@ -3,6 +3,7 @@ package ru.vodolatskii.movies.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
@@ -23,25 +25,25 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this, factory).get(KPViewModel::class.java)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val root = binding.root
         setContentView(root)
-
-        setPostersViewsVisibility( UIState.Loading)
+        initClickListeners()
+        setPostersViewsVisibility(UIState.Loading)
 
         binding.recyclerView.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
 
                         is UIState.Success -> {
-                            setPostersViewsVisibility( uiState)
+                            setPostersViewsVisibility(uiState)
                             val adapter = ImageAdapter(uiState.listDoc.shuffled()) {
                                 Toast.makeText(
                                     this@MainActivity,
@@ -59,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         is UIState.Loading -> {
-                           setPostersViewsVisibility(uiState)
+                            setPostersViewsVisibility(uiState)
                         }
                     }
                 }
@@ -67,7 +69,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initClickListeners(){
+    private fun initClickListeners() {
+        val buttonList = listOf(
+            binding.buttonMenu,
+            binding.buttonFavorites,
+            binding.buttonAfter,
+            binding.buttonCollections,
+            binding.buttonSettings
+        )
+
+        buttonList.forEach { b ->
+            b.setOnClickListener {
+                Toast.makeText(this, b.text, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.buttonPostersError.setOnClickListener {
             viewModel.loadPosters()
         }
