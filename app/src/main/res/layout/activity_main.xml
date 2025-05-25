@@ -45,7 +45,7 @@
             android:background="@drawable/button_ripple"
             app:menu="@menu/top_app_bar_menu"
             app:navigationIcon="@drawable/baseline_menu_24"
-            app:title="Skillfactory"
+            app:title="@string/title"
             app:titleTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -84,33 +84,33 @@
             android:minWidth="40dp"
             android:minHeight="40dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical">
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:orientation="vertical">-->
 
-            <TextView
-                android:id="@+id/textview_error_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:maxLines="3"
-                android:textColor="@color/design_default_color_error"
-                android:textSize="12sp" />
+<!--            <TextView-->
+<!--                android:id="@+id/textview_error_message"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_margin="10dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:maxLines="3"-->
+<!--                android:textColor="@color/design_default_color_error"-->
+<!--                android:textSize="12sp" />-->
 
-            <Button
-                android:id="@+id/button_posters_error"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="@string/button_repeat"
-                android:textSize="10sp" />
+<!--            <Button-->
+<!--                android:id="@+id/button_posters_error"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="@string/button_repeat"-->
+<!--                android:textSize="12sp" />-->
+<!--        </LinearLayout>-->
 
-        </LinearLayout>
     </FrameLayout>
 
 
@@ -128,70 +128,19 @@
         app:layout_constraintStart_toStartOf="@+id/posters_conteqner"
         app:layout_constraintTop_toBottomOf="@+id/posters_conteqner" />
 
-
-    <!--    Menu   -->
-    <LinearLayout
+    <!--    BottomAppBar    -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="30dp"
-        android:layout_marginVertical="30dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/bottomAppBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="spread"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contr">
-
-        <Button
-            android:id="@+id/button_menu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_ripple"
-            android:text="@string/menu_button"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/button_favorites"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_ripple"
-            android:text="@string/favorites_button"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/button_after"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_ripple"
-            android:text="@string/after_button"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/button_collections"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_ripple"
-            android:text="@string/collections_button"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/button_settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_ripple"
-            android:text="@string/settings"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
-    <!--    BottomAppBar    -->
-    <LinearLayout
-        android:id="@+id/bottomAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
         android:background="@drawable/button_ripple"
         android:orientation="horizontal"
+        app:itemActiveIndicatorStyle="@drawable/button_ripple"
+        app:itemIconTint="@android:color/white"
+        app:itemTextColor="@android:color/white"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

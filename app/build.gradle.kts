@@ -85,5 +85,8 @@ dependencies {
     annotationProcessor(libs.compiler)
     implementation(libs.material)
 
+    implementation(libs.okhttp)
+
+
 
 }

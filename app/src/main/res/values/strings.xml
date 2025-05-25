@@ -8,4 +8,10 @@
     <string name="disclaimer">Постеры предоставлены API https://kinopoisk.dev/</string>
     <string name="title">Movies</string>
     <string name="button_repeat">Повторить</string>
+    <string name="settings_top_menu_item">Настройки</string>
+    <string name="search_top_menu_item">Поиск</string>
+    <string name="favorite_nav_button">Избранное</string>
+    <string name="watch_later_nav_button">Посмотреть позже</string>
+    <string name="selections_nav_button">Подборки</string>
+    <string name="search_title">Найти</string>
 </resources>

@@ -3,7 +3,6 @@ package ru.vodolatskii.movies.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -11,11 +10,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
+import ru.vodolatskii.movies.presentation.utils.ImageAdapter
+import ru.vodolatskii.movies.presentation.utils.UIState
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,15 +26,14 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this, factory).get(KPViewModel::class.java)
     }
 
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val root = binding.root
         setContentView(root)
-        initClickListeners()
+
+        setClickListeners()
+
         setPostersViewsVisibility(UIState.Loading)
 
         binding.recyclerView.layoutManager =
@@ -44,13 +43,12 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
-
                         is UIState.Success -> {
                             setPostersViewsVisibility(uiState)
-                            val adapter = ImageAdapter(uiState.listDoc.shuffled()) {
+                            val adapter = ImageAdapter(docs = uiState.listDoc.shuffled()) {
                                 Toast.makeText(
                                     this@MainActivity,
-                                    "нажат ${it.name}",
+                                    "Клик по постеру - ${it.name}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -58,9 +56,10 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         is UIState.Error -> {
-                            binding.textviewErrorMessage.text = uiState.message
                             setPostersViewsVisibility(uiState)
-                            Log.d("mytag", "результат error")
+                            val adapter = ImageAdapter(errorUrls = uiState.apiErrorUrlsList) {}
+                            binding.recyclerView.adapter = adapter
+                            Log.d("mytag", "Ошибка запроса, подставил заглушку")
                         }
 
                         is UIState.Loading -> {
@@ -72,41 +71,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initClickListeners() {
-        val buttonList = listOf(
-            binding.buttonMenu,
-            binding.buttonFavorites,
-            binding.buttonAfter,
-            binding.buttonCollections,
-            binding.buttonSettings
-        )
-
-        buttonList.forEach { b ->
-            b.setOnClickListener {
-                Toast.makeText(this, b.text, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.buttonPostersError.setOnClickListener {
-            viewModel.loadPosters()
-        }
+    private fun setClickListeners() {
+//        binding.buttonPostersError.setOnClickListener {
+//            viewModel.loadPosters()
+//        }
 
         binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Когда-нибудь здесь будет навигация...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT).show()
         }
 
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.fav -> {
-                    Toast.makeText(this, "Избранное", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.search -> {
+                R.id.button_search -> {
                     Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
                     true
                 }
-                R.id.more -> {
-                    Toast.makeText(this, "Еще", Toast.LENGTH_SHORT).show()
+                else -> false
+            }
+        }
+        binding.bottomNavigation.setOnItemSelectedListener {
+            when (it.itemId){
+                R.id.favorites -> {
+                    Toast.makeText(this, "Избранное", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.watch_later -> {
+                    Toast.makeText(this, "Посмотреть похже", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.selections -> {
+                    Toast.makeText(this, "Подборки", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
@@ -120,25 +114,24 @@ class MainActivity : AppCompatActivity() {
             is UIState.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerView.visibility = View.VISIBLE
-                binding.buttonPostersError.visibility = View.GONE
-                binding.textviewErrorMessage.visibility = View.GONE
+//                binding.buttonPostersError.visibility = View.GONE
+//                binding.textviewErrorMessage.visibility = View.GONE
             }
 
             is UIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
-                binding.recyclerView.visibility = View.GONE
-                binding.buttonPostersError.visibility = View.VISIBLE
-                binding.textviewErrorMessage.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.VISIBLE
+//                binding.buttonPostersError.visibility = View.VISIBLE
+//                binding.textviewErrorMessage.visibility = View.VISIBLE
             }
 
             UIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerView.visibility = View.GONE
-                binding.buttonPostersError.visibility = View.GONE
-                binding.textviewErrorMessage.visibility = View.GONE
+//                binding.buttonPostersError.visibility = View.GONE
+//                binding.textviewErrorMessage.visibility = View.GONE
             }
         }
-
     }
 }
 
