@@ -4,7 +4,6 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
-import ru.vodolatskii.movies.BuildConfig
 import ru.vodolatskii.movies.data.models.ResponsePostersDto
 
 interface KPsApiService {
