@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.data.repository.Repository
+import ru.vodolatskii.movies.presentation.utils.UIState
 
 
 class KPViewModel(
@@ -23,20 +24,18 @@ class KPViewModel(
 
     fun loadPosters() {
         val handler = CoroutineExceptionHandler { _, exception ->
-            Log.e("mytag", "Поймал $exception")
+            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
         }
 
         viewModelScope.launch(handler) {
             try {
                 _uiState.value =
                     UIState.Loading
-
                 repository.getMovieInfo()?.let {
                     _uiState.value =
                         UIState.Success(listDoc = it.docs)
-
                 } ?: let {
-                    _uiState.value = UIState.Error("Ошибка при загрузке постеров!")
+                    _uiState.value = UIState.Error("Сервер вернул пустой ответ!")
                 }
             } catch (e: Exception) {
                 _uiState.value = UIState.Error("Ошибка запроса - $e")

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/button_search"
+        android:icon="@drawable/baseline_search_24"
+        android:title="@string/title"
+        app:showAsAction="ifRoom" />
+
+<!--    <item-->
+<!--        android:id="@+id/button_settings"-->
+<!--        android:title="@string/settings_top_menu_item"-->
+<!--        android:contentDescription="settings"-->
+<!--        android:icon="@drawable/baseline_more_vert_24"-->
+<!--        app:showAsAction="withText|ifRoom" />-->
+</menu>
