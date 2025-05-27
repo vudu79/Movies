@@ -3,13 +3,17 @@ package ru.vodolatskii.movies.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
@@ -68,6 +72,30 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+
+    private fun imageAnimation(state: UIState.Success) {
+
+        state.listDoc.take(6).forEach {
+            val image = ImageView(this)
+            Glide.with(this)
+                .load(it.poster.url)
+                .override(200, 200)
+                .centerCrop()
+                .into(image)
+
+            val cardView = CardView(this).apply {
+                radius = 15f
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            cardView.addView(image)
+//            binding.imageContainer.addView(cardView)
+
         }
     }
 
