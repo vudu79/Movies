@@ -10,12 +10,11 @@ import com.bumptech.glide.Glide
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 
-class ImageAdapter(
+class PostersAdapter(
     private val docs: List<Doc> = emptyList(),
     private val errorUrls: List<String> = emptyList(),
-    private val onClick: (Doc) -> Unit
 ) :
-    RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+    RecyclerView.Adapter<PostersAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =
@@ -25,7 +24,7 @@ class ImageAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(
-                R.layout.recycle_view_item,
+                R.layout.recycle_view_posters_item,
                 parent,
                 false
             )
@@ -36,7 +35,6 @@ class ImageAdapter(
         if (docs.isNotEmpty()) {
             val doc = docs[position]
             val imageUrl = doc.poster.url
-            holder.imageView.setOnClickListener { onClick(doc) }
             try {
                 Glide.with(holder.itemView.context)
                     .load(imageUrl)

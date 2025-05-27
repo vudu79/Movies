@@ -2,23 +2,19 @@ package ru.vodolatskii.movies.presentation
 
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
-import ru.vodolatskii.movies.presentation.utils.ImageAdapter
+import ru.vodolatskii.movies.presentation.utils.ContentAdapter
+import ru.vodolatskii.movies.presentation.utils.PostersAdapter
 import ru.vodolatskii.movies.presentation.utils.UIState
 
 class MainActivity : AppCompatActivity() {
@@ -38,36 +34,41 @@ class MainActivity : AppCompatActivity() {
 
         setClickListeners()
 
-        setPostersViewsVisibility(UIState.Loading)
+//        setPostersViewsVisibility(UIState.Loading)
 
-        binding.recyclerView.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+//        binding.recyclerViewPosters.layoutManager =
+//            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        binding.recyclerViewContent.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
-                            setPostersViewsVisibility(uiState)
-                            val adapter = ImageAdapter(docs = uiState.listDoc.shuffled()) {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Клик по постеру - ${it.name}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+//                            setPostersViewsVisibility(uiState)
+
+//                            val postersAdapter = PostersAdapter(docs = uiState.listDoc.shuffled())
+//                            binding.recyclerViewPosters.adapter = postersAdapter
+
+                            val contentAdapter = ContentAdapter(docs = uiState.listDoc.shuffled()){
+                                Toast.makeText(this@MainActivity, it.name, Toast.LENGTH_SHORT).show()
+
                             }
-                            binding.recyclerView.adapter = adapter
+                            binding.recyclerViewContent.adapter = contentAdapter
                         }
 
                         is UIState.Error -> {
-                            setPostersViewsVisibility(uiState)
-                            val adapter = ImageAdapter(errorUrls = uiState.apiErrorUrlsList) {}
-                            binding.recyclerView.adapter = adapter
+//                            setPostersViewsVisibility(uiState)
+                            val adapter = PostersAdapter(errorUrls = uiState.apiErrorUrlsList)
+//                            binding.recyclerViewPosters.adapter = adapter
                             Log.d("mytag", "Ошибка запроса, подставил заглушку")
                         }
 
                         is UIState.Loading -> {
-                            setPostersViewsVisibility(uiState)
+//                            setPostersViewsVisibility(uiState)
                         }
                     }
                 }
@@ -76,28 +77,38 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun imageAnimation(state: UIState.Success) {
-
-        state.listDoc.take(6).forEach {
-            val image = ImageView(this)
-            Glide.with(this)
-                .load(it.poster.url)
-                .override(200, 200)
-                .centerCrop()
-                .into(image)
-
-            val cardView = CardView(this).apply {
-                radius = 15f
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-            }
-            cardView.addView(image)
+//    private fun imageAnimation(state: UIState.Success) {
+//
+//        state.listDoc.take(4).forEach {
+//            val image = ImageView(this).apply {
+//                layoutParams = FrameLayout.LayoutParams(
+//                    FrameLayout.LayoutParams.MATCH_PARENT,
+//                    FrameLayout.LayoutParams.MATCH_PARENT
+//                )
+//
+//            }
+//            Glide.with(this)
+//                .load(it.poster.url)
+//                .override(200, 200)
+//                .centerCrop()
+//                .into(image)
+//
+//            val cardView = CardView(this).apply {
+//                radius = 25f
+//                layoutParams = FrameLayout.LayoutParams(
+//                    FrameLayout.LayoutParams.WRAP_CONTENT,
+//                    FrameLayout.LayoutParams.WRAP_CONTENT
+//                )
+//                scaleX = 0f
+//                scaleY = 0f
+//            }
+//            cardView.addView(image)
+//
+//            binding.imageContainer.layoutTransition.setAnimator(LayoutTransition.APPEARING, AnimatorInflater.loadAnimator(this, R.animator.image_animatior))
 //            binding.imageContainer.addView(cardView)
-
-        }
-    }
+//
+//        }
+//    }
 
     private fun setClickListeners() {
 //        binding.buttonPostersError.setOnClickListener {
@@ -137,29 +148,29 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun setPostersViewsVisibility(state: UIState) {
-        when (state) {
-            is UIState.Success -> {
-                binding.progressCircular.visibility = View.GONE
-                binding.recyclerView.visibility = View.VISIBLE
-//                binding.buttonPostersError.visibility = View.GONE
-//                binding.textviewErrorMessage.visibility = View.GONE
-            }
-
-            is UIState.Error -> {
-                binding.progressCircular.visibility = View.GONE
-                binding.recyclerView.visibility = View.VISIBLE
-//                binding.buttonPostersError.visibility = View.VISIBLE
-//                binding.textviewErrorMessage.visibility = View.VISIBLE
-            }
-
-            UIState.Loading -> {
-                binding.progressCircular.visibility = View.VISIBLE
-                binding.recyclerView.visibility = View.GONE
-//                binding.buttonPostersError.visibility = View.GONE
-//                binding.textviewErrorMessage.visibility = View.GONE
-            }
-        }
-    }
+//    private fun setPostersViewsVisibility(state: UIState) {
+//        when (state) {
+//            is UIState.Success -> {
+//                binding.progressCircular.visibility = View.GONE
+//                binding.recyclerViewPosters.visibility = View.VISIBLE
+////                binding.buttonPostersError.visibility = View.GONE
+////                binding.textviewErrorMessage.visibility = View.GONE
+//            }
+//
+//            is UIState.Error -> {
+//                binding.progressCircular.visibility = View.GONE
+//                binding.recyclerViewPosters.visibility = View.VISIBLE
+////                binding.buttonPostersError.visibility = View.VISIBLE
+////                binding.textviewErrorMessage.visibility = View.VISIBLE
+//            }
+//
+//            UIState.Loading -> {
+//                binding.progressCircular.visibility = View.VISIBLE
+//                binding.recyclerViewPosters.visibility = View.GONE
+////                binding.buttonPostersError.visibility = View.GONE
+////                binding.textviewErrorMessage.visibility = View.GONE
+//            }
+//        }
+//    }
 }
 

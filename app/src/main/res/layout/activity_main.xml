@@ -51,82 +51,98 @@
 
 
     <!--    Posters    -->
-    <FrameLayout
-        android:id="@+id/posters_conteqner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topAppBarLayout">
+<!--    <FrameLayout-->
+<!--        android:id="@+id/posters_conteqner"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/topAppBarLayout">-->
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/posters"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="2dp"
-            android:layout_marginBottom="2dp"
-            android:background="@color/white"
-            app:cardCornerRadius="5dp"
-            app:cardElevation="10dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/recycle_view_item" />
-        </androidx.cardview.widget.CardView>
-
-        <ProgressBar
-            android:id="@+id/progress_circular"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:minWidth="40dp"
-            android:minHeight="40dp" />
-
-<!--        <LinearLayout-->
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/posters"-->
 <!--            android:layout_width="match_parent"-->
 <!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginHorizontal="2dp"-->
+<!--            android:layout_marginBottom="2dp"-->
+<!--            android:background="@color/white"-->
+<!--            app:cardCornerRadius="5dp"-->
+<!--            app:cardElevation="10dp">-->
+
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/recycler_view_posters"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                tools:listitem="@layout/recycle_view_posters_item" />-->
+<!--        </androidx.cardview.widget.CardView>-->
+
+<!--        <ProgressBar-->
+<!--            android:id="@+id/progress_circular"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
 <!--            android:layout_gravity="center"-->
-<!--            android:orientation="vertical">-->
+<!--            android:minWidth="40dp"-->
+<!--            android:minHeight="40dp" />-->
 
-<!--            <TextView-->
-<!--                android:id="@+id/textview_error_message"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:layout_margin="10dp"-->
-<!--                android:layout_weight="1"-->
-<!--                android:maxLines="3"-->
-<!--                android:textColor="@color/design_default_color_error"-->
-<!--                android:textSize="12sp" />-->
+<!--&lt;!&ndash;        <LinearLayout&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_gravity="center"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:orientation="vertical">&ndash;&gt;-->
 
-<!--            <Button-->
-<!--                android:id="@+id/button_posters_error"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:layout_weight="1"-->
-<!--                android:text="@string/button_repeat"-->
-<!--                android:textSize="12sp" />-->
-<!--        </LinearLayout>-->
+<!--&lt;!&ndash;            <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/textview_error_message"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_gravity="center"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_margin="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_weight="1"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:maxLines="3"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:textColor="@color/design_default_color_error"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:textSize="12sp" />&ndash;&gt;-->
 
-    </FrameLayout>
+<!--&lt;!&ndash;            <Button&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/button_posters_error"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_gravity="center"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_weight="1"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="@string/button_repeat"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:textSize="12sp" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </LinearLayout>&ndash;&gt;-->
+
+<!--    </FrameLayout>-->
 
 
     <!--    Disclaimer    -->
-    <TextView
-        android:id="@+id/contr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:autoLink="web"
-        android:gravity="center"
-        android:linksClickable="true"
-        android:text="@string/disclaimer"
-        app:layout_constraintEnd_toEndOf="@+id/posters_conteqner"
-        app:layout_constraintStart_toStartOf="@+id/posters_conteqner"
-        app:layout_constraintTop_toBottomOf="@+id/posters_conteqner" />
+<!--    <TextView-->
+<!--        android:id="@+id/contr"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:autoLink="web"-->
+<!--        android:gravity="center"-->
+<!--        android:linksClickable="true"-->
+<!--        android:text="@string/disclaimer"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/posters_conteqner" />-->
+
+
+<!--    recyclerView-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="5dp"
+        tools:listitem="@layout/recyclerview_content_item"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topAppBarLayout"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        />
+
 
     <!--    BottomAppBar    -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -141,6 +157,7 @@
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
