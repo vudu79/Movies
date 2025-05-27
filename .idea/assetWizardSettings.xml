@@ -28,8 +28,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="faf7f7" />
-                            <entry key="outputName" value="baseline_access_time_24" />
+                            <entry key="outputName" value="_63025_2" />
+                            <entry key="sourceFile" value="$USER_HOME$/Pictures/763025_2.svg" />
                           </map>
                         </option>
                       </PersistentState>

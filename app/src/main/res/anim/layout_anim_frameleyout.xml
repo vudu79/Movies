@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
-    android:animation="@anim/image_into_frame_anim"
+    android:animation="@anim/tv_set_anim"
 
     android:animationOrder="normal"
     android:delay="0.1"
