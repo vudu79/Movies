@@ -2,6 +2,7 @@ package ru.vodolatskii.movies.presentation
 
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -49,6 +50,11 @@ class MainActivity : AppCompatActivity() {
             adapter = contentAdapter
             val decorator = ContentRVItemDecoration(5)
             addItemDecoration(decorator)
+
+            val anim = AnimationUtils.loadLayoutAnimation(this@MainActivity, R.anim.content_rv_layout_anim)
+
+            layoutAnimation = anim
+            scheduleLayoutAnimation()
         }
 
 
