@@ -14,12 +14,15 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import java.util.Collections
 
-class ContentAdapter( private val clickListener: OnItemClickListener) :
+class ContentAdapter(
+    private val clickListener: OnItemClickListener
+) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
-        private val diffUtilsCallback : DiffUtil.ItemCallback<Doc> = object : DiffUtil.ItemCallback<Doc>(){
+    private val diffUtilsCallback: DiffUtil.ItemCallback<Doc> =
+        object : DiffUtil.ItemCallback<Doc>() {
             override fun areItemsTheSame(oldItem: Doc, newItem: Doc): Boolean {
-                return oldItem ===newItem
+                return oldItem === newItem
             }
 
             override fun areContentsTheSame(oldItem: Doc, newItem: Doc): Boolean {
@@ -27,9 +30,9 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
             }
         }
 
-    private val asyncListDiffer =  AsyncListDiffer(this, diffUtilsCallback)
+    private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
-    fun setData(docs: List<Doc>){
+    fun setData(docs: List<Doc>) {
         val list = docs.toMutableList()
         asyncListDiffer.submitList(list)
     }
@@ -58,6 +61,7 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
                 holder.title.text = asyncListDiffer.currentList[position].name
                 holder.description.text = asyncListDiffer.currentList[position].description
             }
+
             else -> {
 
             }
@@ -66,14 +70,14 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
 
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        val tempList : MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
+        val tempList: MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
         Collections.swap(tempList, fromPosition, toPosition)
         setData(tempList)
         return true
     }
 
     override fun onItemDismiss(position: Int) {
-        val tempList : MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
+        val tempList: MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
         tempList.removeAt(position)
         setData(tempList)
     }
@@ -85,6 +89,8 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
         val title: TextView = itemView.findViewById(R.id.title)
         val description: TextView = itemView.findViewById(R.id.description)
         val card: CardView = itemView.findViewById(R.id.card)
+
+
     }
 
     interface OnItemClickListener {
