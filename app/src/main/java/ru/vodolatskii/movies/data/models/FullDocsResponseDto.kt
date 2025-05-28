@@ -1,6 +1,6 @@
 package ru.vodolatskii.movies.data.models
 
-class ResponseDto (
+class FullDocsResponseDto (
     val docs: List<Docs>,
     val total: Long,
     val limit: Long,
