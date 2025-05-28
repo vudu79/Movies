@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils
+package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
+import java.util.Collections
 
 class ContentAdapter( private val clickListener: OnItemClickListener) :
-    RecyclerView.Adapter<ContentAdapter.ContentViewHolder>() {
+    RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
         private val diffUtilsCallback : DiffUtil.ItemCallback<Doc> = object : DiffUtil.ItemCallback<Doc>(){
             override fun areItemsTheSame(oldItem: Doc, newItem: Doc): Boolean {
@@ -29,7 +30,7 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
     private val asyncListDiffer =  AsyncListDiffer(this, diffUtilsCallback)
 
     fun setData(docs: List<Doc>){
-        val list = docs.toList()
+        val list = docs.toMutableList()
         asyncListDiffer.submitList(list)
     }
 
@@ -62,6 +63,21 @@ class ContentAdapter( private val clickListener: OnItemClickListener) :
             }
         }
     }
+
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        val tempList : MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
+        Collections.swap(tempList, fromPosition, toPosition)
+        setData(tempList)
+        return true
+    }
+
+    override fun onItemDismiss(position: Int) {
+        val tempList : MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
+        tempList.removeAt(position)
+        setData(tempList)
+    }
+
 
     class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =

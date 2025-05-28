@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils
+package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.res.Resources
 import android.graphics.Rect

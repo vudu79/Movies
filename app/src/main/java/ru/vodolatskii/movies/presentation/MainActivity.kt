@@ -9,15 +9,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
-import ru.vodolatskii.movies.presentation.utils.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
+import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         val root = binding.root
         setContentView(root)
@@ -39,37 +42,22 @@ class MainActivity : AppCompatActivity() {
 
         setPostersViewsVisibility(UIState.Loading)
 
-        binding.recyclerviewContent.apply {
-            contentAdapter = ContentAdapter(object : ContentAdapter.OnItemClickListener {
-                override fun click(doc: Doc) {
-                    TODO("Not yet implemented")
-                }
-            })
-            layoutManager =
-                LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
-            adapter = contentAdapter
-            val decorator = ContentRVItemDecoration(5)
-            addItemDecoration(decorator)
-
-            val anim = AnimationUtils.loadLayoutAnimation(this@MainActivity, R.anim.content_rv_layout_anim)
-
-            layoutAnimation = anim
-            scheduleLayoutAnimation()
-        }
-
+        initContentRecyclerView()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
+                            val mutableDocsList = uiState.listDoc.toMutableList().shuffled()
                             setPostersViewsVisibility(uiState)
-                            contentAdapter.setData(uiState.listDoc.shuffled())
+                            contentAdapter.setData(mutableDocsList)
                         }
 
                         is UIState.Error -> {
+                            val mutableDocsList = uiState.apiErrorUrlsList.toMutableList().shuffled()
                             setPostersViewsVisibility(uiState)
-                            contentAdapter.setData(uiState.apiErrorUrlsList.shuffled())
+                            contentAdapter.setData(mutableDocsList)
 
                         }
 
@@ -81,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun setClickListeners() {
 //        binding.buttonPostersError.setOnClickListener {
@@ -124,7 +111,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+private fun initContentRecyclerView(){
+    binding.recyclerviewContent.apply {
+        contentAdapter = ContentAdapter(object : ContentAdapter.OnItemClickListener {
+            override fun click(doc: Doc) {
+                TODO("Not yet implemented")
+            }
+        })
+        layoutManager =
+            LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+        adapter = contentAdapter
+        val decorator = ContentRVItemDecoration(5)
+        addItemDecoration(decorator)
 
+        val anim = AnimationUtils.loadLayoutAnimation(this@MainActivity, R.anim.content_rv_layout_anim)
+
+        layoutAnimation = anim
+        scheduleLayoutAnimation()
+
+        val callback = ContentItemTouchHelperCallback(contentAdapter)
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(this)
+    }
+}
 
     private fun setPostersViewsVisibility(state: UIState) {
         when (state) {
