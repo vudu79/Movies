@@ -37,6 +37,10 @@ class ContentAdapter(
         asyncListDiffer.submitList(list)
     }
 
+    fun getData(): List<Doc> {
+        return asyncListDiffer.currentList
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
         return ContentViewHolder(
             LayoutInflater.from(parent.context)
@@ -79,6 +83,12 @@ class ContentAdapter(
     override fun onItemDismiss(position: Int) {
         val tempList: MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
         tempList.removeAt(position)
+        setData(tempList)
+    }
+
+    override fun onItemAdd(doc: Doc, position: Int) {
+        val tempList: MutableList<Doc> = asyncListDiffer.currentList.toMutableList()
+        tempList.add(position, doc)
         setData(tempList)
     }
 

@@ -20,7 +20,6 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
-import ru.vodolatskii.movies.presentation.utils.contentRV.HorizontalSwipeListener
 
 class MainActivity : AppCompatActivity() {
 
@@ -131,7 +130,7 @@ private fun initContentRecyclerView(){
         layoutAnimation = anim
         scheduleLayoutAnimation()
 
-        val callback = ContentItemTouchHelperCallback(contentAdapter, this@MainActivity)
+        val callback = ContentItemTouchHelperCallback(contentAdapter, this)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(this)
     }
