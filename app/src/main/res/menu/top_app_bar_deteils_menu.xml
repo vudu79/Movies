@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/button_favorite_details"
+        android:icon="@drawable/baseline_favorite_border_24"
+        android:title=""
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/button_after_details"
+        android:icon="@drawable/baseline_access_time_24"
+        android:title=""
+        app:showAsAction="ifRoom" />
+</menu>

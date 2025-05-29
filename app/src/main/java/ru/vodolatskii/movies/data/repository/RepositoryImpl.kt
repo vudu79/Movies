@@ -5,7 +5,7 @@ import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.vodolatskii.movies.data.models.ResponsePostersDto
+import ru.vodolatskii.movies.data.models.ShortDocsResponseDto
 import java.util.concurrent.TimeUnit
 
 class RepositoryImpl() : Repository {
@@ -35,7 +35,7 @@ class RepositoryImpl() : Repository {
         retrofit.create(KPsApiService::class.java)
     }
 
-    override suspend fun getMovieInfo(): ResponsePostersDto? {
+    override suspend fun getMovieInfo(): ShortDocsResponseDto? {
         val response = service.getSearchResponse(
             1,
             50,

@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("kotlin-parcelize")
+
+
 
 }
 
@@ -40,6 +43,8 @@ android {
         buildConfig = true
         viewBinding = true
     }
+
+
 
 }
 
@@ -87,6 +92,8 @@ dependencies {
 
     implementation(libs.okhttp)
 
+    implementation (libs.coordinatorlayout)
+    implementation (libs.material)
 
 
 }

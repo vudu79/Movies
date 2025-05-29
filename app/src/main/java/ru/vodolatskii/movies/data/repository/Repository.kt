@@ -1,7 +1,7 @@
 package ru.vodolatskii.movies.data.repository
 
-import ru.vodolatskii.movies.data.models.ResponsePostersDto
+import ru.vodolatskii.movies.data.models.ShortDocsResponseDto
 
 interface Repository {
-    suspend fun getMovieInfo(): ResponsePostersDto?
+    suspend fun getMovieInfo(): ShortDocsResponseDto?
 }

@@ -1,8 +1,10 @@
 [versions]
 agp = "8.6.1"
+appcompatV7 = "27.1.1"
 compiler = "4.16.0"
 converterGson = "2.9.0"
 converterMoshi = "2.9.0"
+coordinatorlayoutVersion = "1.1.0"
 glide = "4.12.0"
 kotlin = "1.9.24"
 coreKtx = "1.1"
@@ -27,8 +29,10 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompatV7" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
+coordinatorlayout = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayoutVersion" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
