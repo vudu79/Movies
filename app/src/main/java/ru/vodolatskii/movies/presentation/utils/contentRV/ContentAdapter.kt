@@ -15,7 +15,7 @@ import ru.vodolatskii.movies.data.models.Doc
 import java.util.Collections
 
 class ContentAdapter(
-    private val clickListener: OnItemClickListener
+    private val clickListener: (Doc)->Unit
 ) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
@@ -56,16 +56,19 @@ class ContentAdapter(
 
         when (holder) {
             is ContentViewHolder -> {
-//                holder.card.setOnClickListener { onClick(asyncListDiffer.currentList[position]) }
+                val doc = asyncListDiffer.currentList[position]
                 Glide.with(holder.itemView.context)
-                    .load(asyncListDiffer.currentList[position].poster.url)
+                    .load(doc.poster.url)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
-                holder.title.text = asyncListDiffer.currentList[position].name
-                holder.description.text = asyncListDiffer.currentList[position].description
-            }
+                holder.title.text = doc.name
+                holder.description.text = doc.description
 
+                holder.card.setOnClickListener{
+                    clickListener(doc)
+                }
+            }
             else -> {
 
             }
@@ -92,7 +95,6 @@ class ContentAdapter(
         setData(tempList)
     }
 
-
     class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =
             itemView.findViewById(R.id.poster_image)
@@ -101,9 +103,5 @@ class ContentAdapter(
         val card: CardView = itemView.findViewById(R.id.card)
 
 
-    }
-
-    interface OnItemClickListener {
-        fun click(doc: Doc)
     }
 }

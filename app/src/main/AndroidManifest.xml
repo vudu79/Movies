@@ -16,8 +16,11 @@
         android:theme="@style/Base.Theme.Movies"
         tools:targetApi="31">
         <activity
-            android:name=".LaunchActivity"
-            android:exported="true" >
+            android:name=".presentation.DetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.LaunchActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,9 +29,7 @@
         </activity>
         <activity
             android:name=".presentation.MainActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -11,9 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.data.repository.RepositoryImpl
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
@@ -55,7 +56,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         is UIState.Error -> {
-                            val mutableDocsList = uiState.apiErrorUrlsList.toMutableList().shuffled()
+                            val mutableDocsList =
+                                uiState.apiErrorUrlsList.toMutableList().shuffled()
                             setPostersViewsVisibility(uiState)
                             contentAdapter.setData(mutableDocsList)
 
@@ -111,30 +113,41 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-private fun initContentRecyclerView(){
-    binding.recyclerviewContent.apply {
-        contentAdapter = ContentAdapter(object : ContentAdapter.OnItemClickListener {
-            override fun click(doc: Doc) {
-                TODO("Not yet implemented")
+
+    private fun initContentRecyclerView() {
+        binding.recyclerviewContent.apply {
+            contentAdapter = ContentAdapter {
+                val bundle = Bundle()
+                bundle.putParcelable("doc", it)
+                val intent = Intent(this@MainActivity, DetailsActivity::class.java)
+                intent.putExtras(bundle)
+                startActivity(intent)
             }
-        })
 
-        layoutManager =
-            LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
-        adapter = contentAdapter
-        val decorator = ContentRVItemDecoration(5)
-        addItemDecoration(decorator)
+            layoutManager =
+                LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            adapter = contentAdapter
+            val decorator = ContentRVItemDecoration(5)
+            addItemDecoration(decorator)
 
-        val anim = AnimationUtils.loadLayoutAnimation(this@MainActivity, R.anim.content_rv_layout_anim)
+            val anim =
+                AnimationUtils.loadLayoutAnimation(this@MainActivity, R.anim.content_rv_layout_anim)
 
-        layoutAnimation = anim
-        scheduleLayoutAnimation()
+            layoutAnimation = anim
+            scheduleLayoutAnimation()
 
-        val callback = ContentItemTouchHelperCallback(contentAdapter, this)
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(this)
+            val callback = ContentItemTouchHelperCallback(contentAdapter, this)
+            val itemTouchHelper = ItemTouchHelper(callback)
+            itemTouchHelper.attachToRecyclerView(this)
+
+            val pagerSnapHelper = PagerSnapHelper()
+            pagerSnapHelper.attachToRecyclerView(this)
+
+//        val linearSnapHelper = LinearSnapHelper()
+//        linearSnapHelper.attachToRecyclerView(this)
+
+        }
     }
-}
 
     private fun setPostersViewsVisibility(state: UIState) {
         when (state) {
