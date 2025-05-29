@@ -4,10 +4,14 @@
         <item name="android:textColorPrimary">@color/colorPrimary</item>
         <item name="actionMenuTextColor">@color/colorPrimary</item>
         <item name="android:textColorSecondary">@color/colorAccent</item>
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
+
     </style>
 
     <style name="FAB" parent="Widget.Design.FloatingActionButton">
         <item name="android:foreground">@drawable/fab_gradient</item>
+        <item name="android:background">@drawable/button_ripple</item>
+        <item name="shapeAppearance">@drawable/circle_fab_twin</item>
     </style>
 
 </resources>

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:titleTextColor">@color/white</item>
+    <style name="ToolBarExpStyle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">44sp</item>
+        <item name="android:textColor">#F8F8FB</item>
+    </style>
+
+
+    <style name="ToolBarCollStyle">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#F8F8FB</item>
     </style>
 </resources>
