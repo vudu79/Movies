@@ -28,9 +28,6 @@ class DetailsActivity : AppCompatActivity() {
 
         val doc = intent.extras?.get("doc") as Doc
 
-        binding.detailsToolbar.setTitleTextColor(Color.WHITE)
-        setSupportActionBar( binding.detailsToolbar)
-
         binding.detailsToolbar.title = doc.name
         Glide.with(this)
             .load(doc.poster.url)
