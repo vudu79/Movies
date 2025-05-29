@@ -37,7 +37,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:fitsSystemWindows="false"
                 android:theme="@style/MoviesAppTheme"
-                app:layout_collapseMode="pin"
+                app:layout_collapseMode="parallax"
                 app:menu="@menu/top_app_bar_deteils_menu"
                 app:popupTheme="@style/Theme.AppCompat.NoActionBar" />
 

@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.animation.AnimationUtils
@@ -10,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
 
+@SuppressLint("CustomSplashScreen")
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding
 
