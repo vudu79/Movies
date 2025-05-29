@@ -1,12 +1,13 @@
 package ru.vodolatskii.movies.presentation
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.databinding.ActivityDetailsBinding
+
 
 class DetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailsBinding
@@ -27,8 +28,10 @@ class DetailsActivity : AppCompatActivity() {
 
         val doc = intent.extras?.get("doc") as Doc
 
+        binding.detailsToolbar.setTitleTextColor(Color.WHITE)
+        setSupportActionBar( binding.detailsToolbar)
+
         binding.detailsToolbar.title = doc.name
-        binding.detailsToolbar.setTitleTextColor(R.color.white)
         Glide.with(this)
             .load(doc.poster.url)
             .centerCrop()

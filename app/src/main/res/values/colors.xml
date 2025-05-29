@@ -10,4 +10,11 @@
     <color name="background_alfa">#00E7E2EF</color>
     <color name="gradient_start">#ED8A6B</color>
     <color name="gradient_end">#7B3CEF</color>
+
+    <color name="colorPrimary">#7B3CEF</color>
+    <color name="colorPrimaryDark">#7B3CEF</color>
+    <color name="colorAccent">#7B3CEF</color>
+
+
+
 </resources>

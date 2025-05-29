@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list android:shape="oval"
+<layer-list android:shape="rectangle"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape android:shape="oval">
+        <shape
+            android:layout_width="match_parent"
+            android:shape="rectangle">
             <gradient
-                android:startColor="@color/gradient_start"
-                android:endColor="@color/gradient_end"
-                android:type="linear"
                 android:angle="180"
-                android:gradientRadius="150%p" />
+                android:endColor="@color/gradient_end"
+                android:gradientRadius="150%p"
+                android:startColor="@color/gradient_start"
+                android:type="linear" />
         </shape>
     </item>
     <item

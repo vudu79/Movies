@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Base.Theme.Movies"
+        android:theme="@style/AppTheme.Base"
         tools:targetApi="31">
         <activity
             android:name=".presentation.DetailsActivity"
@@ -29,7 +29,7 @@
         </activity>
         <activity
             android:name=".presentation.MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>
