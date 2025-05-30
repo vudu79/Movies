@@ -26,8 +26,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        navController = Navigation.findNavController(this, R.id.host_fragment)
-
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragment_container, HomeFragment())
@@ -47,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     fun launchDetailsFragment(doc: Doc) {
         val bundle = Bundle()
         bundle.putParcelable("doc", doc)
+
         val fragment = DetailsFragment()
         fragment.arguments = bundle
         supportFragmentManager
