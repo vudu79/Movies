@@ -3,13 +3,13 @@
     <style name="ToolBarExpStyle">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">28sp</item>
-        <item name="android:textColor">#F8F8FB</item>
+        <item name="android:textColor">#F5F5FA</item>
     </style>
 
 
     <style name="ToolBarCollStyle">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#F8F8FB</item>
+        <item name="android:textColor">#F1F1F4</item>
     </style>
 </resources>

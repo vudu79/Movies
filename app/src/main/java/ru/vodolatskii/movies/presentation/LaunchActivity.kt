@@ -11,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
 
-@SuppressLint("CustomSplashScreen")
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding
 
@@ -41,6 +40,7 @@ class LaunchActivity : AppCompatActivity() {
                 .withEndAction {
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
+                    finish()
                 }
         }
     }
