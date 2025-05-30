@@ -31,6 +31,16 @@
         app:layout_constraintTop_toBottomOf="@+id/topAppBarLayout"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"/>
 
+
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/navigation" />
+
     <!--    BottomAppBar    -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

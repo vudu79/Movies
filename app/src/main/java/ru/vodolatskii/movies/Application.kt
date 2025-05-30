@@ -2,9 +2,7 @@ package ru.vodolatskii.movies
 
 import android.app.Application
 import android.content.res.Configuration
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import timber.log.Timber
 
 class App : Application() {
