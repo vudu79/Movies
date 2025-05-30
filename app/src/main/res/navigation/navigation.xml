@@ -15,7 +15,7 @@
         android:label="DetailsFragment" />
     <fragment
         android:id="@+id/favoriteFragment"
-        android:name="ru.vodolatskii.movies.FavoriteFragment"
+        android:name="ru.vodolatskii.movies.presentation.fragments.FavoriteFragment"
         android:label="fragment_favorite"
         tools:layout="@layout/fragment_favorite" />
 </navigation>
