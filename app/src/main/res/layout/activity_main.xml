@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".presentation.MainActivity">
 
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topAppBarLayout"
         android:layout_width="match_parent"
@@ -23,6 +24,14 @@
             app:title="@string/title"
             app:titleTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
+
+    <fragment
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/navigation" />
 
     <FrameLayout
         android:id="@+id/fragment_container"

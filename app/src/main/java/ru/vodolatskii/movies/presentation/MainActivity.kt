@@ -13,7 +13,6 @@ import androidx.navigation.Navigation
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
-import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
 
         supportFragmentManager
             .beginTransaction()
@@ -40,21 +41,21 @@ class MainActivity : AppCompatActivity() {
 
         setClickListeners()
 
-
-
     }
 
     fun launchDetailsFragment(doc: Doc) {
         val bundle = Bundle()
         bundle.putParcelable("doc", doc)
 
-        val fragment = DetailsFragment()
-        fragment.arguments = bundle
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        navController.navigate(R.id.detailsFragment, bundle)
+
+//        val fragment = DetailsFragment()
+//        fragment.arguments = bundle
+//        supportFragmentManager
+//            .beginTransaction()
+//            .replace(R.id.fragment_container, fragment)
+//            .addToBackStack(null)
+//            .commit()
     }
 
     private fun setClickListeners() {
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.favorites -> {
-                    Toast.makeText(this, "Избранное", Toast.LENGTH_SHORT).show()
+                    navController.navigate(R.id.favoriteFragment)
                     true
                 }
 
@@ -127,7 +128,8 @@ class MainActivity : AppCompatActivity() {
 
             val network = connectivityManager.activeNetwork ?: return InternetType.NONE
 
-            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return InternetType.NONE
+            val activeNetwork =
+                connectivityManager.getNetworkCapabilities(network) ?: return InternetType.NONE
 
             return when {
                 activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> InternetType.WIFI
