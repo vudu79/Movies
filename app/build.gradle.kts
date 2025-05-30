@@ -3,10 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
-
-
-
 }
+
+
 
 android {
     namespace = "ru.vodolatskii.movies"
@@ -43,9 +42,6 @@ android {
         buildConfig = true
         viewBinding = true
     }
-
-
-
 }
 
 secrets {
@@ -94,6 +90,11 @@ dependencies {
 
     implementation (libs.coordinatorlayout)
     implementation (libs.material)
+    implementation (libs.timberkt)
 
+    implementation (libs.timber)
+
+    implementation (libs.androidx.navigation.fragment.ktx)
+    implementation (libs.androidx.navigation.ui.ktx)
 
 }
