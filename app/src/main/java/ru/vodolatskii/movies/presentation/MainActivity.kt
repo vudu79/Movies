@@ -1,5 +1,9 @@
 package ru.vodolatskii.movies.presentation
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -26,7 +30,9 @@ class MainActivity : AppCompatActivity() {
             .commit()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
         val root = binding.root
+
         setContentView(root)
 
         setClickListeners()
@@ -90,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
 
         val count = supportFragmentManager.getBackStackEntryCount()
-        if (count <=1) {
+        if (count <= 1) {
 
             AlertDialog.Builder(this)
                 .setTitle("Вы хотите выйти?")
@@ -101,9 +107,37 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
 
-        } else{
+        } else {
             super.onBackPressed()
         }
     }
+
+    private fun checkForInternet(context: Context): InternetType {
+
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            val network = connectivityManager.activeNetwork ?: return InternetType.NONE
+
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return InternetType.NONE
+
+            return when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> InternetType.WIFI
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> InternetType.MOBILE
+                else -> InternetType.NONE // xaxaxaxa
+            }
+        } else {
+            @Suppress("DEPRECATION") val networkInfo =
+                connectivityManager.activeNetworkInfo ?: return InternetType.NONE
+            @Suppress("DEPRECATION")
+            return InternetType.MOBILE //  xaxaxaxa
+        }
+    }
+}
+
+private enum class InternetType {
+    WIFI, MOBILE, NONE
 }
 
