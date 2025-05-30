@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
 
         setClickListeners()
 
+
+
     }
 
     fun launchDetailsFragment(doc: Doc) {
