@@ -4,7 +4,7 @@
     <item
         android:id="@+id/homeFragment"
         android:icon="@drawable/baseline_access_time_24"
-        android:title="@string/watch_later_nav_button"
+        android:title="@string/home"
         app:showAsAction="withText" />
     <item
         android:id="@+id/favoriteFragment"

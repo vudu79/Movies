@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import ru.vodolatskii.movies.R
@@ -36,13 +35,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-//        supportFragmentManager
-//            .beginTransaction()
-//            .add(R.id.fragment_container, HomeFragment())
-//            .addToBackStack(null)
-//            .commit()
-
-
         setClickListeners()
     }
 
@@ -50,14 +42,7 @@ class MainActivity : AppCompatActivity() {
         val bundle = Bundle()
         bundle.putParcelable("doc", doc)
 
-
-//        val fragment = DetailsFragment()
-//        fragment.arguments = bundle
-//        supportFragmentManager
-//            .beginTransaction()
-//            .replace(R.id.fragment_container, fragment)
-//            .addToBackStack(null)
-//            .commit()
+        navController.navigate(R.id.detailsFragment, bundle)
     }
 
     private fun setClickListeners() {

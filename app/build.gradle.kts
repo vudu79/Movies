@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
+    alias(libs.plugins.ksp)
 }
 
 
@@ -19,6 +20,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -88,13 +90,21 @@ dependencies {
 
     implementation(libs.okhttp)
 
-    implementation (libs.coordinatorlayout)
-    implementation (libs.material)
-    implementation (libs.timberkt)
+    implementation(libs.coordinatorlayout)
+    implementation(libs.material)
+    implementation(libs.timberkt)
 
-    implementation (libs.timber)
+    implementation(libs.timber)
 
-    implementation (libs.androidx.navigation.fragment.ktx)
-    implementation (libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    implementation(libs.symbol.processing.api)
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+
 
 }

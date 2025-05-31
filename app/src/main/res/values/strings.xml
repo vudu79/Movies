@@ -11,7 +11,7 @@
     <string name="settings_top_menu_item">Настройки</string>
     <string name="search_top_menu_item">Поиск</string>
     <string name="favorite_nav_button">Избранное</string>
-    <string name="watch_later_nav_button">Посмотреть позже</string>
+    <string name="home">Главная</string>
     <string name="selections_nav_button">Подборки</string>
     <string name="search_title">Найти</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -134,12 +134,18 @@ class DetailsFragment : Fragment() {
         }
 
         binding.detailsFab.setOnClickListener {
-            val sendIntent = Intent()
-            sendIntent.setAction(Intent.ACTION_SEND)
-            sendIntent.putExtra(Intent.EXTRA_TEXT, doc.name)
-            sendIntent.putExtra(Intent.EXTRA_TEXT, doc.poster.url)
-            sendIntent.setType("text/plain")
-            startActivity(Intent.createChooser(sendIntent, "Поделиться"))
+            val intent = Intent()
+            intent.action = Intent.ACTION_SEND
+            intent.putExtra(
+                Intent.EXTRA_TEXT,
+                "Check out this film: ${doc.name} \n\n ${doc.description}"
+            )
+            intent.putExtra(
+                Intent.EXTRA_TEXT,
+                "Check out this film: ${doc.poster.url}"
+            )
+            intent.type = "text/plain"
+            startActivity(Intent.createChooser(intent, "Share To:"))
         }
     }
 }
