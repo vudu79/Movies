@@ -9,11 +9,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
-import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
-import ru.vodolatskii.movies.presentation.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,13 +29,16 @@ class MainActivity : AppCompatActivity() {
 
         val root = binding.root
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment_container, HomeFragment())
-            .addToBackStack(null)
-            .commit()
-
         setContentView(root)
+
+        navController = findNavController(R.id.my_nav_host_fragment)
+
+//        supportFragmentManager
+//            .beginTransaction()
+//            .add(R.id.fragment_container, HomeFragment())
+//            .addToBackStack(null)
+//            .commit()
+
 
         setClickListeners()
     }
@@ -45,13 +48,13 @@ class MainActivity : AppCompatActivity() {
         bundle.putParcelable("doc", doc)
 
 
-        val fragment = DetailsFragment()
-        fragment.arguments = bundle
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
+//        val fragment = DetailsFragment()
+//        fragment.arguments = bundle
+//        supportFragmentManager
+//            .beginTransaction()
+//            .replace(R.id.fragment_container, fragment)
+//            .addToBackStack(null)
+//            .commit()
     }
 
     private fun setClickListeners() {
