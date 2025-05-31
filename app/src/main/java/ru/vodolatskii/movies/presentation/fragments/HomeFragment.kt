@@ -117,7 +117,7 @@ class HomeFragment : Fragment() {
             layoutAnimation = anim
             scheduleLayoutAnimation()
 
-            val callback = ContentItemTouchHelperCallback(contentAdapter, this)
+            val callback = ContentItemTouchHelperCallback(this)
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 

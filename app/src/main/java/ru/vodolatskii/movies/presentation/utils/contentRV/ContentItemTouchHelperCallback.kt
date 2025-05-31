@@ -15,10 +15,9 @@ import com.google.android.material.snackbar.Snackbar
 
 
 class ContentItemTouchHelperCallback(
-    private var adapter: ContentAdapter,
     private val recyclerView: RecyclerView,
 ) : ItemTouchHelper.Callback() {
-
+    private val adapter = recyclerView.adapter as ContentAdapter
     private val background = ColorDrawable()
     private val backgroundColorDelete = Color.parseColor("#f44336")
     private val backgroundColorToFavorite = Color.parseColor("#2196F3")
@@ -51,7 +50,6 @@ class ContentItemTouchHelperCallback(
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        Log.d("mytag", "направление -  $direction")
         when (direction) {
             16 -> {
                 val position = viewHolder.adapterPosition
@@ -79,11 +77,6 @@ class ContentItemTouchHelperCallback(
                         View.OnClickListener {
                             adapter.onItemAdd(favoriteDoc, position)
                         })
-//                    .setAction(
-//                        "Оставить",
-//                        View.OnClickListener {
-//
-//                        })
                     .show()
             }
         }
@@ -114,7 +107,7 @@ class ContentItemTouchHelperCallback(
             return
         }
 
-        if (dX < 0) { // Swiping to the left (delete)
+        if (dX < 0) {
             background.color = backgroundColorDelete
             background.setBounds(
                 itemView.right + dX.toInt(),

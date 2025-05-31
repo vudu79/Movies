@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     fun launchDetailsFragment(doc: Doc) {
         val bundle = Bundle()
         bundle.putParcelable("doc", doc)
-
         navController.navigate(R.id.detailsFragment, bundle)
     }
 
