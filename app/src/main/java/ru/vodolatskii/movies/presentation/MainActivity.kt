@@ -9,10 +9,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
+import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
@@ -25,7 +25,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+
+        val root = binding.root
 
         supportFragmentManager
             .beginTransaction()
@@ -33,29 +35,23 @@ class MainActivity : AppCompatActivity() {
             .addToBackStack(null)
             .commit()
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-
-        val root = binding.root
-
         setContentView(root)
 
         setClickListeners()
-
     }
 
     fun launchDetailsFragment(doc: Doc) {
         val bundle = Bundle()
         bundle.putParcelable("doc", doc)
 
-        navController.navigate(R.id.detailsFragment, bundle)
 
-//        val fragment = DetailsFragment()
-//        fragment.arguments = bundle
-//        supportFragmentManager
-//            .beginTransaction()
-//            .replace(R.id.fragment_container, fragment)
-//            .addToBackStack(null)
-//            .commit()
+        val fragment = DetailsFragment()
+        fragment.arguments = bundle
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun setClickListeners() {
@@ -81,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.favorites -> {
-                    navController.navigate(R.id.favoriteFragment)
+//                    navController.navigate(navigateR.id.favoriteFragment)
                     true
                 }
 
