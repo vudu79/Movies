@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.models.Doc
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
@@ -32,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(root)
 
         navController = findNavController(R.id.my_nav_host_fragment)
+
+        binding.bottomNavigation.setupWithNavController(navController)
 
 //        supportFragmentManager
 //            .beginTransaction()
@@ -77,26 +80,26 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.favorites -> {
-//                    navController.navigate(navigateR.id.favoriteFragment)
-                    true
-                }
-
-                R.id.watch_later -> {
-                    Toast.makeText(this, "Посмотреть похже", Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                R.id.selections -> {
-                    Toast.makeText(this, "Подборки", Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                else -> false
-            }
-        }
+//        binding.bottomNavigation.setOnItemSelectedListener {
+//            when (it.itemId) {
+//                R.id.favorites -> {
+////                    navController.navigate(navigateR.id.favoriteFragment)
+//                    true
+//                }
+//
+//                R.id.watch_later -> {
+//                    Toast.makeText(this, "Посмотреть похже", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//
+//                R.id.selections -> {
+//                    Toast.makeText(this, "Подборки", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//
+//                else -> false
+//            }
+//        }
     }
 
     override fun onBackPressed() {
