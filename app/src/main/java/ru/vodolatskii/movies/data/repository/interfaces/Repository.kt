@@ -1,13 +1,12 @@
 package ru.vodolatskii.movies.data.repository.interfaces
 
-import ru.vodolatskii.movies.data.dto.Doc
 import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
-import ru.vodolatskii.movies.data.entity.FavoriteDocs
+import ru.vodolatskii.movies.data.entity.Movie
 
 interface Repository {
     suspend fun getMovieInfo(): ShortDocsResponseDto?
 
-    suspend fun insertDocIntoDB(doc: FavoriteDocs)
+    suspend fun insertDocIntoDB(doc: Movie)
 
-    suspend fun getAllDocsFromDB(): List<FavoriteDocs>
+    suspend fun getAllDocsFromDB(): List<Movie>
 }

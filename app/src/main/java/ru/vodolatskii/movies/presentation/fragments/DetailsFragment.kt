@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.dto.Doc
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentDetailsBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MoviesViewModel
@@ -27,12 +27,12 @@ class DetailsFragment : Fragment() {
     private lateinit var binding: FragmentDetailsBinding
     lateinit var viewModel: MoviesViewModel
 
-    private lateinit var doc: Doc
+    private lateinit var movie: Movie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        doc = arguments?.get("doc") as Doc
+        movie = arguments?.get("movie") as Movie
     }
 
     override fun onCreateView(
@@ -48,26 +48,27 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initContent(doc)
+        initContent(movie)
 
-        setListeners(doc)
+        setListeners(movie)
 
-        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility = View.GONE
+        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
+            View.GONE
     }
 
-    private fun initContent(doc: Doc) {
-        binding.detailsToolbar.title = doc.name
+    private fun initContent(movie: Movie) {
+        binding.detailsToolbar.title = movie.name
         Glide.with(this)
-            .load(doc.poster.url)
+            .load(movie.posterUrl)
             .centerCrop()
             .into(binding.detailsPoster)
-        binding.detailsDescription.text = setTitleStyle(doc)
+        binding.detailsDescription.text = setTitleStyle(movie)
     }
 
 
-    private fun setTitleStyle(doc: Doc): SpannableStringBuilder {
-        val title = doc.name
-        val description = "\n\n" + doc.description
+    private fun setTitleStyle(movie: Movie): SpannableStringBuilder {
+        val title = movie.name
+        val description = "\n\n" + movie.description
 
         val boldStrUnderlineSpannable = SpannableStringBuilder(title)
 
@@ -89,9 +90,9 @@ class DetailsFragment : Fragment() {
         return boldStrUnderlineSpannable
     }
 
-    private fun setListeners(doc: Doc) {
+    private fun setListeners(movie: Movie) {
         binding.appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val title = doc.name
+            val title = movie.name
             if (verticalOffset == 0) {
                 binding.toolbarLayout.title = ""
                 (activity as MainActivity).window.decorView.systemUiVisibility =
@@ -111,26 +112,26 @@ class DetailsFragment : Fragment() {
                 R.id.button_after_details -> {
                     Snackbar.make(
                         binding.detailsDescription,
-                        "Оложен ${doc.name} ",
+                        "Оложен ${movie.name} ",
                         Snackbar.LENGTH_INDEFINITE
                     )
                         .setAction(
-                            "Убрать",
-                            View.OnClickListener {
-                            })
+                            "Убрать"
+                        ) {
+                        }
                         .show()
                 }
 
                 R.id.button_favorite_details -> {
                     Snackbar.make(
                         binding.detailsDescription,
-                        "В избранном ${doc.name} ",
+                        "В избранном ${movie.name} ",
                         Snackbar.LENGTH_INDEFINITE
                     )
                         .setAction(
-                            "Убрать",
-                            View.OnClickListener {
-                            })
+                            "Убрать"
+                        ) {
+                        }
                         .show()
                 }
             }
@@ -142,11 +143,11 @@ class DetailsFragment : Fragment() {
             intent.action = Intent.ACTION_SEND
             intent.putExtra(
                 Intent.EXTRA_TEXT,
-                "Check out this film: ${doc.name} \n\n ${doc.description}"
+                "Check out this film: ${movie.name} \n\n ${movie.description}"
             )
             intent.putExtra(
                 Intent.EXTRA_TEXT,
-                "Check out this film: ${doc.poster.url}"
+                "Check out this film: ${movie.posterUrl}"
             )
             intent.type = "text/plain"
             startActivity(Intent.createChooser(intent, "Share To:"))

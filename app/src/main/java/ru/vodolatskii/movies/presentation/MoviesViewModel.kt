@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.repository.interfaces.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
 
@@ -33,7 +34,7 @@ class MoviesViewModel(
                     UIState.Loading
                 repository.getMovieInfo()?.let {
                     _uiState.value =
-                        UIState.Success(listDoc = it.docs)
+                        UIState.Success( it.toMovieList())
                 } ?: let {
                     _uiState.value = UIState.Error("Сервер вернул пустой ответ!")
                 }

@@ -4,15 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ru.vodolatskii.movies.data.dto.Doc
-import ru.vodolatskii.movies.data.entity.FavoriteDocs
-import ru.vodolatskii.movies.data.repository.interfaces.DocsDao
+import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.repository.interfaces.MovieDao
 
 
-@Database(entities = [FavoriteDocs::class], version = 1)
+@Database(entities = [Movie::class], version = 2)
 abstract class RoomDB : RoomDatabase() {
 
-    abstract fun docsDao(): DocsDao
+    abstract fun movieDao(): MovieDao
 
     companion object {
         @Volatile
@@ -23,7 +22,7 @@ abstract class RoomDB : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     RoomDB::class.java,
-                    "docs_database"
+                    "movie_database"
                 ).build()
                 INSTANCE = instance
                 instance

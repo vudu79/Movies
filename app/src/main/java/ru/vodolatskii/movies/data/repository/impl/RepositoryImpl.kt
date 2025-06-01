@@ -6,18 +6,16 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.RoomDB
-import ru.vodolatskii.movies.data.dto.Doc
 import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
-import ru.vodolatskii.movies.data.entity.FavoriteDocs
-import ru.vodolatskii.movies.data.repository.interfaces.DocsDao
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.interfaces.KPsApiService
+import ru.vodolatskii.movies.data.repository.interfaces.MovieDao
 import ru.vodolatskii.movies.data.repository.interfaces.Repository
 import java.util.concurrent.TimeUnit
 
 class RepositoryImpl() : Repository {
 
-    private val docsDao: DocsDao = App.instance.db.docsDao()
+    private val docsDao: MovieDao = App.instance.db.movieDao()
 
     private val BASE_URL =
         "https://api.kinopoisk.dev/v1.4/movie/"
@@ -57,12 +55,12 @@ class RepositoryImpl() : Repository {
         }
     }
 
-    override suspend fun insertDocIntoDB(doc: FavoriteDocs) {
+    override suspend fun insertDocIntoDB(doc: Movie) {
         docsDao.insert(doc)
     }
 
-    override suspend fun getAllDocsFromDB(): List<FavoriteDocs> {
-        return docsDao.getAllDocs()
+    override suspend fun getAllDocsFromDB(): List<Movie> {
+        return docsDao.getAllMovie()
     }
 }
 

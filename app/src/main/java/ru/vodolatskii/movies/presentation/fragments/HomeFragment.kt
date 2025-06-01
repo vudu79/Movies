@@ -8,7 +8,6 @@ import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -16,12 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.repository.impl.RepositoryImpl
-import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.MyViewModelFactory
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
@@ -61,7 +57,6 @@ class HomeFragment : Fragment() {
 
         setupObservers()
 
-        setPostersViewsVisibility(UIState.Loading)
     }
 
     private fun setupObservers() {
@@ -70,16 +65,16 @@ class HomeFragment : Fragment() {
                 (activity as MainActivity).viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
-                            val mutableDocsList = uiState.listDoc.toMutableList().shuffled()
+                            val mutableMoviesList = uiState.listMovie.toMutableList().shuffled()
                             setPostersViewsVisibility(uiState)
-                            contentAdapter.setData(mutableDocsList)
+                            contentAdapter.setData(mutableMoviesList)
                         }
 
                         is UIState.Error -> {
-                            val mutableDocsList =
-                                uiState.apiErrorUrlsList.toMutableList().shuffled()
+//                            val mutableDocsList =
+//                                uiState.apiErrorUrlsList.toMutableList().shuffled()
                             setPostersViewsVisibility(uiState)
-                            contentAdapter.setData(mutableDocsList)
+//                            contentAdapter.setData(mutableDocsList)
 
                         }
 

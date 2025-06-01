@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.dto.Doc
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity() {
         return viewModel
     }
 
-    fun launchDetailsFragment(doc: Doc) {
+    fun launchDetailsFragment(movie: Movie) {
         val bundle = Bundle()
-        bundle.putParcelable("doc", doc)
+        bundle.putParcelable("movie", movie)
         navController.navigate(R.id.detailsFragment, bundle)
     }
 
