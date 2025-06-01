@@ -1,7 +1,7 @@
 package ru.vodolatskii.movies.presentation.utils
 
-import ru.vodolatskii.movies.data.models.Doc
-import ru.vodolatskii.movies.data.models.Poster
+import ru.vodolatskii.movies.data.dto.Doc
+import ru.vodolatskii.movies.data.dto.Poster
 
 
 sealed class UIState() {

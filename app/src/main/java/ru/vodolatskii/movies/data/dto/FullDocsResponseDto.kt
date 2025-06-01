@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.models
+package ru.vodolatskii.movies.data.dto
 
 class FullDocsResponseDto (
     val docs: List<Docs>,

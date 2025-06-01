@@ -8,32 +8,34 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.models.Doc
+import ru.vodolatskii.movies.data.dto.Doc
+import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    lateinit var navController: NavController
-
-    fun getBinding() = binding
+    private lateinit var  binding : ActivityMainBinding
+    lateinit var viewModel: MoviesViewModel
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setupViewModel()
+
         binding = ActivityMainBinding.inflate(layoutInflater)
-
-        val root = binding.root
-
-        setContentView(root)
+        val view = binding.root
+        setContentView(view)
 
         navController = findNavController(R.id.my_nav_host_fragment)
 
         binding.bottomNavigation.setupWithNavController(navController)
+
 
         setClickListeners()
     }
@@ -128,6 +130,11 @@ class MainActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             return InternetType.MOBILE //  xaxaxaxa
         }
+    }
+
+    private fun setupViewModel() {
+        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
+        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
     }
 }
 

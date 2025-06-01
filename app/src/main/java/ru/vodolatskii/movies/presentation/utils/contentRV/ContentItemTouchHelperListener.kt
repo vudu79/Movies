@@ -1,6 +1,6 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
-import ru.vodolatskii.movies.data.models.Doc
+import ru.vodolatskii.movies.data.dto.Doc
 
 interface ContentItemTouchHelperListener {
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -15,9 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.repository.RepositoryImpl
+import ru.vodolatskii.movies.data.repository.impl.RepositoryImpl
+import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
-import ru.vodolatskii.movies.presentation.KPViewModel
+import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MyViewModelFactory
 import ru.vodolatskii.movies.presentation.utils.UIState
@@ -30,24 +32,12 @@ private const val ARG_PARAM2 = "param2"
 
 class HomeFragment : Fragment() {
 
-    private var param1: String? = null
-    private var param2: String? = null
-
     private lateinit var binding: FragmentHomeBinding
     private lateinit var contentAdapter: ContentAdapter
-
-    val viewModel: KPViewModel by lazy {
-        val factory = MyViewModelFactory(RepositoryImpl())
-        ViewModelProvider(this, factory).get(KPViewModel::class.java)
-    }
-
+    private val viewModel: MoviesViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -59,22 +49,25 @@ class HomeFragment : Fragment() {
             container,
             false
         )
-        // Inflate the layout for this fragment
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-            viewModel.loadPosters()
 
-        setPostersViewsVisibility(UIState.Loading)
+       viewModel.loadRandomPosters()
 
         initContentRecyclerView()
 
+        setupObservers()
+
+        setPostersViewsVisibility(UIState.Loading)
+    }
+
+    private fun setupObservers() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
+                (activity as MainActivity).viewModel.uiState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
                             val mutableDocsList = uiState.listDoc.toMutableList().shuffled()
@@ -154,6 +147,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
     companion object {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =

@@ -7,11 +7,11 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.vodolatskii.movies.data.repository.Repository
+import ru.vodolatskii.movies.data.repository.interfaces.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
 
 
-class KPViewModel(
+class MoviesViewModel(
     private val repository: Repository,
 ) : ViewModel() {
 
@@ -19,10 +19,10 @@ class KPViewModel(
     val uiState: StateFlow<UIState> = _uiState
 
     init {
-        loadPosters()
+        loadRandomPosters()
     }
 
-    fun loadPosters() {
+    fun loadRandomPosters() {
         val handler = CoroutineExceptionHandler { _, exception ->
             Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
         }

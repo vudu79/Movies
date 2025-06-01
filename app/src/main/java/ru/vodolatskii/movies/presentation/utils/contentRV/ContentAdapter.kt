@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.models.Doc
+import ru.vodolatskii.movies.data.dto.Doc
 import java.util.Collections
 
 class ContentAdapter(

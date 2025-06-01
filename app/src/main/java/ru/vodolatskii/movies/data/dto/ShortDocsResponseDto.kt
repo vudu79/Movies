@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.models
+package ru.vodolatskii.movies.data.dto
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
