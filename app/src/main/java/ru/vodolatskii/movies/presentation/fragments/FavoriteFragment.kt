@@ -6,12 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.MoviesViewModel
+import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
@@ -20,6 +26,8 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoratio
 class FavoriteFragment : Fragment() {
     private lateinit var binding: FragmentFavoriteBinding
     private lateinit var contentAdapter: ContentAdapter
+    private lateinit var viewModel: MoviesViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +37,7 @@ class FavoriteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         initFavoriteRV()
         return binding.root
@@ -36,21 +45,48 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
-
+        setupObservers()
     }
 
-    private fun initFavoriteRV(){
-        binding.favoritesRecyclerView.apply {
+    private fun setupObservers() {
+        lifecycleScope.launch {
+
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                viewModel.favoriteState.collect { uiState ->
+
+                    when (uiState) {
+                        is UIState.Success -> {
+                            val mutableMoviesList = uiState.listMovie.toMutableList().shuffled()
+                            setFavoriteViewsVisibility(uiState)
+                            contentAdapter.setData(mutableMoviesList)
+                        }
+
+                        is UIState.Error -> {
+                            setFavoriteViewsVisibility(uiState)
+                        }
+
+                        is UIState.Loading -> {
+                            setFavoriteViewsVisibility(uiState)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun initFavoriteRV() {
+        binding.recyclerViewFav.apply {
             contentAdapter = ContentAdapter {
                 (activity as MainActivity).launchDetailsFragment(it)
             }
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
             adapter = contentAdapter
+
             val decorator = ContentRVItemDecoration(5)
             addItemDecoration(decorator)
 
@@ -60,7 +96,7 @@ class FavoriteFragment : Fragment() {
             layoutAnimation = anim
             scheduleLayoutAnimation()
 
-            val callback = ContentItemTouchHelperCallback( this)
+            val callback = ContentItemTouchHelperCallback(this)
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 
@@ -74,9 +110,24 @@ class FavoriteFragment : Fragment() {
     }
 
 
+    private fun setFavoriteViewsVisibility(state: UIState) {
+        when (state) {
+            is UIState.Success -> {
+                binding.progressCircularFav.visibility = View.GONE
+                binding.recyclerViewFav.visibility = View.VISIBLE
+            }
 
+            is UIState.Error -> {
+                binding.progressCircularFav.visibility = View.GONE
+                binding.recyclerViewFav.visibility = View.VISIBLE
+            }
 
-
+            UIState.Loading -> {
+                binding.progressCircularFav.visibility = View.VISIBLE
+                binding.recyclerViewFav.visibility = View.GONE
+            }
+        }
+    }
 
 
     companion object {

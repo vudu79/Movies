@@ -16,30 +16,56 @@ class MoviesViewModel(
     private val repository: Repository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-    val uiState: StateFlow<UIState> = _uiState
+    private val _homeState = MutableStateFlow<UIState>(UIState.Loading)
+    val homeState: StateFlow<UIState> = _homeState
+
+    private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
+    val favoriteState: StateFlow<UIState> = _favoriteState
 
     init {
-        loadRandomPosters()
+        getPopularMovies()
+        getFavoriteMovies()
     }
 
-    fun loadRandomPosters() {
+    fun getPopularMovies() {
         val handler = CoroutineExceptionHandler { _, exception ->
             Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
         }
 
         viewModelScope.launch(handler) {
             try {
-                _uiState.value =
+                _homeState.value =
                     UIState.Loading
                 repository.getMovieInfo()?.let {
-                    _uiState.value =
+                    _homeState.value =
                         UIState.Success( it.toMovieList())
                 } ?: let {
-                    _uiState.value = UIState.Error("Сервер вернул пустой ответ!")
+                    _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
                 }
             } catch (e: Exception) {
-                _uiState.value = UIState.Error("Ошибка запроса - $e")
+                _homeState.value = UIState.Error("Ошибка запроса - $e")
+            }
+        }
+    }
+
+    fun getFavoriteMovies() {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
+        }
+
+        viewModelScope.launch(handler) {
+            try {
+                _favoriteState.value =
+                    UIState.Loading
+                repository.getAllDocsFromDB()?.let {
+                    _favoriteState.value =
+                        UIState.Success( it)
+
+                } ?: let {
+                    _favoriteState.value = UIState.Error("Сервер вернул пустой ответ!")
+                }
+            } catch (e: Exception) {
+                _favoriteState.value = UIState.Error("Ошибка запроса - $e")
             }
         }
     }

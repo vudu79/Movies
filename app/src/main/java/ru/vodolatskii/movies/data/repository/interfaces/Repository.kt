@@ -8,5 +8,5 @@ interface Repository {
 
     suspend fun insertDocIntoDB(doc: Movie)
 
-    suspend fun getAllDocsFromDB(): List<Movie>
+    suspend fun getAllDocsFromDB(): List<Movie>?
 }

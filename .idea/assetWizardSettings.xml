@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialsymbolsoutlined/share/outline_share_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/favorite_border/baseline_favorite_border_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,8 +29,8 @@
                         <option name="values">
                           <map>
                             <entry key="autoMirrored" value="true" />
-                            <entry key="color" value="faf7f7" />
-                            <entry key="outputName" value="outline_share_24" />
+                            <entry key="color" value="f10404" />
+                            <entry key="outputName" value="baseline_favorite_border_24" />
                             <entry key="sourceFile" value="$USER_HOME$/Pictures/763025_2.svg" />
                           </map>
                         </option>

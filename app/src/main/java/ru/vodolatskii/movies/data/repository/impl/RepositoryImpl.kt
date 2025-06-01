@@ -59,8 +59,32 @@ class RepositoryImpl() : Repository {
         docsDao.insert(doc)
     }
 
-    override suspend fun getAllDocsFromDB(): List<Movie> {
-        return docsDao.getAllMovie()
+    override suspend fun getAllDocsFromDB(): List<Movie>? {
+//        return docsDao.getAllMovie()
+        return listOf(
+
+            Movie(
+                id = 3877L,
+                name = "Jameelah",
+                description = "Erendira",
+                posterUrl = "https://image.openmoviedb.com/kinopoisk-images/10900341/caf9f155-1a19-42f1-a0f3-9c8773e9083e/orig",
+                isFavorite = true
+            ),
+            Movie(
+                id = 8063L,
+                name = "Malka",
+                description = "Millard",
+                posterUrl = "https://image.openmoviedb.com/kinopoisk-images/1599028/637271d5-61b4-4e46-ac83-6d07494c7645/orig",
+                isFavorite = true
+            ),
+            Movie(
+                id = 3363L,
+                name = "sdfsdfsdf",
+                description = "Milsdsdfsdfsdfsdfsdfslard",
+                posterUrl = "https://image.openmoviedb.com/kinopoisk-images/1898899/5fb7d956-d5fb-4189-9ec9-1a051aaa7f41/orig",
+                isFavorite = true
+            )
+        )
     }
 }
 

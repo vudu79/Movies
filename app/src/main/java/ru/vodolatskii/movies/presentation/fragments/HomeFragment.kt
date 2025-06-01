@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       viewModel.loadRandomPosters()
+       viewModel.getPopularMovies()
 
         initContentRecyclerView()
 
@@ -62,24 +62,20 @@ class HomeFragment : Fragment() {
     private fun setupObservers() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.uiState.collect { uiState ->
+                (activity as MainActivity).viewModel.homeState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
                             val mutableMoviesList = uiState.listMovie.toMutableList().shuffled()
-                            setPostersViewsVisibility(uiState)
+                            setHomeViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }
 
                         is UIState.Error -> {
-//                            val mutableDocsList =
-//                                uiState.apiErrorUrlsList.toMutableList().shuffled()
-                            setPostersViewsVisibility(uiState)
-//                            contentAdapter.setData(mutableDocsList)
-
+                            setHomeViewsVisibility(uiState)
                         }
 
                         is UIState.Loading -> {
-                            setPostersViewsVisibility(uiState)
+                            setHomeViewsVisibility(uiState)
                         }
                     }
                 }
@@ -118,27 +114,21 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setPostersViewsVisibility(state: UIState) {
+    private fun setHomeViewsVisibility(state: UIState) {
         when (state) {
             is UIState.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
-//                binding.buttonPostersError.visibility = View.GONE
-//                binding.textviewErrorMessage.visibility = View.GONE
             }
 
             is UIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
-//                binding.buttonPostersError.visibility = View.VISIBLE
-//                binding.textviewErrorMessage.visibility = View.VISIBLE
             }
 
             UIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
-//                binding.buttonPostersError.visibility = View.GONE
-//                binding.textviewErrorMessage.visibility = View.GONE
             }
         }
     }

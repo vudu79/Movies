@@ -123,6 +123,14 @@ class DetailsFragment : Fragment() {
                 }
 
                 R.id.button_favorite_details -> {
+                    if (movie.isFavorite) {
+                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details).setIcon(R.drawable.baseline_favorite_24 )
+                        movie.isFavorite =! movie.isFavorite
+                    } else {
+                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details).setIcon(R.drawable.baseline_favorite_border_24)
+                        movie.isFavorite =! movie.isFavorite
+                    }
+
                     Snackbar.make(
                         binding.detailsDescription,
                         "В избранном ${movie.name} ",
