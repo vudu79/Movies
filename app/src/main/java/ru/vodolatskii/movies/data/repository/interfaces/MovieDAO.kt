@@ -19,5 +19,5 @@ interface MovieDao {
     suspend fun delete(movie: Movie)
 
     @Query("SELECT * FROM favorite_movie")
-    fun getAllMovie(): List<Movie>
+    fun getAllMovie(): List<Movie>?
 }

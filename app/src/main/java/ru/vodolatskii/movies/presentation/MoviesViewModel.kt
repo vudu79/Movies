@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.data.dto.toMovieList
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.interfaces.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
 
@@ -38,7 +40,7 @@ class MoviesViewModel(
                     UIState.Loading
                 repository.getMovieInfo()?.let {
                     _homeState.value =
-                        UIState.Success( it.toMovieList())
+                        UIState.Success(it.toMovieList())
                 } ?: let {
                     _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
                 }
@@ -48,24 +50,37 @@ class MoviesViewModel(
         }
     }
 
+    fun addMovieToFavorite(movie: Movie) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertMovieToFavorites(movie)
+        }
+    }
+
     fun getFavoriteMovies() {
         val handler = CoroutineExceptionHandler { _, exception ->
             Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
         }
 
-        viewModelScope.launch(handler) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 _favoriteState.value =
                     UIState.Loading
-                repository.getAllDocsFromDB()?.let {
+                repository.getAllMoviesFromFavorites()?.let {
                     _favoriteState.value =
-                        UIState.Success( it)
+                        UIState.Success(it)
+                    it.forEach {
+                        Log.e("mytag", "movie ---  ${it.posterUrl}")
+                    }
 
                 } ?: let {
-                    _favoriteState.value = UIState.Error("Сервер вернул пустой ответ!")
+                    Log.e("mytag", "Запрос в базу вернул null")
+
+                    _favoriteState.value = UIState.Error("Запрос в базу вернул null")
                 }
             } catch (e: Exception) {
-                _favoriteState.value = UIState.Error("Ошибка запроса - $e")
+                Log.e("mytag", "Ошибка $e")
+
+                _favoriteState.value = UIState.Error("Ошибка запроса в базу- $e")
             }
         }
     }

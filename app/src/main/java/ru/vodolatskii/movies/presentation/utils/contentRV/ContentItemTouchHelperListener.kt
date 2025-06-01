@@ -8,4 +8,6 @@ interface ContentItemTouchHelperListener {
     fun onItemDismiss(position: Int)
 
     fun onItemAdd(movie: Movie, position: Int)
+
+    fun onItemSwipedToRight(movie: Movie, position: Int)
 }

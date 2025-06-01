@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       viewModel.getPopularMovies()
+        viewModel.getPopularMovies()
 
         initContentRecyclerView()
 
@@ -85,9 +85,11 @@ class HomeFragment : Fragment() {
 
     private fun initContentRecyclerView() {
         binding.recyclerviewContent.apply {
-            contentAdapter = ContentAdapter {
-                (activity as MainActivity).launchDetailsFragment(it)
-            }
+            contentAdapter = ContentAdapter(
+                onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
+                onLeftSwipe = { movie ->
+                    viewModel.addMovieToFavorite(movie)
+                })
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

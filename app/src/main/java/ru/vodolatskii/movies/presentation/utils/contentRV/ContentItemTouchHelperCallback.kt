@@ -7,7 +7,6 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -57,25 +56,25 @@ class ContentItemTouchHelperCallback(
                 adapter.onItemDismiss(position)
                 Snackbar.make(recyclerView, "Удалено ${removedDoc.name} ", Snackbar.LENGTH_LONG)
                     .setAction(
-                        "Вернуть?",
-                        View.OnClickListener {
-                            adapter.onItemAdd(removedDoc, position)
-                        }).show()
+                        "Вернуть?"
+                    ) {
+                        adapter.onItemAdd(removedDoc, position)
+                    }.show()
             }
 
             32 -> {
                 val position = viewHolder.adapterPosition
-                val favoriteDoc = adapter.getData()[viewHolder.adapterPosition]
-                adapter.onItemDismiss(position)  // заменить
+                val favoriteMovie = adapter.getData()[viewHolder.adapterPosition]
+                adapter.onItemSwipedToRight(favoriteMovie, position)  // заменить
                 Snackbar.make(
                     recyclerView,
-                    "В избранном ${favoriteDoc.name} ",
+                    "В избранном ${favoriteMovie.name} ",
                     Snackbar.LENGTH_INDEFINITE
                 )
                     .setAction(
                         "Убрать",
                         View.OnClickListener {
-                            adapter.onItemAdd(favoriteDoc, position)
+                            adapter.onItemAdd(favoriteMovie, position)
                         })
                     .show()
             }

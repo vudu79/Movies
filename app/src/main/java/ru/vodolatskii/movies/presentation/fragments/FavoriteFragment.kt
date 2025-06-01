@@ -38,6 +38,7 @@ class FavoriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = (activity as MainActivity).getMoviesViewModel()
+        viewModel.getFavoriteMovies()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         initFavoriteRV()
         return binding.root
@@ -46,6 +47,7 @@ class FavoriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
+        viewModel.getFavoriteMovies()
     }
 
     private fun setupObservers() {
@@ -57,7 +59,7 @@ class FavoriteFragment : Fragment() {
 
                     when (uiState) {
                         is UIState.Success -> {
-                            val mutableMoviesList = uiState.listMovie.toMutableList().shuffled()
+                            val mutableMoviesList = uiState.listMovie.toMutableList()
                             setFavoriteViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }
@@ -78,9 +80,9 @@ class FavoriteFragment : Fragment() {
 
     private fun initFavoriteRV() {
         binding.recyclerViewFav.apply {
-            contentAdapter = ContentAdapter {
-                (activity as MainActivity).launchDetailsFragment(it)
-            }
+            contentAdapter = ContentAdapter(
+                onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
+                onLeftSwipe = { movie -> })
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

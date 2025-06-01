@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
         val count = supportFragmentManager.getBackStackEntryCount()
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkForInternet(context: Context): InternetType {
+    private fun checkInternetStatus(context: Context): InternetType {
 
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

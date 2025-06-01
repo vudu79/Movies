@@ -15,7 +15,9 @@ import ru.vodolatskii.movies.data.entity.Movie
 import java.util.Collections
 
 class ContentAdapter(
-    private val clickListener: (Movie) -> Unit
+    private val onItemClick: (Movie) -> Unit,
+    private val onLeftSwipe: (Movie) -> Unit,
+
 ) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
@@ -53,7 +55,6 @@ class ContentAdapter(
     }
 
     override fun onBindViewHolder(holder: ContentViewHolder, position: Int) {
-
         when (holder) {
             is ContentViewHolder -> {
                 val Movie = asyncListDiffer.currentList[position]
@@ -66,7 +67,7 @@ class ContentAdapter(
                 holder.description.text = Movie.description
 
                 holder.card.setOnClickListener {
-                    clickListener(Movie)
+                    onItemClick(Movie)
                 }
             }
 
@@ -90,10 +91,15 @@ class ContentAdapter(
         setData(tempList)
     }
 
-    override fun onItemAdd(Movie: Movie, position: Int) {
+    override fun onItemAdd(movie: Movie, position: Int) {
         val tempList: MutableList<Movie> = asyncListDiffer.currentList.toMutableList()
-        tempList.add(position, Movie)
+        tempList.add(position, movie)
         setData(tempList)
+    }
+
+    override fun onItemSwipedToRight(movie: Movie, position: Int) {
+        onItemDismiss(position)
+        onLeftSwipe(movie)
     }
 
     class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
