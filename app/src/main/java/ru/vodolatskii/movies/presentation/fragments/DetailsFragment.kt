@@ -20,10 +20,12 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.dto.Doc
 import ru.vodolatskii.movies.databinding.FragmentDetailsBinding
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.MoviesViewModel
 
 
 class DetailsFragment : Fragment() {
     private lateinit var binding: FragmentDetailsBinding
+    lateinit var viewModel: MoviesViewModel
 
     private lateinit var doc: Doc
 
@@ -38,6 +40,7 @@ class DetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }

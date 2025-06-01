@@ -19,7 +19,7 @@ import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var  binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
 
@@ -36,8 +36,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-
         setClickListeners()
+    }
+
+    fun getMoviesViewModel(): MoviesViewModel {
+        return viewModel
     }
 
     fun launchDetailsFragment(doc: Doc) {
@@ -47,10 +50,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setClickListeners() {
-//        binding.buttonPostersError.setOnClickListener {
-//            viewModel.loadPosters()
-//        }
-
         binding.topAppBar.setNavigationOnClickListener {
             Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
                 .show()
@@ -66,26 +65,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-//        binding.bottomNavigation.setOnItemSelectedListener {
-//            when (it.itemId) {
-//                R.id.favorites -> {
-////                    navController.navigate(navigateR.id.favoriteFragment)
-//                    true
-//                }
-//
-//                R.id.watch_later -> {
-//                    Toast.makeText(this, "Посмотреть похже", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//
-//                R.id.selections -> {
-//                    Toast.makeText(this, "Подборки", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        }
     }
 
     override fun onBackPressed() {

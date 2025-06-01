@@ -9,7 +9,7 @@ class MyViewModelFactory(private val repository: Repository) :
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-        if (modelClass.isAssignableFrom(ViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MoviesViewModel::class.java)) {
             return MoviesViewModel(repository) as T
         }
 
