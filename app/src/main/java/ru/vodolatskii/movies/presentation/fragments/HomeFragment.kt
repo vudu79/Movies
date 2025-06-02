@@ -32,6 +32,8 @@ class HomeFragment : Fragment() {
     private lateinit var contentAdapter: ContentAdapter
     private val viewModel: MoviesViewModel by activityViewModels()
 
+    init {
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -45,18 +47,13 @@ class HomeFragment : Fragment() {
             container,
             false
         )
+        initContentRV()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.getPopularMovies()
-
-        initContentRecyclerView()
-
         setupObservers()
-
     }
 
     private fun setupObservers() {
@@ -65,7 +62,7 @@ class HomeFragment : Fragment() {
                 (activity as MainActivity).viewModel.homeState.collect { uiState ->
                     when (uiState) {
                         is UIState.Success -> {
-                            val mutableMoviesList = uiState.listMovie.toMutableList().shuffled()
+                            val mutableMoviesList = uiState.listMovie
                             setHomeViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }
@@ -83,7 +80,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun initContentRecyclerView() {
+    private fun initContentRV() {
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
                 onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },

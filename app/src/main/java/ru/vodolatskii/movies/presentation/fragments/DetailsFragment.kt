@@ -62,6 +62,13 @@ class DetailsFragment : Fragment() {
             .load(movie.posterUrl)
             .centerCrop()
             .into(binding.detailsPoster)
+        if (movie.isFavorite) {
+            binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
+                .setIcon(R.drawable.baseline_favorite_24)
+        } else {
+            binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
+                .setIcon(R.drawable.baseline_favorite_border_24)
+        }
         binding.detailsDescription.text = setTitleStyle(movie)
     }
 
@@ -124,11 +131,15 @@ class DetailsFragment : Fragment() {
 
                 R.id.button_favorite_details -> {
                     if (movie.isFavorite) {
-                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details).setIcon(R.drawable.baseline_favorite_24 )
-                        movie.isFavorite =! movie.isFavorite
+                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
+                            .setIcon(R.drawable.baseline_favorite_border_24)
+                        movie.isFavorite = false
+                        viewModel.deleteMovieFromFavorite(movie)
                     } else {
-                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details).setIcon(R.drawable.baseline_favorite_border_24)
-                        movie.isFavorite =! movie.isFavorite
+                        binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
+                            .setIcon(R.drawable.baseline_favorite_24)
+                        movie.isFavorite = true
+                        viewModel.addMovieToFavorite(movie)
                     }
 
                     Snackbar.make(

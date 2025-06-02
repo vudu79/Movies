@@ -43,7 +43,7 @@ class RepositoryImpl() : Repository {
     override suspend fun getMovieInfo(): ShortDocsResponseDto? {
         val response = service.getSearchResponse(
             1,
-            50,
+            5,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )
@@ -55,8 +55,8 @@ class RepositoryImpl() : Repository {
         }
     }
 
-    override suspend fun insertMovieToFavorites(doc: Movie) {
-        movieDao.insert(doc)
+    override suspend fun insertMovieToFavorites(movie: Movie) {
+        movieDao.insert(movie)
     }
 
     override suspend fun deleteMovieFromFavorites(movie: Movie) {

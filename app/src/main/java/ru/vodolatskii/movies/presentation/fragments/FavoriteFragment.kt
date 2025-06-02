@@ -59,7 +59,7 @@ class FavoriteFragment : Fragment() {
 
                     when (uiState) {
                         is UIState.Success -> {
-                            val mutableMoviesList = uiState.listMovie.toMutableList()
+                            val mutableMoviesList = uiState.listMovie
                             setFavoriteViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }

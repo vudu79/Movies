@@ -23,10 +23,16 @@ data class Poster(
     val previewUrl: String = "",
 ) : Parcelable
 
-fun ShortDocsResponseDto.toMovieList(): List<Movie> {
+fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
     val movieList: List<Movie> = this.docs.map {
-        val movie = Movie( name = it.name, description = it.description, posterUrl = it.poster.url, isFavorite = false)
+        val movie = Movie(
+            movieId = it.id,
+            name = it.name,
+            description = it.description,
+            posterUrl = it.poster.url,
+            isFavorite = false
+        )
         movie
     }
-    return movieList
+    return movieList.toMutableList()
 }

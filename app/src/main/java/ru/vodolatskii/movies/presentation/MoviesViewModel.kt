@@ -24,25 +24,29 @@ class MoviesViewModel(
     private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
     val favoriteState: StateFlow<UIState> = _favoriteState
 
+    private var cacheMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+
     init {
         getPopularMovies()
         getFavoriteMovies()
     }
 
-    fun getPopularMovies() {
+    private fun getPopularMovies() {
 //        val handler = CoroutineExceptionHandler { _, exception ->
 //            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
 //        }
-
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _homeState.value =
-                    UIState.Loading
-                repository.getMovieInfo()?.let {
-                    _homeState.value =
-                        UIState.Success(it.toMovieList())
-                } ?: let {
-                    _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
+                _homeState.value = UIState.Loading
+                if (cacheMovieList.isEmpty()) {
+                    repository.getMovieInfo()?.let {
+                        cacheMovieList = it.toMovieList()
+                        _homeState.value = UIState.Success(cacheMovieList)
+                    } ?: let {
+                        _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
+                    }
+                } else {
+                    _homeState.value = UIState.Success(cacheMovieList)
                 }
             } catch (e: Exception) {
                 _homeState.value = UIState.Error("Ошибка запроса - $e")
@@ -53,12 +57,16 @@ class MoviesViewModel(
     fun addMovieToFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertMovieToFavorites(movie)
+            cacheMovieList.remove(movie)
+            _homeState.value = UIState.Success(cacheMovieList)
         }
     }
 
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
+            cacheMovieList.add(movie)
+            _homeState.value = UIState.Success(cacheMovieList)
         }
     }
 
