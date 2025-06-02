@@ -56,7 +56,12 @@ class MoviesViewModel(
 
     fun addMovieToFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertMovieToFavorites(movie)
+            val fav = repository.getAllMoviesFromFavorites()
+            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                repository.insertMovieToFavorites(movie)
+                cacheMovieList= cacheMovieList.filter { movie.movieId != it.movieId && movie.name != it.name  }.toMutableList()
+                _homeState.value = UIState.Success(cacheMovieList)
+            }
             cacheMovieList.remove(movie)
             _homeState.value = UIState.Success(cacheMovieList)
         }
@@ -65,8 +70,10 @@ class MoviesViewModel(
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
-            cacheMovieList.add(movie)
-            _homeState.value = UIState.Success(cacheMovieList)
+            if (!cacheMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                cacheMovieList.add(movie)
+                _homeState.value = UIState.Success(cacheMovieList)
+            }
         }
     }
 

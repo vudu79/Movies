@@ -76,9 +76,7 @@ class DetailsFragment : Fragment() {
     private fun setTitleStyle(movie: Movie): SpannableStringBuilder {
         val title = movie.name
         val description = "\n\n" + movie.description
-
         val boldStrUnderlineSpannable = SpannableStringBuilder(title)
-
         boldStrUnderlineSpannable.setSpan(
             StyleSpan(Typeface.BOLD), 0, title.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
@@ -88,12 +86,10 @@ class DetailsFragment : Fragment() {
             title.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
-
         boldStrUnderlineSpannable.setSpan(
             RelativeSizeSpan(1.3f), 0, title.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         boldStrUnderlineSpannable.append(description)
-
         return boldStrUnderlineSpannable
     }
 
@@ -128,30 +124,28 @@ class DetailsFragment : Fragment() {
                         }
                         .show()
                 }
-
                 R.id.button_favorite_details -> {
                     if (movie.isFavorite) {
                         binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
                             .setIcon(R.drawable.baseline_favorite_border_24)
                         movie.isFavorite = false
                         viewModel.deleteMovieFromFavorite(movie)
+                        Snackbar.make(
+                            binding.detailsDescription,
+                            "Удален из избранного ${movie.name} ",
+                            Snackbar.LENGTH_INDEFINITE
+                        ).show()
                     } else {
                         binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)
                             .setIcon(R.drawable.baseline_favorite_24)
                         movie.isFavorite = true
                         viewModel.addMovieToFavorite(movie)
+                        Snackbar.make(
+                            binding.detailsDescription,
+                            "В избранном ${movie.name} ",
+                            Snackbar.LENGTH_INDEFINITE
+                        ).show()
                     }
-
-                    Snackbar.make(
-                        binding.detailsDescription,
-                        "В избранном ${movie.name} ",
-                        Snackbar.LENGTH_INDEFINITE
-                    )
-                        .setAction(
-                            "Убрать"
-                        ) {
-                        }
-                        .show()
                 }
             }
             false
