@@ -30,11 +30,11 @@ class MoviesViewModel(
     }
 
     fun getPopularMovies() {
-        val handler = CoroutineExceptionHandler { _, exception ->
-            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
-        }
+//        val handler = CoroutineExceptionHandler { _, exception ->
+//            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
+//        }
 
-        viewModelScope.launch(handler) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value =
                     UIState.Loading
@@ -56,11 +56,13 @@ class MoviesViewModel(
         }
     }
 
-    fun getFavoriteMovies() {
-        val handler = CoroutineExceptionHandler { _, exception ->
-            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
+    fun deleteMovieFromFavorite(movie: Movie) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteMovieFromFavorites(movie)
         }
+    }
 
+    fun getFavoriteMovies() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _favoriteState.value =
@@ -69,17 +71,12 @@ class MoviesViewModel(
                     _favoriteState.value =
                         UIState.Success(it)
                     it.forEach {
-                        Log.e("mytag", "movie ---  ${it.posterUrl}")
                     }
 
                 } ?: let {
-                    Log.e("mytag", "Запрос в базу вернул null")
-
                     _favoriteState.value = UIState.Error("Запрос в базу вернул null")
                 }
             } catch (e: Exception) {
-                Log.e("mytag", "Ошибка $e")
-
                 _favoriteState.value = UIState.Error("Ошибка запроса в базу- $e")
             }
         }

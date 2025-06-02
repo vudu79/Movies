@@ -87,9 +87,10 @@ class HomeFragment : Fragment() {
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
                 onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
-                onLeftSwipe = { movie ->
-                    viewModel.addMovieToFavorite(movie)
-                })
+                onMoveToFavorite = { movie ->
+                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
+                },
+                onDeleteFromFavorite = {})
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

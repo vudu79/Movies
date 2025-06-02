@@ -21,6 +21,7 @@ import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
 
 
 class FavoriteFragment : Fragment() {
@@ -38,7 +39,6 @@ class FavoriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = (activity as MainActivity).getMoviesViewModel()
-        viewModel.getFavoriteMovies()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         initFavoriteRV()
         return binding.root
@@ -82,7 +82,11 @@ class FavoriteFragment : Fragment() {
         binding.recyclerViewFav.apply {
             contentAdapter = ContentAdapter(
                 onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
-                onLeftSwipe = { movie -> })
+                onMoveToFavorite = { movie -> },
+                onDeleteFromFavorite = { movie ->
+                    viewModel.deleteMovieFromFavorite(movie)
+                }
+            )
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -98,7 +102,7 @@ class FavoriteFragment : Fragment() {
             layoutAnimation = anim
             scheduleLayoutAnimation()
 
-            val callback = ContentItemTouchHelperCallback(this)
+            val callback = FavoriteItemTouchHelperCallback(this)
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 

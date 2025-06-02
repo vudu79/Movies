@@ -16,9 +16,10 @@ import java.util.Collections
 
 class ContentAdapter(
     private val onItemClick: (Movie) -> Unit,
-    private val onLeftSwipe: (Movie) -> Unit,
+    private val onMoveToFavorite: (Movie) -> Unit,
+    private val onDeleteFromFavorite: (Movie) -> Unit,
 
-) :
+    ) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
@@ -70,9 +71,7 @@ class ContentAdapter(
                     onItemClick(Movie)
                 }
             }
-
             else -> {
-
             }
         }
     }
@@ -87,8 +86,12 @@ class ContentAdapter(
 
     override fun onItemDismiss(position: Int) {
         val tempList: MutableList<Movie> = asyncListDiffer.currentList.toMutableList()
-        tempList.removeAt(position)
+        val movie = tempList.removeAt(position)
         setData(tempList)
+
+        if (movie.isFavorite){
+            onDeleteFromFavorite(movie)
+        }
     }
 
     override fun onItemAdd(movie: Movie, position: Int) {
@@ -99,7 +102,7 @@ class ContentAdapter(
 
     override fun onItemSwipedToRight(movie: Movie, position: Int) {
         onItemDismiss(position)
-        onLeftSwipe(movie)
+        onMoveToFavorite(movie)
     }
 
     class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

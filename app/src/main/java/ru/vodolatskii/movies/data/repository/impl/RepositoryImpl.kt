@@ -59,6 +59,10 @@ class RepositoryImpl() : Repository {
         movieDao.insert(doc)
     }
 
+    override suspend fun deleteMovieFromFavorites(movie: Movie) {
+        movieDao.delete(movie)
+    }
+
     override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
         return movieDao.getAllMovie()
 //        return listOf(

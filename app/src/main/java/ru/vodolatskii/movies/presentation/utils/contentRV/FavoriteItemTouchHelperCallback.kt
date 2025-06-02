@@ -13,13 +13,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 
 
-class ContentItemTouchHelperCallback(
+class FavoriteItemTouchHelperCallback(
     private val recyclerView: RecyclerView,
 ) : ItemTouchHelper.Callback() {
     private val adapter = recyclerView.adapter as ContentAdapter
     private val background = ColorDrawable()
     private val backgroundColorDelete = Color.parseColor("#f44336")
-    private val backgroundColorToFavorite = Color.parseColor("#2196F3")
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private val textPaint = Paint().apply {
         color = Color.WHITE
@@ -33,7 +32,7 @@ class ContentItemTouchHelperCallback(
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
+        val swipeFlags = ItemTouchHelper.START 
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 
@@ -59,27 +58,7 @@ class ContentItemTouchHelperCallback(
                     recyclerView,
                     "Удалено ${swipedMovie.name} ",
                     Snackbar.LENGTH_LONG
-                )
-                    .setAction(
-                        "Вернуть?"
-                    ) {
-                        adapter.onItemAdd(swipedMovie, position)
-                    }.show()
-            }
-
-            32 -> {
-                adapter.onItemSwipedToRight(swipedMovie, position)  // заменить
-                Snackbar.make(
-                    recyclerView,
-                    "В избранном ${swipedMovie.name} ",
-                    Snackbar.LENGTH_LONG
-                )
-                    .setAction(
-                        "Убрать",
-                        View.OnClickListener {
-                            adapter.onItemAdd(swipedMovie, position)
-                        })
-                    .show()
+                ).show()
             }
         }
     }
@@ -121,20 +100,7 @@ class ContentItemTouchHelperCallback(
             val textX = itemView.right + dX / 2
             val textY = itemView.top + itemHeight / 2 + 10
             c.drawText("Удалить", textX.toFloat(), textY.toFloat(), textPaint)
-        } else {
-            background.color = backgroundColorToFavorite
-            background.setBounds(
-                itemView.left,
-                itemView.top,
-                itemView.left + dX.toInt(),
-                itemView.bottom
-            )
-            background.draw(c)
-            val textX = itemView.left + dX / 2
-            val textY = itemView.top + itemHeight / 2 + 10
-            c.drawText("В избранное", textX.toFloat(), textY.toFloat(), textPaint)
         }
-
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }
 
