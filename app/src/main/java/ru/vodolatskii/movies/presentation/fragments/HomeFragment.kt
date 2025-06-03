@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
-import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
@@ -26,14 +27,18 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoratio
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class HomeFragment : Fragment() {
+
+internal interface ContentAdapterController {
+    fun updateAdapterData(data: List<Movie>?)
+}
+
+
+class HomeFragment : Fragment(), ContentAdapterController {
 
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var contentAdapter: ContentAdapter
+    lateinit var contentAdapter: ContentAdapter
     private val viewModel: MoviesViewModel by activityViewModels()
 
-    init {
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -55,6 +60,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
     }
+
 
     private fun setupObservers() {
         lifecycleScope.launch {
@@ -142,5 +148,11 @@ class HomeFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun updateAdapterData(data: List<Movie>?) {
+        if (data != null) {
+            contentAdapter.setData(data)
+        }
     }
 }

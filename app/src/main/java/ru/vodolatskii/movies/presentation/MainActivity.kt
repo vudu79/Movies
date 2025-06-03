@@ -1,13 +1,17 @@
 package ru.vodolatskii.movies.presentation
 
+import android.app.SearchManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -16,14 +20,22 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
+import ru.vodolatskii.movies.presentation.fragments.HomeFragment
+import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
 
+    private val movieList = viewModel.cacheMovieList
+
+    private lateinit var homeFragment: HomeFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         setupViewModel()
@@ -39,6 +51,35 @@ class MainActivity : AppCompatActivity() {
         setClickListeners()
     }
 
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        if (id == R.id.button_search) {
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+
+        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
+
+        val searchItem: MenuItem? = menu?.findItem(R.id.button_search)
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchView: SearchView? = searchItem?.actionView as SearchView
+
+        searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+
+        searchView?.setOnQueryTextListener(this)
+
+        return super.onCreateOptionsMenu(menu)
+
+    }
+
+
     fun getMoviesViewModel(): MoviesViewModel {
         return viewModel
     }
@@ -50,21 +91,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setClickListeners() {
-        binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-                .show()
-        }
 
-        binding.topAppBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.button_search -> {
-                    Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                else -> false
-            }
-        }
+        binding
+//        binding. .setNavigationOnClickListener {
+//            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
+//                .show()
+//        }
+//
+//        binding.topAppBar.setOnMenuItemClickListener {
+//            when (it.itemId) {
+//                R.id.button_search -> {
+//                    Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//
+//                else -> false
+//            }
+//        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -115,6 +158,37 @@ class MainActivity : AppCompatActivity() {
     private fun setupViewModel() {
         val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
         viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    fun updateHomeFragmentAdapter(data: List<Movie>?) {
+        // Получаем ссылку на фрагмент
+        val controller = homeFragment
+
+        // Вызываем метод интерфейса
+        controller.updateAdapterData(data)
+    }
+
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        Log.d("mytag", "ggggggg")
+
+        if (newText.isNullOrEmpty()) {
+            updateHomeFragmentAdapter(movieList)
+            return true
+        } else {
+            Log.d("mytag", "ggggggg")
+            val result = movieList.filter {
+                it.name.toLowerCase(Locale.getDefault())
+                    .contains(newText.toLowerCase(Locale.getDefault()))
+
+            }
+            updateHomeFragmentAdapter(result)
+            return true
+        }
     }
 }
 

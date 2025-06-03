@@ -23,6 +23,8 @@
             app:navigationIcon="@drawable/baseline_menu_24"
             app:title="@string/title"
             app:titleTextColor="@android:color/white" />
+<!--        <include layout="@layout/custom_toolbar" />-->
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <fragment
