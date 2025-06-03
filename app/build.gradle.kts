@@ -105,6 +105,9 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    implementation (libs.logging.interceptor)
+    implementation (libs.converter.gson.v260)
+    implementation (libs.gson)
 
 
 }

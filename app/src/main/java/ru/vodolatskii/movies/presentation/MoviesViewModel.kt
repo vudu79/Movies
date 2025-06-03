@@ -3,7 +3,6 @@ package ru.vodolatskii.movies.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +30,13 @@ class MoviesViewModel(
         getFavoriteMovies()
     }
 
+
+//    private fun testt() {
+//        viewModelScope.launch {
+//            val resp = repository.getPopularMovieInfo()
+//        }
+//    }
+
     private fun getPopularMovies() {
 //        val handler = CoroutineExceptionHandler { _, exception ->
 //            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
@@ -39,7 +45,7 @@ class MoviesViewModel(
             try {
                 _homeState.value = UIState.Loading
                 if (cacheMovieList.isEmpty()) {
-                    repository.getMovieInfo()?.let {
+                    repository.getPopularMovieInfo()?.let {
                         cacheMovieList = it.toMovieList()
                         _homeState.value = UIState.Success(cacheMovieList)
                     } ?: let {
@@ -59,7 +65,9 @@ class MoviesViewModel(
             val fav = repository.getAllMoviesFromFavorites()
             if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
                 repository.insertMovieToFavorites(movie)
-                cacheMovieList= cacheMovieList.filter { movie.movieId != it.movieId && movie.name != it.name  }.toMutableList()
+                cacheMovieList =
+                    cacheMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                        .toMutableList()
                 _homeState.value = UIState.Success(cacheMovieList)
             }
             cacheMovieList.remove(movie)

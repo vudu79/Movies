@@ -3,9 +3,11 @@ agp = "8.6.1"
 appcompatV7 = "27.1.1"
 compiler = "4.16.0"
 converterGson = "2.9.0"
+converterGsonVersion = "2.6.0"
 converterMoshi = "2.9.0"
 coordinatorlayoutVersion = "1.1.0"
 glide = "4.12.0"
+gson = "2.8.5"
 kotlin = "1.9.24"
 coreKtx = "1.1"
 junit = "4.13.2"
@@ -14,6 +16,7 @@ espressoCore = "3.6.1"
 appcompat = "1.7.0"
 lifecycleRuntimeKtx = "2.4.0 "
 lifecycleViewmodelKtx = "2.4.0"
+loggingInterceptor = "3.12.6"
 material = "1.12.0"
 activity = "1.0"
 constraintlayout = "2.2.1"
@@ -41,13 +44,16 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompatV7" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
+converter-gson-v260 = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGsonVersion" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
 coordinatorlayout = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayoutVersion" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
