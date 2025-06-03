@@ -1,7 +1,9 @@
 package ru.vodolatskii.movies.presentation
 
 import android.app.SearchManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -9,6 +11,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -24,19 +28,18 @@ import ru.vodolatskii.movies.presentation.fragments.HomeFragment
 import java.util.Locale
 
 
-class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class MainActivity : AppCompatActivity(){
 
     private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
-
-    private val movieList = viewModel.cacheMovieList
-
     private lateinit var homeFragment: HomeFragment
 
-    override fun onCreate(savedInstanceState: Bundle?) {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        handleIntent(intent)
 
         setupViewModel()
 
@@ -63,22 +66,24 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//
+//        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
+//
+//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+//        val searchView = menu.findItem(R.id.button_search).actionView as SearchView
+//        val component = ComponentName(this, MainActivity::class.java)
+//        val searchableInfo = searchManager.getSearchableInfo(component)
+//        searchView.setSearchableInfo(searchableInfo)
+//        return true
+//    }
 
-        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
-
-        val searchItem: MenuItem? = menu?.findItem(R.id.button_search)
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchView: SearchView? = searchItem?.actionView as SearchView
-
-        searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-
-        searchView?.setOnQueryTextListener(this)
-
-        return super.onCreateOptionsMenu(menu)
-
+    private fun handleIntent(intent: Intent) {
+        if (Intent.ACTION_SEARCH == intent.action) {
+            val query = intent.getStringExtra(SearchManager.QUERY)
+            Log.d("mytag", "Search query was: $query")
+        }
     }
-
 
     fun getMoviesViewModel(): MoviesViewModel {
         return viewModel
@@ -92,22 +97,21 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private fun setClickListeners() {
 
-        binding
-//        binding. .setNavigationOnClickListener {
-//            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-//                .show()
-//        }
-//
-//        binding.topAppBar.setOnMenuItemClickListener {
-//            when (it.itemId) {
-//                R.id.button_search -> {
-//                    Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        }
+        binding.topAppBar.setNavigationOnClickListener {
+            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
+                .show()
+        }
+
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.button_search -> {
+                    binding.topAppBarLayout.visibility = View.GONE
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -128,6 +132,12 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         } else {
             super.onBackPressed()
         }
+    }
+
+
+    private fun setupViewModel() {
+        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
+        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
     }
 
     private fun checkInternetStatus(context: Context): InternetType {
@@ -155,41 +165,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    private fun setupViewModel() {
-        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
-        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return true
-    }
-
-    fun updateHomeFragmentAdapter(data: List<Movie>?) {
-        // Получаем ссылку на фрагмент
-        val controller = homeFragment
-
-        // Вызываем метод интерфейса
-        controller.updateAdapterData(data)
-    }
-
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        Log.d("mytag", "ggggggg")
-
-        if (newText.isNullOrEmpty()) {
-            updateHomeFragmentAdapter(movieList)
-            return true
-        } else {
-            Log.d("mytag", "ggggggg")
-            val result = movieList.filter {
-                it.name.toLowerCase(Locale.getDefault())
-                    .contains(newText.toLowerCase(Locale.getDefault()))
-
-            }
-            updateHomeFragmentAdapter(result)
-            return true
-        }
-    }
 }
 
 private enum class InternetType {

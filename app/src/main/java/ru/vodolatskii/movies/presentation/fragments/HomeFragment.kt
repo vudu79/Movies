@@ -24,6 +24,7 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 
+
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
@@ -41,6 +42,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(

@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
@@ -52,8 +51,8 @@ class DetailsFragment : Fragment() {
 
         setListeners(movie)
 
-        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
-            View.GONE
+//        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
+//            View.GONE
     }
 
     private fun initContent(movie: Movie) {
