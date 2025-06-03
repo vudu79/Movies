@@ -1,6 +1,5 @@
 package ru.vodolatskii.movies.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -23,24 +22,12 @@ class MoviesViewModel(
     private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
     val favoriteState: StateFlow<UIState> = _favoriteState
 
-    var cacheMovieList: MutableList<Movie> = mutableListOf(
-        Movie(name = "qwert", posterUrl = "https://image.openmoviedb.com/kinopoisk-images/10900341/caf9f155-1a19-42f1-a0f3-9c8773e9083e/orig"),
-        Movie(name = "dgoek", posterUrl = "https://image.openmoviedb.com/kinopoisk-images/1599028/637271d5-61b4-4e46-ac83-6d07494c7645/orig"),
-        Movie(name = "fgtyj",posterUrl = "https://image.openmoviedb.com/kinopoisk-images/1898899/5fb7d956-d5fb-4189-9ec9-1a051aaa7f41/orig"),
-    )
-//    var cacheMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+    var cacheMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
 
     init {
         getPopularMovies()
         getFavoriteMovies()
     }
-
-
-//    private fun testt() {
-//        viewModelScope.launch {
-//            val resp = repository.getPopularMovieInfo()
-//        }
-//    }
 
     private fun getPopularMovies() {
 //        val handler = CoroutineExceptionHandler { _, exception ->
@@ -50,13 +37,12 @@ class MoviesViewModel(
             try {
                 _homeState.value = UIState.Loading
                 if (cacheMovieList.isEmpty()) {
-//                    repository.getPopularMovieInfo()?.let {
-//                        cacheMovieList = it.toMovieList()
-//                        _homeState.value = UIState.Success(cacheMovieList)
-//                    } ?: let {
-//                        _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
-//                    }
-                    _homeState.value = UIState.Success(cacheMovieList)
+                    repository.getPopularMovieInfo()?.let {
+                        cacheMovieList = it.toMovieList()
+                        _homeState.value = UIState.Success(cacheMovieList)
+                    } ?: let {
+                        _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
+                    }
                 } else {
                     _homeState.value = UIState.Success(cacheMovieList)
                 }

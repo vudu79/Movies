@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -13,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
@@ -23,6 +26,7 @@ import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
+import java.util.Locale
 
 
 private const val ARG_PARAM1 = "param1"
@@ -61,8 +65,45 @@ class HomeFragment : Fragment(), ContentAdapterController {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
+        setupSearchViewListeners()
     }
 
+    private fun setupSearchViewListeners(){
+
+        val icon = binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
+        icon.setImageResource(R.drawable.baseline_search_24)
+
+        val closeButton = binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        closeButton.setImageResource(R.drawable.baseline_close_24)
+
+        binding.customSearchView.queryHint = "Search movie"
+
+        binding.customSearchView.setOnClickListener{
+            binding.customSearchView.isIconified = false
+        }
+
+        binding.customSearchView.setOnCloseListener {
+            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility = View.VISIBLE
+            false
+        }
+
+        binding.customSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+            override fun onQueryTextChange(newText: String): Boolean {
+                if (newText.isEmpty()) {
+                    contentAdapter.setData(viewModel.cacheMovieList)
+                    return true
+                }
+                val result = viewModel.cacheMovieList.filter {
+                    it.name.toLowerCase(Locale.getDefault()).contains(newText.toLowerCase(Locale.getDefault()))
+                }
+                contentAdapter.setData(result)
+                return true
+            }
+        })
+    }
 
     private fun setupObservers() {
         lifecycleScope.launch {
