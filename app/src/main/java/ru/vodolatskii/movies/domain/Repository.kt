@@ -1,7 +1,6 @@
-package ru.vodolatskii.movies.data.repository.interfaces
+package ru.vodolatskii.movies.domain
 
 import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
-import ru.vodolatskii.movies.data.dto.TMDBPopularMoviesRespDto
 import ru.vodolatskii.movies.data.entity.Movie
 
 interface Repository {

@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
@@ -19,7 +20,6 @@ import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
 
@@ -41,6 +41,11 @@ class FavoriteFragment : Fragment() {
         viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         initFavoriteRV()
+        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
+            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                View.VISIBLE
+        }
+
         return binding.root
     }
 

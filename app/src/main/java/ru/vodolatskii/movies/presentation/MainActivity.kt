@@ -1,21 +1,15 @@
 package ru.vodolatskii.movies.presentation
 
-import android.app.SearchManager
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -25,21 +19,17 @@ import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.presentation.fragments.HomeFragment
-import java.util.Locale
 
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
-    private lateinit var homeFragment: HomeFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        handleIntent(intent)
 
         setupViewModel()
 
@@ -51,7 +41,15 @@ class MainActivity : AppCompatActivity(){
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        setClickListeners()
+        setupObservers()
+
+        setupClickListeners()
+    }
+
+    private fun setupObservers() {
+        viewModel.isSearchViewVisible.observe(this) { state ->
+            binding.topAppBarLayout.visibility = if (state) View.GONE else View.VISIBLE
+        }
     }
 
 
@@ -59,6 +57,7 @@ class MainActivity : AppCompatActivity(){
         val id = item.itemId
 
         if (id == R.id.button_search) {
+            viewModel.switchSearchViewVisibility(true)
             return true
         }
 
@@ -78,12 +77,6 @@ class MainActivity : AppCompatActivity(){
 //        return true
 //    }
 
-    private fun handleIntent(intent: Intent) {
-        if (Intent.ACTION_SEARCH == intent.action) {
-            val query = intent.getStringExtra(SearchManager.QUERY)
-            Log.d("mytag", "Search query was: $query")
-        }
-    }
 
     fun getMoviesViewModel(): MoviesViewModel {
         return viewModel
@@ -95,7 +88,7 @@ class MainActivity : AppCompatActivity(){
         navController.navigate(R.id.detailsFragment, bundle)
     }
 
-    private fun setClickListeners() {
+    private fun setupClickListeners() {
 
         binding.topAppBar.setNavigationOnClickListener {
             Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
@@ -105,10 +98,9 @@ class MainActivity : AppCompatActivity(){
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.button_search -> {
-                    binding.topAppBarLayout.visibility = View.GONE
+                    viewModel.switchSearchViewVisibility(true)
                     true
                 }
-
                 else -> false
             }
         }

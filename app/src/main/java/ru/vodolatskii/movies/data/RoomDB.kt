@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import ru.vodolatskii.movies.data.entity.Movie
-import ru.vodolatskii.movies.data.repository.interfaces.MovieDao
+import ru.vodolatskii.movies.domain.MovieDao
 
 
 @Database(entities = [Movie::class], version = 2)

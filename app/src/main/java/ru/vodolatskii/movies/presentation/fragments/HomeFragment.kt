@@ -14,7 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
@@ -59,6 +60,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
             false
         )
         initContentRV()
+
         return binding.root
     }
 
@@ -66,38 +68,43 @@ class HomeFragment : Fragment(), ContentAdapterController {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
         setupSearchViewListeners()
+
     }
 
-    private fun setupSearchViewListeners(){
+    private fun setupSearchViewListeners() {
 
-        val icon = binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
+        val icon =
+            binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
         icon.setImageResource(R.drawable.baseline_search_24)
 
-        val closeButton = binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        val closeButton =
+            binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
         closeButton.setImageResource(R.drawable.baseline_close_24)
 
         binding.customSearchView.queryHint = "Search movie"
 
-        binding.customSearchView.setOnClickListener{
+        binding.customSearchView.setOnClickListener {
             binding.customSearchView.isIconified = false
         }
 
         binding.customSearchView.setOnCloseListener {
-            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility = View.VISIBLE
+            viewModel.switchSearchViewVisibility(false)
             false
         }
 
-        binding.customSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        binding.customSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
             }
+
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
                     contentAdapter.setData(viewModel.cacheMovieList)
                     return true
                 }
                 val result = viewModel.cacheMovieList.filter {
-                    it.name.toLowerCase(Locale.getDefault()).contains(newText.toLowerCase(Locale.getDefault()))
+                    it.name.toLowerCase(Locale.getDefault())
+                        .contains(newText.toLowerCase(Locale.getDefault()))
                 }
                 contentAdapter.setData(result)
                 return true
@@ -127,12 +134,48 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
             }
         }
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            binding.customSearchView.visibility = if (state) View.VISIBLE else View.GONE
+        }
     }
 
     private fun initContentRV() {
+
+        val onScrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    binding.customSearchView.visibility = View.VISIBLE
+                } else {
+                    binding.customSearchView.visibility = View.GONE
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_IDLE -> {
+                    }
+
+                    RecyclerView.SCROLL_STATE_DRAGGING -> {
+                        // Пользователь прокручивает
+                    }
+
+                    RecyclerView.SCROLL_STATE_SETTLING -> {
+                        // Прокрутка завершается
+                    }
+                }
+            }
+        }
+
+//        binding.recyclerviewContent.addOnScrollListener(onScrollListener)
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
-                onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
+                onItemClick = { movie ->
+                    (activity as MainActivity).launchDetailsFragment(movie)
+                    if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
+                        activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                            View.VISIBLE
+                    }
+                },
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
@@ -154,14 +197,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 
-            val pagerSnapHelper = PagerSnapHelper()
-            pagerSnapHelper.attachToRecyclerView(this)
+//            val pagerSnapHelper = PagerSnapHelper()
+//            pagerSnapHelper.attachToRecyclerView(this)
 
-//        val linearSnapHelper = LinearSnapHelper()
-//        linearSnapHelper.attachToRecyclerView(this)
+            val linearSnapHelper = LinearSnapHelper()
+            linearSnapHelper.attachToRecyclerView(this)
 
         }
     }
+
 
     private fun setHomeViewsVisibility(state: UIState) {
         when (state) {
