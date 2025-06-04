@@ -34,8 +34,8 @@ class MoviesViewModel(
 
 
     init {
-        getPopularMovies()
-        getFavoriteMovies()
+//        getPopularMovies()
+//        getFavoriteMovies()
     }
 
 
@@ -45,6 +45,7 @@ class MoviesViewModel(
 
 
     fun getPopularMovies() {
+        Log.d("mytag", "${cachePopularMovieList.size}")
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
@@ -56,7 +57,7 @@ class MoviesViewModel(
                     } ?: let {
                         _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
                     }
-                } else if (cachePopularMovieList.size < App.instance.loadPopularMoviesLimit && cachePopularMovieList.isNotEmpty()) {
+                } else if (cachePopularMovieList.size <= App.instance.loadPopularMoviesLimit) {
                     _homeState.value = UIState.Success(cachePopularMovieList)
                 }
 
@@ -80,7 +81,7 @@ class MoviesViewModel(
                     } ?: let {
                         _favoriteState.value = UIState.Error("В избранном пока ничего нет")
                     }
-                } else  {
+                } else {
                     _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
                 }
 
