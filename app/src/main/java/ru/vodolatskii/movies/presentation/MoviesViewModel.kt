@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.domain.Repository
@@ -27,81 +28,94 @@ class MoviesViewModel(
     private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
     val favoriteState: StateFlow<UIState> = _favoriteState
 
-    var cacheMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+    var cachePopularMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+    var cacheFavoriteMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+
 
     init {
         getPopularMovies()
         getFavoriteMovies()
     }
 
+
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
 
+
     private fun getPopularMovies() {
-//        val handler = CoroutineExceptionHandler { _, exception ->
-//            Log.e("mytag", "Поймал ексепшн в корутине --- $exception")
-//        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
-                if (cacheMovieList.isEmpty()) {
+
+                if (cachePopularMovieList.isEmpty()) {
                     repository.getPopularMovieInfo()?.let {
-                        cacheMovieList = it.toMovieList()
-                        _homeState.value = UIState.Success(cacheMovieList)
+                        cachePopularMovieList = it.toMovieList()
+                        _homeState.value = UIState.Success(cachePopularMovieList)
                     } ?: let {
                         _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
                     }
-                } else {
-                    _homeState.value = UIState.Success(cacheMovieList)
+                } else if (cachePopularMovieList.size < App.instance.loadPopularMoviesLimit && cachePopularMovieList.isNotEmpty()) {
+                    _homeState.value = UIState.Success(cachePopularMovieList)
                 }
+
             } catch (e: Exception) {
                 _homeState.value = UIState.Error("Ошибка запроса - $e")
             }
         }
     }
 
-    fun addMovieToFavorite(movie: Movie) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val fav = repository.getAllMoviesFromFavorites()
-            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
-                repository.insertMovieToFavorites(movie)
-                cacheMovieList =
-                    cacheMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
-                        .toMutableList()
-                _homeState.value = UIState.Success(cacheMovieList)
-            }
-            cacheMovieList.remove(movie)
-            _homeState.value = UIState.Success(cacheMovieList)
-        }
-    }
-
-    fun deleteMovieFromFavorite(movie: Movie) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteMovieFromFavorites(movie)
-            if (!cacheMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
-                cacheMovieList.add(movie)
-                _homeState.value = UIState.Success(cacheMovieList)
-            }
-        }
-    }
 
     fun getFavoriteMovies() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _favoriteState.value =
-                    UIState.Loading
-                repository.getAllMoviesFromFavorites()?.let {
-                    _favoriteState.value =
-                        UIState.Success(it)
-                    it.forEach {
-                    }
+                _favoriteState.value = UIState.Loading
 
-                } ?: let {
-                    _favoriteState.value = UIState.Error("Запрос в базу вернул null")
+                if (cacheFavoriteMovieList.isEmpty() ) {
+                    repository.getAllMoviesFromFavorites()?.let {
+                        cacheFavoriteMovieList = it.toMutableList()
+
+                        _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
+                    } ?: let {
+                        _favoriteState.value = UIState.Error("В избранном пока ничего нет")
+                    }
+                } else if (cacheFavoriteMovieList.size < App.instance.loadPopularMoviesLimit || cacheFavoriteMovieList.isNotEmpty()) {
+                    _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
                 }
+
             } catch (e: Exception) {
-                _favoriteState.value = UIState.Error("Ошибка запроса в базу- $e")
+                _favoriteState.value = UIState.Error("Ошибка запроса в базу - $e")
+            }
+        }
+    }
+
+
+    fun addMovieToFavorite(movie: Movie) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val fav = repository.getAllMoviesFromFavorites()
+
+            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                repository.insertMovieToFavorites(movie)
+                cacheFavoriteMovieList =
+                    cacheFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                        .toMutableList()
+                _homeState.value = UIState.Success(cacheFavoriteMovieList)
+            }
+
+            cacheFavoriteMovieList.remove(movie)
+
+            _homeState.value = UIState.Success(cacheFavoriteMovieList)
+        }
+    }
+
+
+    fun deleteMovieFromFavorite(movie: Movie) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteMovieFromFavorites(movie)
+            if (!cacheFavoriteMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                cacheFavoriteMovieList.add(movie)
+                _homeState.value = UIState.Success(cacheFavoriteMovieList)
             }
         }
     }

@@ -90,35 +90,35 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupSearchViewListeners() {
 
         val icon =
-            binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
+            binding.homeSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
         icon.setImageResource(R.drawable.baseline_search_24)
 
         val closeButton =
-            binding.customSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            binding.homeSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
         closeButton.setImageResource(R.drawable.baseline_close_24)
 
-        binding.customSearchView.queryHint = "Search movie"
+        binding.homeSearchView.queryHint = "Search movie"
 
-        binding.customSearchView.setOnClickListener {
-            binding.customSearchView.isIconified = false
+        binding.homeSearchView.setOnClickListener {
+            binding.homeSearchView.isIconified = false
         }
 
-        binding.customSearchView.setOnCloseListener {
+        binding.homeSearchView.setOnCloseListener {
             viewModel.switchSearchViewVisibility(false)
             false
         }
 
-        binding.customSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    contentAdapter.setData(viewModel.cacheMovieList)
+                    contentAdapter.setData(viewModel.cachePopularMovieList)
                     return true
                 }
-                val result = viewModel.cacheMovieList.filter {
+                val result = viewModel.cachePopularMovieList.filter {
                     it.name.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
@@ -151,7 +151,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
         }
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
-            binding.customSearchView.visibility = if (state) View.VISIBLE else View.GONE
+            binding.homeSearchView.visibility = if (state) View.VISIBLE else View.GONE
         }
     }
 
@@ -162,11 +162,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
                     if (state) {
                         if (dy > 0) {
-                            binding.customSearchView.visibility = View.VISIBLE
+                            binding.homeSearchView.visibility = View.VISIBLE
                         } else if (dy < 0) {
-                            binding.customSearchView.visibility = View.GONE
+                            binding.homeSearchView.visibility = View.GONE
                         } else {
-                            binding.customSearchView.visibility = View.VISIBLE
+                            binding.homeSearchView.visibility = View.VISIBLE
                         }
                     }
                 }
@@ -178,7 +178,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
 
                     RecyclerView.SCROLL_STATE_DRAGGING -> {
-                        // Пользователь прокручивает
                     }
 
                     RecyclerView.SCROLL_STATE_SETTLING -> {
@@ -189,6 +188,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         }
 
         binding.recyclerviewContent.addOnScrollListener(onScrollListener)
+
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
                 onItemClick = { movie ->
@@ -205,7 +205,9 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
             adapter = contentAdapter
+
             val decorator = ContentRVItemDecoration(5)
             addItemDecoration(decorator)
 

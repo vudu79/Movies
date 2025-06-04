@@ -63,7 +63,7 @@ class RepositoryImpl() : Repository {
     override suspend fun getPopularMovieInfo(): ShortDocsResponseDto? {
         val response = service.getSearchResponse(
             1,
-            50,
+            App.instance.loadPopularMoviesLimit,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )

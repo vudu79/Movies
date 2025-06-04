@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -45,63 +44,6 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
-    private fun setupObservers() {
-        viewModel.isSearchViewVisible.observe(this) { state ->
-            binding.topAppBarLayout.visibility = if (state) View.GONE else View.VISIBLE
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.button_search) {
-            viewModel.switchSearchViewVisibility(true)
-            return true
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//
-//        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
-//
-//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-//        val searchView = menu.findItem(R.id.button_search).actionView as SearchView
-//        val component = ComponentName(this, MainActivity::class.java)
-//        val searchableInfo = searchManager.getSearchableInfo(component)
-//        searchView.setSearchableInfo(searchableInfo)
-//        return true
-//    }
-
-
-    fun getMoviesViewModel(): MoviesViewModel {
-        return viewModel
-    }
-
-    fun launchDetailsFragment(movie: Movie) {
-        val bundle = Bundle()
-        bundle.putParcelable("movie", movie)
-        navController.navigate(R.id.detailsFragment, bundle)
-    }
-
-    private fun setupClickListeners() {
-
-        binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-                .show()
-        }
-
-        binding.topAppBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.button_search -> {
-                    viewModel.switchSearchViewVisibility(true)
-                    true
-                }
-                else -> false
-            }
-        }
-    }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -120,6 +62,44 @@ class MainActivity : AppCompatActivity() {
 
         } else {
             super.onBackPressed()
+        }
+    }
+
+
+    private fun setupObservers() {
+        viewModel.isSearchViewVisible.observe(this) { state ->
+            binding.topAppBarLayout.visibility = if (state) View.GONE else View.VISIBLE
+        }
+    }
+
+
+    fun getMoviesViewModel(): MoviesViewModel {
+        return viewModel
+    }
+
+
+    fun launchDetailsFragment(movie: Movie) {
+        val bundle = Bundle()
+        bundle.putParcelable("movie", movie)
+        navController.navigate(R.id.detailsFragment, bundle)
+    }
+
+
+    private fun setupClickListeners() {
+        binding.topAppBar.setNavigationOnClickListener {
+            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
+                .show()
+        }
+
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.button_search -> {
+                    viewModel.switchSearchViewVisibility(true)
+                    true
+                }
+
+                else -> false
+            }
         }
     }
 
@@ -153,6 +133,29 @@ class MainActivity : AppCompatActivity() {
             return InternetType.MOBILE //  xaxaxaxa
         }
     }
+
+    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        val id = item.itemId
+//        if (id == R.id.button_search) {
+//            viewModel.switchSearchViewVisibility(true)
+//            return true
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
+
+
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//
+//        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
+//
+//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+//        val searchView = menu.findItem(R.id.button_search).actionView as SearchView
+//        val component = ComponentName(this, MainActivity::class.java)
+//        val searchableInfo = searchManager.getSearchableInfo(component)
+//        searchView.setSearchableInfo(searchableInfo)
+//        return true
+//    }
 
 }
 
