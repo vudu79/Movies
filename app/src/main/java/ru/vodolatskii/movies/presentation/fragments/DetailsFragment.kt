@@ -52,12 +52,12 @@ class DetailsFragment : Fragment() {
 
         setListeners(movie)
 
-
-        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
-            View.GONE
     }
 
     private fun initContent(movie: Movie) {
+        (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
+            View.GONE
+
         binding.detailsToolbar.title = movie.name
         Glide.with(this)
             .load(movie.posterUrl)

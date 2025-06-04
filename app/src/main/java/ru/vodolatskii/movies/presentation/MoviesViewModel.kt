@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +18,8 @@ class MoviesViewModel(
     private val repository: Repository,
 ) : ViewModel() {
 
-    val isSearchViewVisible = MutableLiveData(false)
+    private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
     private val _homeState = MutableStateFlow<UIState>(UIState.Loading)
     val homeState: StateFlow<UIState> = _homeState
@@ -33,7 +35,7 @@ class MoviesViewModel(
     }
 
     fun switchSearchViewVisibility(state: Boolean) {
-        isSearchViewVisible.value = state
+        _isSearchViewVisible.value = state
     }
 
     private fun getPopularMovies() {

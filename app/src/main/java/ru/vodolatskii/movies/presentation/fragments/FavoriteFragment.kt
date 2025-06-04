@@ -41,18 +41,22 @@ class FavoriteFragment : Fragment() {
         viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         initFavoriteRV()
-        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
-            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
-                View.VISIBLE
-        }
-
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
+        checkToolBar()
         viewModel.getFavoriteMovies()
+    }
+
+    private fun checkToolBar(){
+        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
+            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                View.VISIBLE
+        }
     }
 
     private fun setupObservers() {

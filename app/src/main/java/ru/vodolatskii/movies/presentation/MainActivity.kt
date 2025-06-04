@@ -18,7 +18,6 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
-import ru.vodolatskii.movies.presentation.fragments.HomeFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,10 +51,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-
         if (id == R.id.button_search) {
             viewModel.switchSearchViewVisibility(true)
             return true

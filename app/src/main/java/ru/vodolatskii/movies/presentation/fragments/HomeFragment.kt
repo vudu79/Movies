@@ -68,7 +68,23 @@ class HomeFragment : Fragment(), ContentAdapterController {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
         setupSearchViewListeners()
+        checkToolBar()
+    }
 
+    private fun checkToolBar() {
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                true -> {
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility = View.GONE
+                }
+                false -> {
+                    if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
+                        activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                            View.VISIBLE
+                    }
+                }
+            }
+        }
     }
 
     private fun setupSearchViewListeners() {
@@ -143,10 +159,16 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0) {
-                    binding.customSearchView.visibility = View.VISIBLE
-                } else {
-                    binding.customSearchView.visibility = View.GONE
+                viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+                    if (state) {
+                        if (dy > 0) {
+                            binding.customSearchView.visibility = View.VISIBLE
+                        } else if (dy < 0) {
+                            binding.customSearchView.visibility = View.GONE
+                        } else {
+                            binding.customSearchView.visibility = View.VISIBLE
+                        }
+                    }
                 }
             }
 
@@ -166,7 +188,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
         }
 
-//        binding.recyclerviewContent.addOnScrollListener(onScrollListener)
+        binding.recyclerviewContent.addOnScrollListener(onScrollListener)
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
                 onItemClick = { movie ->
