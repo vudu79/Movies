@@ -45,7 +45,6 @@ class MoviesViewModel(
 
 
     fun getPopularMovies() {
-        Log.d("mytag", "list --   ${cachePopularMovieList.size}")
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
@@ -64,10 +63,7 @@ class MoviesViewModel(
             } catch (e: Exception) {
                 _homeState.value = UIState.Error("Ошибка запроса - $e")
             }
-            Log.d("mytag", "list after--   ${cachePopularMovieList.size}")
-
         }
-
     }
 
 
