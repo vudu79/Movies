@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +18,13 @@ import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,36 +39,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        setClickListeners()
+        setupObservers()
+
+        setupClickListeners()
     }
 
-    fun getMoviesViewModel(): MoviesViewModel {
-        return viewModel
-    }
-
-    fun launchDetailsFragment(movie: Movie) {
-        val bundle = Bundle()
-        bundle.putParcelable("movie", movie)
-        navController.navigate(R.id.detailsFragment, bundle)
-    }
-
-    private fun setClickListeners() {
-        binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-                .show()
-        }
-
-        binding.topAppBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.button_search -> {
-                    Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                else -> false
-            }
-        }
-    }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -85,6 +63,50 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+
+    private fun setupObservers() {
+        viewModel.isSearchViewVisible.observe(this) { state ->
+            binding.topAppBarLayout.visibility = if (state) View.GONE else View.VISIBLE
+        }
+    }
+
+
+    fun getMoviesViewModel(): MoviesViewModel {
+        return viewModel
+    }
+
+
+    fun launchDetailsFragment(movie: Movie) {
+        val bundle = Bundle()
+        bundle.putParcelable("movie", movie)
+        navController.navigate(R.id.detailsFragment, bundle)
+    }
+
+
+    private fun setupClickListeners() {
+        binding.topAppBar.setNavigationOnClickListener {
+            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
+                .show()
+        }
+
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.button_search -> {
+                    viewModel.switchSearchViewVisibility(true)
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+
+    private fun setupViewModel() {
+        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
+        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
     }
 
     private fun checkInternetStatus(context: Context): InternetType {
@@ -112,10 +134,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupViewModel() {
-        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
-        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
-    }
+    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        val id = item.itemId
+//        if (id == R.id.button_search) {
+//            viewModel.switchSearchViewVisibility(true)
+//            return true
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
+
+
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//
+//        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
+//
+//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+//        val searchView = menu.findItem(R.id.button_search).actionView as SearchView
+//        val component = ComponentName(this, MainActivity::class.java)
+//        val searchableInfo = searchManager.getSearchableInfo(component)
+//        searchView.setSearchableInfo(searchableInfo)
+//        return true
+//    }
+
 }
 
 private enum class InternetType {

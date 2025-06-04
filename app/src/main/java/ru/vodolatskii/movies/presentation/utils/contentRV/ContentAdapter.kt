@@ -18,6 +18,7 @@ class ContentAdapter(
     private val onItemClick: (Movie) -> Unit,
     private val onMoveToFavorite: (Movie) -> Unit,
     private val onDeleteFromFavorite: (Movie) -> Unit,
+    private val onDeleteFromPopular: (Movie) -> Unit,
 
     ) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
@@ -71,6 +72,7 @@ class ContentAdapter(
                     onItemClick(Movie)
                 }
             }
+
             else -> {
             }
         }
@@ -89,7 +91,9 @@ class ContentAdapter(
         val movie = tempList.removeAt(position)
         setData(tempList)
 
-        if (movie.isFavorite){
+        onDeleteFromPopular(movie)
+
+        if (movie.isFavorite) {
             onDeleteFromFavorite(movie)
         }
     }
