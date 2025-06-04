@@ -11,7 +11,7 @@ class App : Application() {
 
     lateinit var db: RoomDB
 
-    var loadPopularMoviesLimit:Int = 20
+    var loadPopularMoviesLimit:Int = 4
 
     override fun onCreate() {
         super.onCreate()

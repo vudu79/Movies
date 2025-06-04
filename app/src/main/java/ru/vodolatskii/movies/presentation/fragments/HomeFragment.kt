@@ -43,7 +43,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     private lateinit var binding: FragmentHomeBinding
     lateinit var contentAdapter: ContentAdapter
-    private val viewModel: MoviesViewModel by activityViewModels()
+    private lateinit var viewModel: MoviesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,16 +59,17 @@ class HomeFragment : Fragment(), ContentAdapterController {
             container,
             false
         )
-        initContentRV()
-
+        viewModel = (activity as MainActivity).getMoviesViewModel()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupContentRV()
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
+        viewModel.getPopularMovies()
     }
 
     private fun checkToolBar() {
@@ -155,7 +156,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         }
     }
 
-    private fun initContentRV() {
+    private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -201,7 +202,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
-                onDeleteFromFavorite = {})
+                onDeleteFromFavorite = {},
+                onDeleteFromPopular = {movie ->
+                    viewModel.deleteFromPopular(movie = movie)
+                })
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

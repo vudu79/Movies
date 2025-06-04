@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -43,7 +44,8 @@ class MoviesViewModel(
     }
 
 
-    private fun getPopularMovies() {
+    fun getPopularMovies() {
+        Log.d("mytag", "list --   ${cachePopularMovieList.size}")
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
@@ -62,7 +64,10 @@ class MoviesViewModel(
             } catch (e: Exception) {
                 _homeState.value = UIState.Error("Ошибка запроса - $e")
             }
+            Log.d("mytag", "list after--   ${cachePopularMovieList.size}")
+
         }
+
     }
 
 
@@ -71,7 +76,7 @@ class MoviesViewModel(
             try {
                 _favoriteState.value = UIState.Loading
 
-                if (cacheFavoriteMovieList.isEmpty() ) {
+                if (cacheFavoriteMovieList.isEmpty()) {
                     repository.getAllMoviesFromFavorites()?.let {
                         cacheFavoriteMovieList = it.toMutableList()
 
@@ -79,7 +84,7 @@ class MoviesViewModel(
                     } ?: let {
                         _favoriteState.value = UIState.Error("В избранном пока ничего нет")
                     }
-                } else if (cacheFavoriteMovieList.size < App.instance.loadPopularMoviesLimit || cacheFavoriteMovieList.isNotEmpty()) {
+                } else  {
                     _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
                 }
 
@@ -97,15 +102,20 @@ class MoviesViewModel(
 
             if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
                 repository.insertMovieToFavorites(movie)
-                cacheFavoriteMovieList =
-                    cacheFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                cacheFavoriteMovieList.add(movie)
+
+                cachePopularMovieList =
+                    cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                         .toMutableList()
-                _homeState.value = UIState.Success(cacheFavoriteMovieList)
+
+                _homeState.value = UIState.Success(cachePopularMovieList)
+                _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
             }
 
-            cacheFavoriteMovieList.remove(movie)
-
-            _homeState.value = UIState.Success(cacheFavoriteMovieList)
+            cachePopularMovieList =
+                cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                    .toMutableList()
+            _homeState.value = UIState.Success(cachePopularMovieList)
         }
     }
 
@@ -113,11 +123,21 @@ class MoviesViewModel(
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
-            if (!cacheFavoriteMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
-                cacheFavoriteMovieList.add(movie)
-                _homeState.value = UIState.Success(cacheFavoriteMovieList)
+            cacheFavoriteMovieList =
+                cacheFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                    .toMutableList()
+            if (!cachePopularMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                cachePopularMovieList.add(movie)
+//                _homeState.value = UIState.Success(cachePopularMovieList)
             }
         }
+    }
+
+
+    fun deleteFromPopular(movie: Movie) {
+        cachePopularMovieList =
+            cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                .toMutableList()
     }
 }
 

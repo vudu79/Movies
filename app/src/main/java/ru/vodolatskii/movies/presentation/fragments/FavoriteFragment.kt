@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
@@ -43,13 +44,13 @@ class FavoriteFragment : Fragment() {
     ): View {
         viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-        initFavoriteRV()
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupFavoriteRV()
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
@@ -65,7 +66,6 @@ class FavoriteFragment : Fragment() {
 
 
     private fun setupSearchViewListeners() {
-
         val icon =
             binding.favoriteSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
         icon.setImageResource(R.drawable.baseline_search_24)
@@ -92,10 +92,10 @@ class FavoriteFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    favoriteAdapter.setData(viewModel.cachePopularMovieList)
+                    favoriteAdapter.setData(viewModel.cacheFavoriteMovieList)
                     return true
                 }
-                val result = viewModel.cachePopularMovieList.filter {
+                val result = viewModel.cacheFavoriteMovieList.filter {
                     it.name.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
@@ -108,11 +108,8 @@ class FavoriteFragment : Fragment() {
 
     private fun setupObservers() {
         lifecycleScope.launch {
-
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 viewModel.favoriteState.collect { uiState ->
-
                     when (uiState) {
                         is UIState.Success -> {
                             val mutableMoviesList = uiState.listMovie
@@ -131,17 +128,52 @@ class FavoriteFragment : Fragment() {
                 }
             }
         }
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
+        }
     }
 
 
-    private fun initFavoriteRV() {
+    private fun setupFavoriteRV() {
+        val onScrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+                    if (state) {
+                        if (dy > 0) {
+                            binding.favoriteSearchView.visibility = View.VISIBLE
+                        } else if (dy < 0) {
+                            binding.favoriteSearchView.visibility = View.GONE
+                        } else {
+                            binding.favoriteSearchView.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_IDLE -> {
+                    }
+
+                    RecyclerView.SCROLL_STATE_DRAGGING -> {
+                    }
+
+                    RecyclerView.SCROLL_STATE_SETTLING -> {
+                        // Прокрутка завершается
+                    }
+                }
+            }
+        }
+
+        binding.recyclerViewFav.addOnScrollListener(onScrollListener)
+
         binding.recyclerViewFav.apply {
             favoriteAdapter = ContentAdapter(
                 onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
-                }
+                },
+                onDeleteFromPopular = {}
             )
 
             layoutManager =
