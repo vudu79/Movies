@@ -2,7 +2,7 @@ package ru.vodolatskii.movies.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ru.vodolatskii.movies.data.repository.interfaces.Repository
+import ru.vodolatskii.movies.domain.Repository
 
 class MyViewModelFactory(private val repository: Repository) :
     ViewModelProvider.NewInstanceFactory() {

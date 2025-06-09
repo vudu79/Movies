@@ -8,9 +8,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
-import ru.vodolatskii.movies.data.repository.interfaces.KPsApiService
-import ru.vodolatskii.movies.data.repository.interfaces.MovieDao
-import ru.vodolatskii.movies.data.repository.interfaces.Repository
+import ru.vodolatskii.movies.domain.KPsApiService
+import ru.vodolatskii.movies.domain.MovieDao
+import ru.vodolatskii.movies.domain.Repository
 import java.util.concurrent.TimeUnit
 
 class RepositoryImpl() : Repository {
@@ -63,7 +63,7 @@ class RepositoryImpl() : Repository {
     override suspend fun getPopularMovieInfo(): ShortDocsResponseDto? {
         val response = service.getSearchResponse(
             1,
-            5,
+            App.instance.loadPopularMoviesLimit,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )

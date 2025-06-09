@@ -12,8 +12,8 @@ data class Movie(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val movieId: Long = 0,
-    val name: String,
-    val description: String,
-    val posterUrl: String,
-    var isFavorite: Boolean
-): Parcelable
+    val name: String = "",
+    val description: String = "",
+    val posterUrl: String = "",
+    var isFavorite: Boolean = false
+) : Parcelable

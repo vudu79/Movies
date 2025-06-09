@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +14,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
@@ -19,14 +23,14 @@ import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
+import java.util.Locale
 
 
 class FavoriteFragment : Fragment() {
     private lateinit var binding: FragmentFavoriteBinding
-    private lateinit var contentAdapter: ContentAdapter
+    private lateinit var favoriteAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
 
@@ -40,28 +44,77 @@ class FavoriteFragment : Fragment() {
     ): View {
         viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-        initFavoriteRV()
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupFavoriteRV()
         setupObservers()
+        setupSearchViewListeners()
+        checkToolBar()
         viewModel.getFavoriteMovies()
     }
 
+    private fun checkToolBar(){
+        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
+            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                View.VISIBLE
+        }
+    }
+
+
+    private fun setupSearchViewListeners() {
+        val icon =
+            binding.favoriteSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
+        icon.setImageResource(R.drawable.baseline_search_24)
+
+        val closeButton =
+            binding.favoriteSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        closeButton.setImageResource(R.drawable.baseline_close_24)
+
+        binding.favoriteSearchView.queryHint = "Search movie"
+
+        binding.favoriteSearchView.setOnClickListener {
+            binding.favoriteSearchView.isIconified = false
+        }
+
+        binding.favoriteSearchView.setOnCloseListener {
+            viewModel.switchSearchViewVisibility(false)
+            false
+        }
+
+        binding.favoriteSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                if (newText.isEmpty()) {
+                    favoriteAdapter.setData(viewModel.cacheFavoriteMovieList)
+                    return true
+                }
+                val result = viewModel.cacheFavoriteMovieList.filter {
+                    it.name.toLowerCase(Locale.getDefault())
+                        .contains(newText.toLowerCase(Locale.getDefault()))
+                }
+                favoriteAdapter.setData(result)
+                return true
+            }
+        })
+    }
+
+
     private fun setupObservers() {
         lifecycleScope.launch {
-
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 viewModel.favoriteState.collect { uiState ->
-
                     when (uiState) {
                         is UIState.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setFavoriteViewsVisibility(uiState)
-                            contentAdapter.setData(mutableMoviesList)
+                            favoriteAdapter.setData(mutableMoviesList)
                         }
 
                         is UIState.Error -> {
@@ -75,23 +128,58 @@ class FavoriteFragment : Fragment() {
                 }
             }
         }
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
+        }
     }
 
 
-    private fun initFavoriteRV() {
+    private fun setupFavoriteRV() {
+        val onScrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+                    if (state) {
+                        if (dy > 0) {
+                            binding.favoriteSearchView.visibility = View.VISIBLE
+                        } else if (dy < 0) {
+                            binding.favoriteSearchView.visibility = View.GONE
+                        } else {
+                            binding.favoriteSearchView.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            }
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_IDLE -> {
+                    }
+
+                    RecyclerView.SCROLL_STATE_DRAGGING -> {
+                    }
+
+                    RecyclerView.SCROLL_STATE_SETTLING -> {
+                        // Прокрутка завершается
+                    }
+                }
+            }
+        }
+
+        binding.recyclerViewFav.addOnScrollListener(onScrollListener)
+
         binding.recyclerViewFav.apply {
-            contentAdapter = ContentAdapter(
+            favoriteAdapter = ContentAdapter(
                 onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
-                }
+                },
+                onDeleteFromPopular = {}
             )
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-            adapter = contentAdapter
+            adapter = favoriteAdapter
 
             val decorator = ContentRVItemDecoration(5)
             addItemDecoration(decorator)
