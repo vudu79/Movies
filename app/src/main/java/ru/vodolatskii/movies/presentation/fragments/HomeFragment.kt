@@ -46,6 +46,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
+
+//    init {
+//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -203,12 +208,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         binding.recyclerviewContent.apply {
             contentAdapter = ContentAdapter(
-                onItemClick = { movie ->
-                    (activity as MainActivity).launchDetailsFragment(movie)
+                onItemClick = { movie, view ->
+
+                    (activity as MainActivity).launchDetailsFragment(movie, view)
+
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                             View.VISIBLE
                     }
+
                 },
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
@@ -281,4 +289,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
             contentAdapter.setData(data)
         }
     }
+//
+//    fun launchDetailsFragment(movie: Movie, view: View) {
+//        val bundle = Bundle()
+//        bundle.putParcelable("movie", movie)
+//
+//        val fr = DetailsFragment()
+//        fr.arguments = bundle
+//
+//        parentFragmentManager
+//            .beginTransaction()
+//            .addSharedElement(view, view.getTransitionName())
+//            .replace(R.id.my_nav_host_fragment, fr)
+//            .addToBackStack(null)
+//            .commit()
+//    }
 }

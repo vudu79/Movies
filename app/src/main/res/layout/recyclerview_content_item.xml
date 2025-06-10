@@ -31,6 +31,7 @@
                     android:id="@+id/poster_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:transitionName="image_transition_name"
                     android:scaleType="centerCrop" />
 
             </androidx.cardview.widget.CardView>

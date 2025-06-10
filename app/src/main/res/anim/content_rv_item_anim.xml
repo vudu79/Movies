@@ -19,7 +19,7 @@
         android:pivotY="50%"
         android:toDegrees="0" />
     <alpha
-        android:duration="500"
+        android:duration="1000"
         android:fromAlpha="0.0"
         android:toAlpha="1.0" />
 </set>

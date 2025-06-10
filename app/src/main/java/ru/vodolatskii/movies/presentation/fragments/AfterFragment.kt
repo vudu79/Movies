@@ -11,6 +11,10 @@ import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 
 class AfterFragment : Fragment() {
 
+//    init {
+//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 800;mode = Slide.MODE_OUT }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }

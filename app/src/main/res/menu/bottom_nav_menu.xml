@@ -21,7 +21,7 @@
     <item
         android:id="@+id/afterFragment"
         android:icon="@drawable/baseline_access_time_24"
-        android:title="@string/selections_nav_button"
+        android:title="@string/after_button"
         app:showAsAction="withText" />
 
 

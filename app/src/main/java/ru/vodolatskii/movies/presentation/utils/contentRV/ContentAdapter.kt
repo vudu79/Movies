@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +16,7 @@ import ru.vodolatskii.movies.data.entity.Movie
 import java.util.Collections
 
 class ContentAdapter(
-    private val onItemClick: (Movie) -> Unit,
+    private val onItemClick: (Movie,View ) -> Unit,
     private val onMoveToFavorite: (Movie) -> Unit,
     private val onDeleteFromFavorite: (Movie) -> Unit,
     private val onDeleteFromPopular: (Movie) -> Unit,
@@ -60,16 +61,20 @@ class ContentAdapter(
         when (holder) {
             is ContentViewHolder -> {
                 val Movie = asyncListDiffer.currentList[position]
+
                 Glide.with(holder.itemView.context)
                     .load(Movie.posterUrl)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
+
                 holder.title.text = Movie.name
+
                 holder.description.text = Movie.description
 
                 holder.card.setOnClickListener {
-                    onItemClick(Movie)
+                    ViewCompat.setTransitionName(holder.description, "text_transition_name")
+                    onItemClick(Movie, holder.description)
                 }
             }
 

@@ -36,7 +36,7 @@ object AnimationHelper {
                             startRadius.toFloat(),
                             endRadius.toFloat()
                         ).apply {
-                            duration = 500
+                            duration = 300
                             interpolator = AccelerateDecelerateInterpolator()
 
                             doOnEnd {
@@ -45,7 +45,7 @@ object AnimationHelper {
                         }
 
                         val alfaAnim = ObjectAnimator.ofFloat(rootView, View.ALPHA, 1f, 0f).apply {
-                            duration = 550
+                            duration = 400
                             interpolator = AccelerateDecelerateInterpolator()
                             doOnEnd {
                                 rootView.alpha = 1f

@@ -34,6 +34,9 @@ class FavoriteFragment : Fragment() {
     private lateinit var favoriteAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
+//    init {
+//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,7 +173,7 @@ class FavoriteFragment : Fragment() {
 
         binding.recyclerViewFav.apply {
             favoriteAdapter = ContentAdapter(
-                onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
+                onItemClick = { movie, view -> (activity as MainActivity).launchDetailsFragment(movie, view) },
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
