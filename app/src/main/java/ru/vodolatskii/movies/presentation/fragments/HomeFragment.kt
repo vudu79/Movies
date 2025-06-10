@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
@@ -65,7 +66,14 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
+        if (App.instance.isFirstLaunch) {
+            App.instance.isFirstLaunch = false
+            view.setBackgroundResource(R.color.black)
+            view.visibility = View.VISIBLE
+        } else {
+            AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
+        }
+
         setupContentRV()
         setupObservers()
         setupSearchViewListeners()
@@ -77,8 +85,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
             when (state) {
                 true -> {
-                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility = View.GONE
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.GONE
                 }
+
                 false -> {
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
@@ -204,7 +214,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
-                onDeleteFromPopular = {movie ->
+                onDeleteFromPopular = { movie ->
                     viewModel.deleteFromPopular(movie = movie)
                 })
 

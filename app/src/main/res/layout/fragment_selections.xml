@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:visibility="invisible"
     tools:visibility="visible"
-    android:background="@drawable/selections_background"
+    android:background="@drawable/fragments_background"
     tools:context=".presentation.fragments.SelectionsFragment">
 
     <!-- TODO: Update blank fragment layout -->
