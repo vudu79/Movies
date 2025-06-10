@@ -63,9 +63,19 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun checkToolBar(){
-        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
-            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
-                View.VISIBLE
+
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
+            when(state){
+                true-> {
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.GONE
+                }
+                false -> {
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.VISIBLE
+                }
+            }
         }
     }
 
@@ -132,9 +142,6 @@ class FavoriteFragment : Fragment() {
                     }
                 }
             }
-        }
-        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
-            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
         }
     }
 
