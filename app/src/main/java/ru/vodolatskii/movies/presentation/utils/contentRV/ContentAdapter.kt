@@ -1,8 +1,11 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -11,6 +14,9 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
@@ -21,8 +27,9 @@ class ContentAdapter(
     private val onMoveToFavorite: (Movie) -> Unit,
     private val onDeleteFromFavorite: (Movie) -> Unit,
     private val onDeleteFromPopular: (Movie) -> Unit,
+    private val context: Context
 
-    ) :
+) :
     RecyclerView.Adapter<ContentAdapter.ContentViewHolder>(), ContentItemTouchHelperListener {
 
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
@@ -79,6 +86,7 @@ class ContentAdapter(
                     ViewCompat.setTransitionName(holder.description, "text_transition_name")
                     onItemClick(Movie, holder.description)
                 }
+                setAnimation(holder.shineView)
             }
 
             else -> {
@@ -124,5 +132,25 @@ class ContentAdapter(
         val description: TextView = itemView.findViewById(R.id.description)
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
+        val shineView: View = itemView.findViewById(R.id.shine)
+    }
+
+    private fun setAnimation(viewToAnimate: View) {
+        try {
+            val anim = AnimationUtils.loadAnimation(context, R.anim.left_right_shine_anim)
+            viewToAnimate.startAnimation(anim)
+            anim.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationEnd(p0: Animation) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        viewToAnimate.startAnimation(anim)
+                    }
+                }
+
+                override fun onAnimationStart(p0: Animation?) {}
+                override fun onAnimationRepeat(p0: Animation?) {}
+            })
+        } catch (e: Exception) {
+
+        }
     }
 }

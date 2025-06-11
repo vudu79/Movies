@@ -185,7 +185,8 @@ class FavoriteFragment : Fragment() {
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
                 },
-                onDeleteFromPopular = {}
+                onDeleteFromPopular = {},
+                context = requireContext(),
             )
 
             layoutManager =

@@ -207,7 +207,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
         binding.recyclerviewContent.addOnScrollListener(onScrollListener)
 
         binding.recyclerviewContent.apply {
+
             contentAdapter = ContentAdapter(
+                context = requireContext(),
+
                 onItemClick = { movie, view ->
 
                     (activity as MainActivity).launchDetailsFragment(movie, view)
@@ -224,7 +227,8 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
                     viewModel.deleteFromPopular(movie = movie)
-                })
+                },
+            )
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
