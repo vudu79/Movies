@@ -42,6 +42,7 @@ android {
     buildFeatures {
         buildConfig = true
         viewBinding = true
+
     }
 }
 
@@ -110,14 +111,14 @@ dependencies {
 
 
     // Testing-only dependencies
-    androidTestImplementation("androidx.test:core:" + rootProject.extra["coreVersion"])
-    androidTestImplementation("androidx.test:core-ktx:" + rootProject.extra["coreVersion"])
-    androidTestImplementation("androidx.test.ext:junit:" + rootProject.extra["extJUnitVersion"])
-    androidTestImplementation("androidx.test.ext:junit-ktx:" + rootProject.extra["extJUnitVersion"])
-    androidTestImplementation("androidx.test:runner:" + rootProject.extra["runnerVersion"])
-    androidTestImplementation("androidx.test.espresso:espresso-core:" + rootProject.extra["espressoVersion"])
-    debugImplementation ("androidx.fragment:fragment-testing-manifest:1.8.8")
-    androidTestImplementation ("androidx.fragment:fragment-testing:1.8.8")
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.core.ktx)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.junit.ktx)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.espresso.core)
+    debugImplementation (libs.androidx.fragment.testing.manifest)
+    androidTestImplementation (libs.androidx.fragment.testing)
 
 }
 
