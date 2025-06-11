@@ -7,7 +7,6 @@ plugins {
 }
 
 
-
 android {
     namespace = "ru.vodolatskii.movies"
     compileSdk = 34
@@ -105,9 +104,22 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    implementation (libs.logging.interceptor)
-    implementation (libs.converter.gson.v260)
-    implementation (libs.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.converter.gson.v260)
+    implementation(libs.gson)
 
+
+    // Testing-only dependencies
+    androidTestImplementation("androidx.test:core:" + rootProject.extra["coreVersion"])
+    androidTestImplementation("androidx.test:core-ktx:" + rootProject.extra["coreVersion"])
+    androidTestImplementation("androidx.test.ext:junit:" + rootProject.extra["extJUnitVersion"])
+    androidTestImplementation("androidx.test.ext:junit-ktx:" + rootProject.extra["extJUnitVersion"])
+    androidTestImplementation("androidx.test:runner:" + rootProject.extra["runnerVersion"])
+    androidTestImplementation("androidx.test.espresso:espresso-core:" + rootProject.extra["espressoVersion"])
+    debugImplementation ("androidx.fragment:fragment-testing-manifest:1.8.8")
+    androidTestImplementation ("androidx.fragment:fragment-testing:1.8.8")
 
 }
+
+
+

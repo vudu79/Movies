@@ -13,10 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
 
 class ContentAdapter(
-    private val onItemClick: (Movie,View ) -> Unit,
+    private val onItemClick: (Movie, View) -> Unit,
     private val onMoveToFavorite: (Movie) -> Unit,
     private val onDeleteFromFavorite: (Movie) -> Unit,
     private val onDeleteFromPopular: (Movie) -> Unit,
@@ -72,6 +73,8 @@ class ContentAdapter(
 
                 holder.description.text = Movie.description
 
+                holder.rating.setProgress((Movie.rating * 10).toInt())
+
                 holder.card.setOnClickListener {
                     ViewCompat.setTransitionName(holder.description, "text_transition_name")
                     onItemClick(Movie, holder.description)
@@ -120,5 +123,6 @@ class ContentAdapter(
         val title: TextView = itemView.findViewById(R.id.title)
         val description: TextView = itemView.findViewById(R.id.description)
         val card: CardView = itemView.findViewById(R.id.card)
+        val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
     }
 }
