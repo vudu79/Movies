@@ -26,7 +26,7 @@ class RatingDonutView @JvmOverloads constructor(
     //Значение прогресса от 0 - 100
     private var progress = 50
     //Значения размера текста внутри кольца
-    private var scaleSize = 60f
+    private var scaleSize = 30f
     //Краски для наших фигур
     private lateinit var strokePaint: Paint
     private lateinit var digitPaint: Paint
@@ -148,10 +148,10 @@ class RatingDonutView @JvmOverloads constructor(
         }
     }
     private fun getPaintColor(progress: Int): Int = when(progress) {
-        in 0 .. 25 -> Color.parseColor("#e84258")
-        in 26 .. 50 -> Color.parseColor("#fd8060")
-        in 51 .. 75 -> Color.parseColor("#fee191")
-        else -> Color.parseColor("#b0d8a4")
+        in 0 .. 25 -> Color.parseColor("#D5122C")
+        in 26 .. 55 -> Color.parseColor("#E26A4B")
+        in 56 .. 80 -> Color.parseColor("#F2C649")
+        else -> Color.parseColor("#3CEB08")
     }
 
     fun setProgress(pr: Int) {
