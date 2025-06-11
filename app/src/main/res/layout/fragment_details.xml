@@ -28,6 +28,7 @@
                 android:background="@color/background"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
+                android:transitionName="image_transition_name"
                 android:src="@drawable/ic_launcher_foreground"
                 app:layout_collapseMode="pin" />
 
@@ -64,6 +65,8 @@
 
         <TextView
             android:id="@+id/details_description"
+            android:transitionName="text_transition_name"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"

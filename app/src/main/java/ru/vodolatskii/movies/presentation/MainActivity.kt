@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.ui.setupWithNavController
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
@@ -78,10 +79,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun launchDetailsFragment(movie: Movie) {
+    fun launchDetailsFragment(movie: Movie, view: View) {
         val bundle = Bundle()
         bundle.putParcelable("movie", movie)
-        navController.navigate(R.id.detailsFragment, bundle)
+
+        val extras = FragmentNavigatorExtras(
+            view to "text_transition_name"
+        )
+
+        navController.navigate(
+            R.id.detailsFragment,
+            bundle,
+            null,
+            extras
+        )
     }
 
 

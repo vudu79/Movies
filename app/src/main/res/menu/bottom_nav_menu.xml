@@ -17,4 +17,12 @@
         android:icon="@drawable/baseline_video_library_24"
         android:title="@string/selections_nav_button"
         app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/afterFragment"
+        android:icon="@drawable/baseline_access_time_24"
+        android:title="@string/after_button"
+        app:showAsAction="withText" />
+
+
 </menu>

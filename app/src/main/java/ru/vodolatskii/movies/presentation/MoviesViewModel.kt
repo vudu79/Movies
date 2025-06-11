@@ -1,6 +1,5 @@
 package ru.vodolatskii.movies.presentation
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,19 +32,11 @@ class MoviesViewModel(
     var cacheFavoriteMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
 
 
-    init {
-//        getPopularMovies()
-//        getFavoriteMovies()
-    }
-
-
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
 
-
     fun getPopularMovies() {
-        Log.d("mytag", "${cachePopularMovieList.size}")
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading

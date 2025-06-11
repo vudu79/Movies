@@ -68,7 +68,7 @@ data class Backdrop(
     val previewUrl: String?,
 )
 
-data class Rating(
+data class Ratings(
     val kp: Double,
     val imdb: Double,
     val filmCritics: Double,

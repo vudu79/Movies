@@ -8,6 +8,8 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.transition.AutoTransition
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,13 +28,19 @@ import ru.vodolatskii.movies.presentation.MoviesViewModel
 class DetailsFragment : Fragment() {
     private lateinit var binding: FragmentDetailsBinding
     lateinit var viewModel: MoviesViewModel
-
     private lateinit var movie: Movie
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         movie = arguments?.get("movie") as Movie
+
+        val transition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+        sharedElementEnterTransition = AutoTransition().apply {
+            enterTransition = transition
+            duration = 500
+        }
     }
 
     override fun onCreateView(
@@ -40,6 +48,7 @@ class DetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         viewModel = (activity as MainActivity).getMoviesViewModel()
         binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
@@ -47,6 +56,8 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         initContent(movie)
 
@@ -125,6 +136,7 @@ class DetailsFragment : Fragment() {
                         }
                         .show()
                 }
+
                 R.id.button_favorite_details -> {
                     if (movie.isFavorite) {
                         binding.detailsToolbar.menu.findItem(R.id.button_favorite_details)

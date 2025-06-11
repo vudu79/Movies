@@ -15,12 +15,23 @@ data class Doc(
     val name: String = "",
     val description: String = "",
     val poster: Poster,
-) : Parcelable
+    val rating: Rating,
+    ) : Parcelable
+
 
 @Parcelize
 data class Poster(
     val url: String = "",
     val previewUrl: String = "",
+) : Parcelable
+
+
+@Parcelize
+data class Rating(
+    val kp: Double,
+    val imdb: Double,
+    val filmCritics: Double,
+    val russianFilmCritics: Double,
 ) : Parcelable
 
 fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
@@ -30,7 +41,8 @@ fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
             name = it.name,
             description = it.description,
             posterUrl = it.poster.url,
-            isFavorite = false
+            isFavorite = false,
+            rating = it.rating.kp.toFloat()
         )
         movie
     }

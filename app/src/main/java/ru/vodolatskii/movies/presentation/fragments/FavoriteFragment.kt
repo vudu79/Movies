@@ -21,6 +21,7 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MoviesViewModel
+import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
@@ -33,6 +34,9 @@ class FavoriteFragment : Fragment() {
     private lateinit var favoriteAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
+//    init {
+//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,7 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
         setupFavoriteRV()
         setupObservers()
         setupSearchViewListeners()
@@ -58,9 +63,19 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun checkToolBar(){
-        if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
-            activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
-                View.VISIBLE
+
+        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
+            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
+            when(state){
+                true-> {
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.GONE
+                }
+                false -> {
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.VISIBLE
+                }
+            }
         }
     }
 
@@ -128,9 +143,6 @@ class FavoriteFragment : Fragment() {
                 }
             }
         }
-        viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
-            binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
-        }
     }
 
 
@@ -168,12 +180,13 @@ class FavoriteFragment : Fragment() {
 
         binding.recyclerViewFav.apply {
             favoriteAdapter = ContentAdapter(
-                onItemClick = { movie -> (activity as MainActivity).launchDetailsFragment(movie) },
+                onItemClick = { movie, view -> (activity as MainActivity).launchDetailsFragment(movie, view) },
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
                 },
-                onDeleteFromPopular = {}
+                onDeleteFromPopular = {},
+                context = requireContext(),
             )
 
             layoutManager =
@@ -221,13 +234,5 @@ class FavoriteFragment : Fragment() {
                 binding.recyclerViewFav.visibility = View.GONE
             }
         }
-    }
-
-
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoriteFragment().apply {
-            }
     }
 }
