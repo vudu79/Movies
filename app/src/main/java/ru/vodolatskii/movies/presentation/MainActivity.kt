@@ -119,31 +119,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
     }
 
-
-    private fun checkInternetStatus(context: Context): InternetType {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            val network = connectivityManager.activeNetwork ?: return InternetType.NONE
-
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(network) ?: return InternetType.NONE
-
-            return when {
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> InternetType.WIFI
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> InternetType.MOBILE
-                else -> InternetType.NONE // xaxaxaxa
-            }
-        } else {
-            @Suppress("DEPRECATION") val networkInfo =
-                connectivityManager.activeNetworkInfo ?: return InternetType.NONE
-            @Suppress("DEPRECATION")
-            return InternetType.MOBILE //  xaxaxaxa
-        }
-    }
-
     //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 //        val id = item.itemId
 //        if (id == R.id.button_search) {
