@@ -21,11 +21,9 @@ import ru.vodolatskii.movies.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +31,7 @@ class MainActivity : AppCompatActivity() {
         setupViewModel()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         navController = findNavController(R.id.my_nav_host_fragment)
 
@@ -74,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun getMoviesViewModel(): MoviesViewModel {
+    fun shareMoviesViewModel(): MoviesViewModel {
         return viewModel
     }
 
@@ -120,8 +117,8 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
     }
 
-    private fun checkInternetStatus(context: Context): InternetType {
 
+    private fun checkInternetStatus(context: Context): InternetType {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 

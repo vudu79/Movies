@@ -86,7 +86,8 @@ class ContentAdapter(
                     ViewCompat.setTransitionName(holder.description, "text_transition_name")
                     onItemClick(Movie, holder.description)
                 }
-                setAnimation(holder.shineView)
+
+//                setAnimation(holder.shineView)
             }
 
             else -> {

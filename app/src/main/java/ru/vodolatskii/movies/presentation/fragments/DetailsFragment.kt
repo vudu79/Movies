@@ -49,7 +49,7 @@ class DetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        viewModel = (activity as MainActivity).getMoviesViewModel()
+        viewModel = (activity as MainActivity).shareMoviesViewModel()
         binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }

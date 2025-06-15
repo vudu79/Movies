@@ -65,7 +65,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
             container,
             false
         )
-        viewModel = (activity as MainActivity).getMoviesViewModel()
+        viewModel = (activity as MainActivity).shareMoviesViewModel()
         return binding.root
     }
 

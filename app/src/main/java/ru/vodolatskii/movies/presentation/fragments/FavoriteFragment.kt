@@ -46,7 +46,7 @@ class FavoriteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = (activity as MainActivity).getMoviesViewModel()
+        viewModel = (activity as MainActivity).shareMoviesViewModel()
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         return binding.root
     }

@@ -2,7 +2,6 @@ package ru.vodolatskii.movies
 
 import android.app.Application
 import android.content.res.Configuration
-import androidx.lifecycle.LifecycleObserver
 import androidx.room.Room
 import ru.vodolatskii.movies.data.RoomDB
 import timber.log.Timber
@@ -11,7 +10,7 @@ class App : Application() {
 
     lateinit var db: RoomDB
 
-    var loadPopularMoviesLimit:Int = 10
+    var loadPopularMoviesLimit:Int = 20
 
     var isFirstLaunch = true
 
