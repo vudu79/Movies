@@ -7,11 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
 
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding
+    lateinit var viewModel: MoviesViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +29,10 @@ class LaunchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
+        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
+        viewModel.getPopularMovies()
 
 
         val tvAnimation = AnimationUtils.loadAnimation(this, R.anim.tv_set_anim)

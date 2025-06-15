@@ -7,7 +7,6 @@ plugins {
 }
 
 
-
 android {
     namespace = "ru.vodolatskii.movies"
     compileSdk = 34
@@ -43,6 +42,7 @@ android {
     buildFeatures {
         buildConfig = true
         viewBinding = true
+
     }
 }
 
@@ -105,9 +105,22 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    implementation (libs.logging.interceptor)
-    implementation (libs.converter.gson.v260)
-    implementation (libs.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.converter.gson.v260)
+    implementation(libs.gson)
 
+
+    // Testing-only dependencies
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.core.ktx)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.junit.ktx)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.espresso.core)
+    debugImplementation (libs.androidx.fragment.testing.manifest)
+    androidTestImplementation (libs.androidx.fragment.testing)
 
 }
+
+
+

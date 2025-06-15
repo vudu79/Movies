@@ -8,7 +8,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -18,11 +17,13 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.MoviesViewModel
+import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
@@ -45,6 +46,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
+
+//    init {
+//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,6 +71,14 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (App.instance.isFirstLaunch) {
+            App.instance.isFirstLaunch = false
+            view.setBackgroundResource(R.color.black)
+            view.visibility = View.VISIBLE
+        } else {
+            AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
+        }
+
         setupContentRV()
         setupObservers()
         setupSearchViewListeners()
@@ -76,8 +90,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
             when (state) {
                 true -> {
-                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility = View.GONE
+                    activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
+                        View.GONE
                 }
+
                 false -> {
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
@@ -191,21 +207,28 @@ class HomeFragment : Fragment(), ContentAdapterController {
         binding.recyclerviewContent.addOnScrollListener(onScrollListener)
 
         binding.recyclerviewContent.apply {
+
             contentAdapter = ContentAdapter(
-                onItemClick = { movie ->
-                    (activity as MainActivity).launchDetailsFragment(movie)
+                context = requireContext(),
+
+                onItemClick = { movie, view ->
+
+                    (activity as MainActivity).launchDetailsFragment(movie, view)
+
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                             View.VISIBLE
                     }
+
                 },
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
-                onDeleteFromPopular = {movie ->
+                onDeleteFromPopular = { movie ->
                     viewModel.deleteFromPopular(movie = movie)
-                })
+                },
+            )
 
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -270,4 +293,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
             contentAdapter.setData(data)
         }
     }
+//
+//    fun launchDetailsFragment(movie: Movie, view: View) {
+//        val bundle = Bundle()
+//        bundle.putParcelable("movie", movie)
+//
+//        val fr = DetailsFragment()
+//        fr.arguments = bundle
+//
+//        parentFragmentManager
+//            .beginTransaction()
+//            .addSharedElement(view, view.getTransitionName())
+//            .replace(R.id.my_nav_host_fragment, fr)
+//            .addToBackStack(null)
+//            .commit()
+//    }
 }

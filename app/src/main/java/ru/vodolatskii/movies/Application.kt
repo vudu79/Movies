@@ -11,7 +11,9 @@ class App : Application() {
 
     lateinit var db: RoomDB
 
-    var loadPopularMoviesLimit:Int = 4
+    var loadPopularMoviesLimit:Int = 10
+
+    var isFirstLaunch = true
 
     override fun onCreate() {
         super.onCreate()
@@ -50,15 +52,15 @@ class App : Application() {
     }
 }
 
-class LifeCycleListener : LifecycleObserver {
-//    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-//    fun start() {
-//        Timber.d("on start")
-//    }
-//
-//    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-//    fun stop() {
-//        Timber.d("on stop")
-//    }
-}
+//class LifeCycleListener : LifecycleObserver {
+////    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+////    fun start() {
+////        Timber.d("on start")
+////    }
+////
+////    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+////    fun stop() {
+////        Timber.d("on stop")
+////    }
+//}
 

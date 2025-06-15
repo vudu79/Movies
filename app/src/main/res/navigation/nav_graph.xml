@@ -23,4 +23,9 @@
         android:name="ru.vodolatskii.movies.presentation.fragments.SelectionsFragment"
         android:label="fragment_selections"
         tools:layout="@layout/fragment_selections" />
+    <fragment
+        android:id="@+id/afterFragment"
+        android:name="ru.vodolatskii.movies.presentation.fragments.AfterFragment"
+        android:label="fragment_after"
+        tools:layout="@layout/fragment_after" />
 </navigation>
