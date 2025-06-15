@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.domain
+package ru.vodolatskii.movies.data.service
 
 import retrofit2.Response
 import retrofit2.http.GET

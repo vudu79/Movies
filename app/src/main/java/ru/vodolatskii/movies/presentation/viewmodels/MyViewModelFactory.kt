@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation
+package ru.vodolatskii.movies.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

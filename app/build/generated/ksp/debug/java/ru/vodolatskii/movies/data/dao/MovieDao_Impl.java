@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.domain;
+package ru.vodolatskii.movies.data.dao;
 
 import android.database.Cursor;
 import androidx.annotation.NonNull;

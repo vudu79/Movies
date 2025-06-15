@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.repository.impl
+package ru.vodolatskii.movies.data.repositiryImpl
 
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
@@ -8,8 +8,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
-import ru.vodolatskii.movies.domain.KPsApiService
-import ru.vodolatskii.movies.domain.MovieDao
+import ru.vodolatskii.movies.data.service.KPsApiService
+import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.domain.Repository
 import java.util.concurrent.TimeUnit
 

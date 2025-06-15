@@ -133,7 +133,7 @@ class ContentAdapter(
         val description: TextView = itemView.findViewById(R.id.description)
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
-        val shineView: View = itemView.findViewById(R.id.shine)
+//        val shineView: View = itemView.findViewById(R.id.shine)
     }
 
     private fun setAnimation(viewToAnimate: View) {

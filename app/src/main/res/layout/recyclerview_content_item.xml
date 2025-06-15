@@ -76,13 +76,13 @@
                     app:progress="77"
                     app:stroke="8" />
 
-                <View
-                    android:id="@+id/shine"
-                    android:layout_width="40dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/shine_background"
-                    android:layout_gravity="center"
-                    />
+<!--                <View-->
+<!--                    android:id="@+id/shine"-->
+<!--                    android:layout_width="40dp"-->
+<!--                    android:layout_height="30dp"-->
+<!--                    android:background="@drawable/shine_background"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    />-->
             </FrameLayout>
 
         </RelativeLayout>

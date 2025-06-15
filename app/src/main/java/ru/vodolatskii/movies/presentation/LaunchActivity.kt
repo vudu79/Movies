@@ -9,8 +9,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.repository.impl.RepositoryProvider
+import ru.vodolatskii.movies.data.repositiryImpl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import ru.vodolatskii.movies.presentation.viewmodels.MyViewModelFactory
 
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding

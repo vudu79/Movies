@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
-import ru.vodolatskii.movies.domain.MovieDao;
-import ru.vodolatskii.movies.domain.MovieDao_Impl;
+import ru.vodolatskii.movies.data.dao.MovieDao;
+import ru.vodolatskii.movies.data.dao.MovieDao_Impl;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})

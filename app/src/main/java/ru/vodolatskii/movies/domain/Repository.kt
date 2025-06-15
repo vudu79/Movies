@@ -4,7 +4,6 @@ import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
 
 interface Repository {
-//    suspend fun getPopularMovieInfo(): ShortDocsResponseDto?
     suspend fun getPopularMovieInfo(): ShortDocsResponseDto?
 
     suspend fun insertMovieToFavorites(movie: Movie)

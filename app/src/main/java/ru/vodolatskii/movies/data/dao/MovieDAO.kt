@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.domain
+package ru.vodolatskii.movies.data.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
