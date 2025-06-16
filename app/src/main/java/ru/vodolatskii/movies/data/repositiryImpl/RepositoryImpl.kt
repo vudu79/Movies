@@ -6,11 +6,12 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.entity.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.service.KPsApiService
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.domain.Repository
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.util.concurrent.TimeUnit
 
 class RepositoryImpl() : Repository {
@@ -22,17 +23,23 @@ class RepositoryImpl() : Repository {
 
 //    private val BASE_URL_TMDB = "https://api.themoviedb.org/3/"
 
-//    private val interceptor = run {
+    //    private val interceptor = run {
 //        val httpLoggingInterceptor = HttpLoggingInterceptor()
 //        httpLoggingInterceptor.apply {
 //            httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 //        }
 //    }
+
+
     private val okHttpClient = OkHttpClient.Builder()
-//        .addNetworkInterceptor(interceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .callTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+//        .addInterceptor(HttpLoggingInterceptor().apply {
+//            if (BuildConfig.DEBUG) {
+//                level = HttpLoggingInterceptor.Level.BASIC
+//            }
+//        })
         .build()
 
     private val moshi = Moshi.Builder() // adapter
@@ -60,19 +67,40 @@ class RepositoryImpl() : Repository {
 //        retrofit.create(TMDBsApiService::class.java)
 //    }
 
-    override suspend fun getPopularMovieInfo(): ShortDocsResponseDto? {
-        val response = service.getSearchResponse(
-            1,
-            App.instance.loadPopularMoviesLimit,
+    override suspend fun getPopularMovieApiResponse(page: Int, callback: MoviesViewModel.ApiCallback) {
+        val resp = service.getSearchResponse(
+            page = page,
+            limit = App.instance.loadPopularMoviesLimit,
             selectFields = listOf("id", "name", "description", "poster"),
             notNullFields = listOf("name", "poster.url")
         )
+        val body = resp.body()
 
-        if (response.code() != 200) {
-            return null
+        if (resp.code() == 200 && body != null) {
+            callback.onSuccess(body.toMovieList())
         } else {
-            return response.body()
+            callback.onFailure(resp.code())
         }
+//            .enqueue(object : Callback<ShortDocsResponseDto> {
+//            override fun onResponse(
+//                call: Call<ShortDocsResponseDto>,
+//                response: Response<ShortDocsResponseDto>
+//            ) {
+//                val apiResponse = response.body()
+//                Log.d("mytag", "repository - $apiResponse")
+//
+//                if (apiResponse != null) {
+//                    callback.onSuccess(apiResponse.toMovieList())
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<ShortDocsResponseDto>, t: Throwable) {
+//
+//                Log.d("mytag", "repository tro - $t")
+//
+//                callback.onFailure(t)
+//            }
+//        })
     }
 
 //    override suspend fun getPopularMovieInfo(): TMDBPopularMoviesRespDto? {

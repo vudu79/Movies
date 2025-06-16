@@ -83,7 +83,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
-        viewModel.getPopularMovies()
+        viewModel.getPopularMovies(1)
     }
 
     private fun checkToolBar() {

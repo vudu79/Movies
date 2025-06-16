@@ -50,8 +50,8 @@ class ContentAdapter(
         asyncListDiffer.submitList(list)
     }
 
-    fun addData(Movies: List<Movie>) {
-        val list = Movies.toMutableList() + getData()
+    fun addData(movies: List<Movie>) {
+        val list = movies.toMutableList() + getData()
 
         asyncListDiffer.submitList(list)
     }

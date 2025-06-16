@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
@@ -36,24 +36,26 @@ class MoviesViewModel(
         _isSearchViewVisible.value = state
     }
 
-    fun getPopularMovies() {
+    fun getPopularMovies(page : Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
-
                 if (cachePopularMovieList.isEmpty()) {
-                    repository.getPopularMovieInfo()?.let {
-                        cachePopularMovieList = it.toMovieList()
-                        _homeState.value = UIState.Success(cachePopularMovieList)
-                    } ?: let {
-                        _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
-                    }
+                    repository.getPopularMovieApiResponse(page = page, callback = object : ApiCallback{
+                        override fun onSuccess(films: MutableList<Movie>) {
+                            cachePopularMovieList = films
+                            Log.d("mytag", "viewmodel - $films")
+                            _homeState.value = UIState.Success(cachePopularMovieList)                        }
+
+                        override fun onFailure(code: Int) {
+                            _homeState.value = UIState.Error("Ошибка запроса - $code")
+                        }
+                    })
                 } else if (cachePopularMovieList.size <= App.instance.loadPopularMoviesLimit) {
                     _homeState.value = UIState.Success(cachePopularMovieList)
                 }
-
             } catch (e: Exception) {
-                _homeState.value = UIState.Error("Ошибка запроса - $e")
+                _homeState.value = UIState.Error("Ошибка - $e")
             }
         }
     }
@@ -126,6 +128,12 @@ class MoviesViewModel(
         cachePopularMovieList =
             cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                 .toMutableList()
+    }
+
+
+    interface ApiCallback {
+        fun onSuccess(films: MutableList<Movie>)
+        fun onFailure(code: Int)
     }
 }
 
