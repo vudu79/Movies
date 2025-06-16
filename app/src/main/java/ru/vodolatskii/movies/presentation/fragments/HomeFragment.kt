@@ -189,13 +189,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
 
                 if (!recyclerView.canScrollVertically(1)){
-
-                    Log.d("mytag" , "$viewModel.pageCount")
                     viewModel.plusPageCount()
                     viewModel.getPopularMovies()
                 }
             }
-
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
@@ -212,9 +209,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
         }
 
-        binding.recyclerviewContent.addOnScrollListener(onScrollListener)
 
         binding.recyclerviewContent.apply {
+
+            addOnScrollListener(onScrollListener)
 
             contentAdapter = ContentAdapter(
                 context = requireContext(),

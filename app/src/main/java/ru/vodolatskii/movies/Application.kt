@@ -10,7 +10,7 @@ class App : Application() {
 
     lateinit var db: RoomDB
 
-    var loadPopularMoviesLimit:Int = 5
+    var loadPopularMoviesLimit:Int = 20
 
     var isFirstLaunch = true
 
