@@ -1,15 +1,17 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
+import com.github.ajalt.timberkt.BuildConfig
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.entity.Movie
-import ru.vodolatskii.movies.data.service.KPsApiService
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
+import ru.vodolatskii.movies.data.service.KPsApiService
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.util.concurrent.TimeUnit
@@ -35,11 +37,11 @@ class RepositoryImpl() : Repository {
         .connectTimeout(30, TimeUnit.SECONDS)
         .callTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-//        .addInterceptor(HttpLoggingInterceptor().apply {
-//            if (BuildConfig.DEBUG) {
-//                level = HttpLoggingInterceptor.Level.BASIC
-//            }
-//        })
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            if (BuildConfig.DEBUG) {
+                level = HttpLoggingInterceptor.Level.BASIC
+            }
+        })
         .build()
 
     private val moshi = Moshi.Builder() // adapter

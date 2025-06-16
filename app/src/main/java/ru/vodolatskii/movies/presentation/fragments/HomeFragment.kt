@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +47,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
-
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
 //    }
@@ -83,7 +83,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
-        viewModel.getPopularMovies(1)
+        viewModel.getPopularMovies()
     }
 
     private fun checkToolBar() {
@@ -187,7 +187,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
                         }
                     }
                 }
+
+                if (!recyclerView.canScrollVertically(1)){
+
+                    Log.d("mytag" , "$viewModel.pageCount")
+                    viewModel.plusPageCount()
+                    viewModel.getPopularMovies()
+                }
             }
+
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
