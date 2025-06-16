@@ -1,6 +1,6 @@
 package ru.vodolatskii.movies.domain
 
-import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
+import ru.vodolatskii.movies.data.entity.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
 
 interface Repository {

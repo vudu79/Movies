@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.dto.toMovieList
+import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState

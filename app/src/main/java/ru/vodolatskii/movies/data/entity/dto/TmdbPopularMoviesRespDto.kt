@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.dto
+package ru.vodolatskii.movies.data.entity.dto
 
 import com.google.gson.annotations.SerializedName
 import ru.vodolatskii.movies.data.entity.Movie

@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
+import ru.vodolatskii.movies.data.entity.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.service.KPsApiService
 import ru.vodolatskii.movies.data.dao.MovieDao

@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.vodolatskii.movies.data.dto.TMDBPopularMoviesRespDto
+import ru.vodolatskii.movies.data.entity.dto.TMDBPopularMoviesRespDto
 
 interface TMDBsApiService {
     @Headers(
