@@ -29,7 +29,6 @@ class MoviesViewModel(
     var cachePopularMovieList: MutableList<Movie> = mutableListOf()
     var cacheFavoriteMovieList: MutableList<Movie> = mutableListOf()
 
-
     var loadedPages: MutableSet<Int> = mutableSetOf()
 
     var pageCount = 1
@@ -39,7 +38,6 @@ class MoviesViewModel(
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
-
 
     fun getPopularMovies() {
         viewModelScope.launch(Dispatchers.IO) {
