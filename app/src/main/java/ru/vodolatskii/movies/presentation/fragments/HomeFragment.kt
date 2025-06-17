@@ -156,6 +156,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                         }
 
                         is UIState.Error -> {
+                            binding.errorTextView.text = uiState.message
                             setHomeViewsVisibility(uiState)
                         }
 
@@ -281,16 +282,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
             is UIState.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.errorTextView.visibility = View.GONE
             }
 
             is UIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
-                binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.VISIBLE
             }
 
             UIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.GONE
             }
         }
     }

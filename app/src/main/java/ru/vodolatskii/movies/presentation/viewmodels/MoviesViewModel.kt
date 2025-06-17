@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
 
@@ -54,8 +55,8 @@ class MoviesViewModel(
                                 _homeState.value = UIState.Success(cachePopularMovieList)
                                 loadedPages.add(pageCount)
                             }
-                            override fun onFailure(code: Int) {
-                                _homeState.value = UIState.Error("Ошибка запроса - $code")
+                            override fun onFailure(error: ErrorResponseDto) {
+                                _homeState.value = UIState.Error("Код ошибки - ${error.statusCode}\n${error.message}")
                             }
                         })
                 } else {
@@ -146,7 +147,7 @@ class MoviesViewModel(
 
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)
-        fun onFailure(code: Int)
+        fun onFailure(error: ErrorResponseDto)
     }
 }
 

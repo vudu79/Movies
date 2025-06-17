@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import com.github.ajalt.timberkt.BuildConfig
+import com.google.gson.Gson
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
@@ -10,11 +11,13 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPsApiService
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.util.concurrent.TimeUnit
+
 
 class RepositoryImpl() : Repository {
 
@@ -81,7 +84,13 @@ class RepositoryImpl() : Repository {
         if (resp.code() == 200 && body != null) {
             callback.onSuccess(body.toMovieList())
         } else {
-            callback.onFailure(resp.code())
+
+            val errorResp: ErrorResponseDto = Gson().fromJson(
+                resp.errorBody()?.charStream(),
+                ErrorResponseDto::class.java
+            )
+
+            callback.onFailure(errorResp)
         }
 //            .enqueue(object : Callback<ShortDocsResponseDto> {
 //            override fun onResponse(
