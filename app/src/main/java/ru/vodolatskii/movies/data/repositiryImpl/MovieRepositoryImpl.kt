@@ -60,29 +60,8 @@ class MovieRepositoryImpl @Inject constructor(
                 resp.errorBody()?.charStream(),
                 ErrorResponseDto::class.java
             )
-
             callback.onFailure(errorResp)
         }
-//            .enqueue(object : Callback<ShortDocsResponseDto> {
-//            override fun onResponse(
-//                call: Call<ShortDocsResponseDto>,
-//                response: Response<ShortDocsResponseDto>
-//            ) {
-//                val apiResponse = response.body()
-//                Log.d("mytag", "repository - $apiResponse")
-//
-//                if (apiResponse != null) {
-//                    callback.onSuccess(apiResponse.toMovieList())
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<ShortDocsResponseDto>, t: Throwable) {
-//
-//                Log.d("mytag", "repository tro - $t")
-//
-//                callback.onFailure(t)
-//            }
-//        })
     }
 
     override suspend fun insertMovieToFavorites(movie: Movie) {

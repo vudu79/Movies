@@ -35,7 +35,6 @@ class RemoteModule {
         .add(KotlinJsonAdapterFactory())
         .build()
 
-
     @Singleton
     @Provides
     fun provideRetrofit(client: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
