@@ -42,7 +42,7 @@ fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
             description = it.description,
             posterUrl = it.poster.url,
             isFavorite = false,
-            rating = it.rating.kp.toFloat()
+            rating = it.rating.kp
         )
         movie
     }

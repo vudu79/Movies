@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-17T10:25:47.620163Z">
+        <DropdownSelection timestamp="2025-06-18T16:55:17.665509Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/andrejvodolackij/.android/avd/Galaxy_Nexus_API_34.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/andrejvodolackij/.android/avd/Pixel_8_Pro_API_TiramisuPrivacySandbox.avd" />
             </handle>
           </Target>
         </DropdownSelection>

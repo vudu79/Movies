@@ -48,7 +48,7 @@ class MoviesViewModel @Inject constructor(
 
                 if (!loadedPages.contains(pageCount) || cachePopularMovieList.isEmpty()) {
 
-                    repository.getPopularMovieApiResponse(
+                    repository.getPopularMovieTMDBResponse(
                         page = pageCount,
                         callback = object : ApiCallback {
                             override fun onSuccess(films: MutableList<Movie>) {
@@ -57,7 +57,7 @@ class MoviesViewModel @Inject constructor(
                                 loadedPages.add(pageCount)
                             }
                             override fun onFailure(error: ErrorResponseDto) {
-                                _homeState.value = UIState.Error("Код ошибки - ${error.statusCode}\n${error.message}")
+                                _homeState.value = UIState.Error("Response code - ${error.statusCode}\n${error.message}")
                             }
                         })
                 } else {
@@ -65,7 +65,7 @@ class MoviesViewModel @Inject constructor(
                 }
 
             } catch (e: Exception) {
-                _homeState.value = UIState.Error("Ошибка - $e")
+                _homeState.value = UIState.Error("Error - $e")
             }
         }
     }
@@ -152,3 +152,7 @@ class MoviesViewModel @Inject constructor(
     }
 }
 
+//curl --request GET \
+//--url 'https://api.themoviedb.org/3/trending/movie/day?language=en-US' \
+//--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3YzMyNDUyOTlhMDBiNGNmZTU5MzdhZGM5MDRkZGQwYiIsIm5iZiI6MTc0Nzk0NDU4MS4xMTIsInN1YiI6IjY4MmY4NDg1NjM2ODcwMmEyMWI2YTUxYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.gqqroOOQUKINr-EuwLXLUVZpw-rj3VuzGeb08dtwjec' \
+//--header 'accept: application/json'

@@ -8,6 +8,7 @@ import dagger.internal.ScopeMetadata;
 import javax.inject.Provider;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.service.KPApiService;
+import ru.vodolatskii.movies.data.service.TmdbApiService;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -23,23 +24,29 @@ public final class MovieRepositoryImpl_Factory implements Factory<MovieRepositor
 
   private final Provider<KPApiService> kpApiServiceProvider;
 
+  private final Provider<TmdbApiService> tmdbApiServiceProvider;
+
   public MovieRepositoryImpl_Factory(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider) {
+      Provider<KPApiService> kpApiServiceProvider,
+      Provider<TmdbApiService> tmdbApiServiceProvider) {
     this.movieDaoProvider = movieDaoProvider;
     this.kpApiServiceProvider = kpApiServiceProvider;
+    this.tmdbApiServiceProvider = tmdbApiServiceProvider;
   }
 
   @Override
   public MovieRepositoryImpl get() {
-    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get());
+    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), tmdbApiServiceProvider.get());
   }
 
   public static MovieRepositoryImpl_Factory create(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider) {
-    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider);
+      Provider<KPApiService> kpApiServiceProvider,
+      Provider<TmdbApiService> tmdbApiServiceProvider) {
+    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, tmdbApiServiceProvider);
   }
 
-  public static MovieRepositoryImpl newInstance(MovieDao movieDao, KPApiService kpApiService) {
-    return new MovieRepositoryImpl(movieDao, kpApiService);
+  public static MovieRepositoryImpl newInstance(MovieDao movieDao, KPApiService kpApiService,
+      TmdbApiService tmdbApiService) {
+    return new MovieRepositoryImpl(movieDao, kpApiService, tmdbApiService);
   }
 }

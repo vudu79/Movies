@@ -7,6 +7,7 @@ import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPApiService
+import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import javax.inject.Inject
@@ -14,36 +15,14 @@ import javax.inject.Inject
 
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
-    private val kpApiService: KPApiService
-
+    private val kpApiService: KPApiService,
+    private val tmdbApiService: TmdbApiService
 ) : MovieRepository {
 
-
-//    private val BASE_URL_KP =
-//        "https://api.kinopoisk.dev/v1.4/movie/"
-
-//    private val BASE_URL_TMDB = "https://api.themoviedb.org/3/"
-
-    //    private val interceptor = run {
-//        val httpLoggingInterceptor = HttpLoggingInterceptor()
-//        httpLoggingInterceptor.apply {
-//            httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-//        }
-//    }
-
-
-//    private val retrofit = Retrofit.Builder()
-////        .addConverterFactory(MoshiConverterFactory.create(moshi))
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .baseUrl(BASE_URL_TMDB)
-//        .client(okHttpClient)
-//        .build()
-
-//    val service: TMDBsApiService by lazy {
-//        retrofit.create(TMDBsApiService::class.java)
-//    }
-
-    override suspend fun getPopularMovieApiResponse(page: Int, callback: MoviesViewModel.ApiCallback) {
+    override suspend fun getPopularMovieKPResponse(
+        page: Int,
+        callback: MoviesViewModel.ApiCallback
+    ) {
         val resp = kpApiService.getSearchResponse(
             page = page,
             limit = App.instance.loadPopularMoviesLimit,
@@ -64,6 +43,28 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getPopularMovieTMDBResponse(
+        page: Int,
+        callback: MoviesViewModel.ApiCallback
+    ) {
+        val response = tmdbApiService.getSearchResponse(
+            page = page,
+            language = "ru-RU",
+        )
+        val body = response.body()
+
+        if (response.code() == 200 && body != null) {
+            callback.onSuccess(body.toMovieList())
+        } else {
+            val errorResp: ErrorResponseDto = Gson().fromJson(
+                response.errorBody()?.charStream(),
+                ErrorResponseDto::class.java
+            )
+            callback.onFailure(errorResp)
+        }
+    }
+
+
     override suspend fun insertMovieToFavorites(movie: Movie) {
         movieDao.insert(movie)
     }
@@ -75,26 +76,4 @@ class MovieRepositoryImpl @Inject constructor(
     override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
         return movieDao.getAllMovie()
     }
-
-//    override suspend fun getPopularMovieInfo(): TMDBPopularMoviesRespDto? {
-//        val response = service.getSearchResponse(
-//            "week",
-//            "en-US",
-//        )
-//        if (response.code() != 200) {
-//            return null
-//        } else {
-//            return response.body()
-//        }
-//    }
-
-
 }
-//
-//object RepositoryProvider {
-//    private val repository: Repository by lazy {
-//        RepositoryImpl()
-//    }
-//
-//    fun provideRepository(): Repository = repository
-//}

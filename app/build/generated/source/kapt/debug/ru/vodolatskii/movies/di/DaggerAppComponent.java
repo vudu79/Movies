@@ -15,6 +15,7 @@ import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl_Factory;
 import ru.vodolatskii.movies.data.service.KPApiService;
+import ru.vodolatskii.movies.data.service.TmdbApiService;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
 import ru.vodolatskii.movies.presentation.MainActivity;
@@ -58,9 +59,13 @@ public final class DaggerAppComponent {
 
     private Provider<Moshi> provideMoshiProvider;
 
-    private Provider<Retrofit> provideRetrofitProvider;
+    private Provider<Retrofit> provideRetrofitKPProvider;
 
     private Provider<KPApiService> provideKPServiceProvider;
+
+    private Provider<Retrofit> provideRetrofitTMDBProvider;
+
+    private Provider<TmdbApiService> provideKPServiceTMDBProvider;
 
     private Provider<MovieRepositoryImpl> movieRepositoryImplProvider;
 
@@ -83,9 +88,11 @@ public final class DaggerAppComponent {
       this.provideMovieDaoProvider = DoubleCheck.provider(DatabaseModule_ProvideMovieDaoFactory.create(databaseModuleParam, provideDBProvider));
       this.provideHttpClientProvider = DoubleCheck.provider(RemoteModule_ProvideHttpClientFactory.create(remoteModuleParam));
       this.provideMoshiProvider = DoubleCheck.provider(RemoteModule_ProvideMoshiFactory.create(remoteModuleParam));
-      this.provideRetrofitProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
-      this.provideKPServiceProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceFactory.create(remoteModuleParam, provideRetrofitProvider));
-      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider);
+      this.provideRetrofitKPProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitKPFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
+      this.provideKPServiceProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceFactory.create(remoteModuleParam, provideRetrofitKPProvider));
+      this.provideRetrofitTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitTMDBFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
+      this.provideKPServiceTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceTMDBFactory.create(remoteModuleParam, provideRetrofitTMDBProvider));
+      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
       this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
     }

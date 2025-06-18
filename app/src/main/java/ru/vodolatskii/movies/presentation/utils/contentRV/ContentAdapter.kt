@@ -50,12 +50,6 @@ class ContentAdapter(
         asyncListDiffer.submitList(list)
     }
 
-    fun addData(movies: List<Movie>) {
-        val list = movies.toMutableList() + getData()
-
-        asyncListDiffer.submitList(list)
-    }
-
     fun getData(): List<Movie> {
         return asyncListDiffer.currentList
     }
@@ -78,6 +72,7 @@ class ContentAdapter(
 
                 Glide.with(holder.itemView.context)
                     .load(Movie.posterUrl)
+//                    .placeholder(R.drawable.loading_img)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
