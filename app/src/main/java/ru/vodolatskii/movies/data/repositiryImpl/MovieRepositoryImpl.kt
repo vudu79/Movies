@@ -1,30 +1,26 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
-import com.github.ajalt.timberkt.BuildConfig
 import com.google.gson.Gson
-import com.squareup.moshi.KotlinJsonAdapterFactory
-import com.squareup.moshi.Moshi
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPApiService
-import ru.vodolatskii.movies.domain.Repository
+import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 
-class RepositoryImpl() : Repository {
+class MovieRepositoryImpl @Inject constructor(
+    private val movieDao: MovieDao,
+    private val kpApiService: KPApiService
 
-    private val movieDao: MovieDao = App.instance.db.movieDao()
+) : MovieRepository {
 
-    private val BASE_URL_KP =
-        "https://api.kinopoisk.dev/v1.4/movie/"
+
+//    private val BASE_URL_KP =
+//        "https://api.kinopoisk.dev/v1.4/movie/"
 
 //    private val BASE_URL_TMDB = "https://api.themoviedb.org/3/"
 
@@ -35,31 +31,6 @@ class RepositoryImpl() : Repository {
 //        }
 //    }
 
-
-    private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .callTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            if (BuildConfig.DEBUG) {
-                level = HttpLoggingInterceptor.Level.BASIC
-            }
-        })
-        .build()
-
-    private val moshi = Moshi.Builder() // adapter
-        .add(KotlinJsonAdapterFactory())
-        .build()
-
-    private val retrofit = Retrofit.Builder()
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .baseUrl(BASE_URL_KP)
-        .client(okHttpClient)
-        .build()
-
-    val service: KPApiService by lazy {
-        retrofit.create(KPApiService::class.java)
-    }
 
 //    private val retrofit = Retrofit.Builder()
 ////        .addConverterFactory(MoshiConverterFactory.create(moshi))
@@ -73,7 +44,7 @@ class RepositoryImpl() : Repository {
 //    }
 
     override suspend fun getPopularMovieApiResponse(page: Int, callback: MoviesViewModel.ApiCallback) {
-        val resp = service.getSearchResponse(
+        val resp = kpApiService.getSearchResponse(
             page = page,
             limit = App.instance.loadPopularMoviesLimit,
             selectFields = listOf("id", "name", "description", "poster"),
@@ -114,6 +85,18 @@ class RepositoryImpl() : Repository {
 //        })
     }
 
+    override suspend fun insertMovieToFavorites(movie: Movie) {
+        movieDao.insert(movie)
+    }
+
+    override suspend fun deleteMovieFromFavorites(movie: Movie) {
+        movieDao.delete(movie)
+    }
+
+    override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
+        return movieDao.getAllMovie()
+    }
+
 //    override suspend fun getPopularMovieInfo(): TMDBPopularMoviesRespDto? {
 //        val response = service.getSearchResponse(
 //            "week",
@@ -126,23 +109,13 @@ class RepositoryImpl() : Repository {
 //        }
 //    }
 
-    override suspend fun insertMovieToFavorites(movie: Movie) {
-        movieDao.insert(movie)
-    }
 
-    override suspend fun deleteMovieFromFavorites(movie: Movie) {
-        movieDao.delete(movie)
-    }
-
-    override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
-        return movieDao.getAllMovie()
-    }
 }
-
-object RepositoryProvider {
-    private val repository: Repository by lazy {
-        RepositoryImpl()
-    }
-
-    fun provideRepository(): Repository = repository
-}
+//
+//object RepositoryProvider {
+//    private val repository: Repository by lazy {
+//        RepositoryImpl()
+//    }
+//
+//    fun provideRepository(): Repository = repository
+//}

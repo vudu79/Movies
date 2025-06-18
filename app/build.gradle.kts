@@ -8,6 +8,9 @@ plugins {
 
 }
 
+kapt {
+    generateStubs = true
+}
 
 android {
     namespace = "ru.vodolatskii.movies"
@@ -128,6 +131,8 @@ dependencies {
 
     // If using Kotlin, add kapt (Kotlin Annotation Processing Tool)
     kapt (libs.dagger.compiler)
+    kapt (libs.kotlinx.metadata.jvm)
+
 
     // For Android-specific components like Activities, Fragments, etc.
      implementation (libs.google.dagger.android)

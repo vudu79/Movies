@@ -10,12 +10,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
-import ru.vodolatskii.movies.domain.Repository
+import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.presentation.utils.UIState
+import javax.inject.Inject
 
 
-class MoviesViewModel(
-    private val repository: Repository,
+class MoviesViewModel @Inject constructor(
+    private val repository: MovieRepository,
 ) : ViewModel() {
 
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
