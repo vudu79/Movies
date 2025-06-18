@@ -4,6 +4,8 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
+    id ("kotlin-kapt") // Add this line
+
 }
 
 
@@ -117,10 +119,20 @@ dependencies {
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.espresso.core)
-    debugImplementation (libs.androidx.fragment.testing.manifest)
-    androidTestImplementation (libs.androidx.fragment.testing)
+    debugImplementation(libs.androidx.fragment.testing.manifest)
+    androidTestImplementation(libs.androidx.fragment.testing)
+
+    // Dagger core
+    implementation (libs.dagger)
+    annotationProcessor (libs.dagger.compiler)
+
+    // If using Kotlin, add kapt (Kotlin Annotation Processing Tool)
+    kapt (libs.dagger.compiler)
+
+    // For Android-specific components like Activities, Fragments, etc.
+     implementation (libs.google.dagger.android)
+     implementation (libs.google.dagger.android.support)
+     annotationProcessor (libs.google.dagger.android.processor)
 
 }
-
-
 

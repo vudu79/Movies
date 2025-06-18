@@ -7,6 +7,10 @@ converterGsonVersion = "2.6.0"
 converterMoshi = "2.9.0"
 coordinatorlayoutVersion = "1.1.0"
 core = "1.6.1"
+daggerAndroid = "2.48"
+daggerAndroidProcessor = "2.48"
+daggerAndroidSupport = "2.48"
+daggerCompiler = "2.48"
 fragmentTestingManifest = "1.8.8"
 glide = "4.12.0"
 gson = "2.8.5"
@@ -55,8 +59,14 @@ converter-gson-v260 = { module = "com.squareup.retrofit2:converter-gson", versio
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterGson" }
 coordinatorlayout = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayoutVersion" }
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "core" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "daggerCompiler" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+google-dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "daggerAndroid" }
+google-dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "daggerAndroidProcessor" }
+google-dagger-android-support = { module = "com.google.dagger:dagger-android-support", version.ref = "daggerAndroidSupport" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "daggerCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

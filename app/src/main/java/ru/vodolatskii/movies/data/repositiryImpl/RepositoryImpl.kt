@@ -13,7 +13,7 @@ import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
-import ru.vodolatskii.movies.data.service.KPsApiService
+import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.util.concurrent.TimeUnit
@@ -57,8 +57,8 @@ class RepositoryImpl() : Repository {
         .client(okHttpClient)
         .build()
 
-    val service: KPsApiService by lazy {
-        retrofit.create(KPsApiService::class.java)
+    val service: KPApiService by lazy {
+        retrofit.create(KPApiService::class.java)
     }
 
 //    private val retrofit = Retrofit.Builder()
