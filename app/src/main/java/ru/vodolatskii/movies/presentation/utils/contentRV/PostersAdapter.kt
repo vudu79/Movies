@@ -8,7 +8,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.dto.Doc
+import ru.vodolatskii.movies.data.entity.dto.Doc
 
 class PostersAdapter(
     private val docs: List<Doc> = emptyList(),

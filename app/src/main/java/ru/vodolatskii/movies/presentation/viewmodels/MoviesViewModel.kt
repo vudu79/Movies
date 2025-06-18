@@ -8,9 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.domain.Repository
 import ru.vodolatskii.movies.presentation.utils.UIState
 
@@ -28,8 +27,13 @@ class MoviesViewModel(
     private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
     val favoriteState: StateFlow<UIState> = _favoriteState
 
-    var cachePopularMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
-    var cacheFavoriteMovieList: MutableList<Movie> = emptyList<Movie>().toMutableList()
+    var cachePopularMovieList: MutableList<Movie> = mutableListOf()
+    var cacheFavoriteMovieList: MutableList<Movie> = mutableListOf()
+
+    var loadedPages: MutableSet<Int> = mutableSetOf()
+
+    var pageCount = 1
+        private set
 
 
     fun switchSearchViewVisibility(state: Boolean) {
@@ -41,19 +45,26 @@ class MoviesViewModel(
             try {
                 _homeState.value = UIState.Loading
 
-                if (cachePopularMovieList.isEmpty()) {
-                    repository.getPopularMovieInfo()?.let {
-                        cachePopularMovieList = it.toMovieList()
-                        _homeState.value = UIState.Success(cachePopularMovieList)
-                    } ?: let {
-                        _homeState.value = UIState.Error("Сервер вернул пустой ответ!")
-                    }
-                } else if (cachePopularMovieList.size <= App.instance.loadPopularMoviesLimit) {
+                if (!loadedPages.contains(pageCount) || cachePopularMovieList.isEmpty()) {
+
+                    repository.getPopularMovieApiResponse(
+                        page = pageCount,
+                        callback = object : ApiCallback {
+                            override fun onSuccess(films: MutableList<Movie>) {
+                                cachePopularMovieList.addAll(films)
+                                _homeState.value = UIState.Success(cachePopularMovieList)
+                                loadedPages.add(pageCount)
+                            }
+                            override fun onFailure(error: ErrorResponseDto) {
+                                _homeState.value = UIState.Error("Код ошибки - ${error.statusCode}\n${error.message}")
+                            }
+                        })
+                } else {
                     _homeState.value = UIState.Success(cachePopularMovieList)
                 }
 
             } catch (e: Exception) {
-                _homeState.value = UIState.Error("Ошибка запроса - $e")
+                _homeState.value = UIState.Error("Ошибка - $e")
             }
         }
     }
@@ -126,6 +137,17 @@ class MoviesViewModel(
         cachePopularMovieList =
             cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                 .toMutableList()
+    }
+
+
+    fun plusPageCount() {
+        pageCount += 1
+    }
+
+
+    interface ApiCallback {
+        fun onSuccess(films: MutableList<Movie>)
+        fun onFailure(error: ErrorResponseDto)
     }
 }
 

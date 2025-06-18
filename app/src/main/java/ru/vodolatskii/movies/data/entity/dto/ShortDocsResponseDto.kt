@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.dto
+package ru.vodolatskii.movies.data.entity.dto
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
