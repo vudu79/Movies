@@ -1,11 +1,12 @@
 package ru.vodolatskii.movies.domain
 
-import ru.vodolatskii.movies.data.entity.dto.ShortDocsResponseDto
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
-interface Repository {
-    suspend fun getPopularMovieApiResponse(page: Int, callback: MoviesViewModel.ApiCallback)
+interface MovieRepository {
+    suspend fun getPopularMovieKPResponse(page: Int, callback: MoviesViewModel.ApiCallback)
+
+    suspend fun getPopularMovieTMDBResponse(page: Int, callback: MoviesViewModel.ApiCallback)
 
     suspend fun insertMovieToFavorites(movie: Movie)
 

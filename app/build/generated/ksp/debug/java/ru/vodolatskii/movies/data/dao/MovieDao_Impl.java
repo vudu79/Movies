@@ -175,8 +175,8 @@ public final class MovieDao_Impl implements MovieDao {
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final String _tmpPosterUrl;
         _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
-        final float _tmpRating;
-        _tmpRating = _cursor.getFloat(_cursorIndexOfRating);
+        final double _tmpRating;
+        _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
         final boolean _tmpIsFavorite;
         final int _tmp;
         _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);

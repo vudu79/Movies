@@ -7,30 +7,31 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.ui.setupWithNavController
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
-import ru.vodolatskii.movies.data.repositiryImpl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import ru.vodolatskii.movies.presentation.viewmodels.MyViewModelFactory
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var viewModel: MoviesViewModel
     private lateinit var navController: NavController
+    val viewModel: MoviesViewModel by viewModels {
+        App.instance.dagger.viewModelsFactory()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setupViewModel()
+        App.instance.dagger.inject(this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -114,12 +115,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun setupViewModel() {
-        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
-        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
-    }
-
-
     private fun checkInternetStatus(context: Context): InternetType {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -166,7 +161,6 @@ class MainActivity : AppCompatActivity() {
 //        searchView.setSearchableInfo(searchableInfo)
 //        return true
 //    }
-
 }
 
 private enum class InternetType {

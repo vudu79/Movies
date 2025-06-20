@@ -29,8 +29,8 @@
 
                 <ImageView
                     android:id="@+id/poster_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
                     android:transitionName="image_transition_name" />
 
@@ -41,7 +41,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="2dp"
                 android:layout_toEndOf="@+id/card_image"
                 android:maxLines="2"
                 android:textAlignment="gravity"
@@ -54,9 +56,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/title"
-                android:layout_margin="5dp"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginBottom="5dp"
                 android:layout_toEndOf="@+id/card_image"
-                android:maxLines="4"
+                android:maxLines="3"
+                android:justificationMode="inter_word"
                 android:textAlignment="gravity"
                 android:textAppearance="@style/Base.CardView"
                 android:textColor="@color/white"
@@ -76,13 +80,13 @@
                     app:progress="77"
                     app:stroke="8" />
 
-<!--                <View-->
-<!--                    android:id="@+id/shine"-->
-<!--                    android:layout_width="40dp"-->
-<!--                    android:layout_height="30dp"-->
-<!--                    android:background="@drawable/shine_background"-->
-<!--                    android:layout_gravity="center"-->
-<!--                    />-->
+                <!--                <View-->
+                <!--                    android:id="@+id/shine"-->
+                <!--                    android:layout_width="40dp"-->
+                <!--                    android:layout_height="30dp"-->
+                <!--                    android:background="@drawable/shine_background"-->
+                <!--                    android:layout_gravity="center"-->
+                <!--                    />-->
             </FrameLayout>
 
         </RelativeLayout>

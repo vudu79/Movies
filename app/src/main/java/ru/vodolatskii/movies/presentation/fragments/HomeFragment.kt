@@ -52,7 +52,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -175,23 +174,30 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
-            var currentPosition = 0
+//            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
-                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-                val totalItemCount = layoutManager.itemCount
+//                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+//                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+//                val totalItemCount = layoutManager.itemCount
+//
+//                currentPosition =
+//                    if (currentPosition != lastVisibleItem) lastVisibleItem else currentPosition
+//
+//                val diff = totalItemCount - currentPosition
+//                val trigger = totalItemCount / 100 * 10
+//
+//                if (diff == trigger) {
+//                    viewModel.plusPageCount()
+//                    viewModel.getPopularMovies()
+//                }
 
-                currentPosition =
-                    if (currentPosition != lastVisibleItem) lastVisibleItem else currentPosition
-
-                val diff = totalItemCount - currentPosition
-                val trigger = App.instance.loadPopularMoviesLimit / 2
-
-                if (diff == trigger) {
+                if (!recyclerView.canScrollVertically(1)) {
                     viewModel.plusPageCount()
                     viewModel.getPopularMovies()
                 }
+
+
 
                 viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
                     if (state) {
