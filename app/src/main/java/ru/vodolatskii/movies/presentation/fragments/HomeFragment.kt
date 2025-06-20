@@ -22,12 +22,12 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.util.Locale
 
 
@@ -46,14 +46,12 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
 
-
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
 //    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -157,6 +155,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                         }
 
                         is UIState.Error -> {
+                            binding.errorTextView.text = uiState.message
                             setHomeViewsVisibility(uiState)
                         }
 
@@ -175,7 +174,31 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
+//            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+//                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+//                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+//                val totalItemCount = layoutManager.itemCount
+//
+//                currentPosition =
+//                    if (currentPosition != lastVisibleItem) lastVisibleItem else currentPosition
+//
+//                val diff = totalItemCount - currentPosition
+//                val trigger = totalItemCount / 100 * 10
+//
+//                if (diff == trigger) {
+//                    viewModel.plusPageCount()
+//                    viewModel.getPopularMovies()
+//                }
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    viewModel.plusPageCount()
+                    viewModel.getPopularMovies()
+                }
+
+
+
                 viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
                     if (state) {
                         if (dy > 0) {
@@ -188,6 +211,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 }
             }
+
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
@@ -204,9 +228,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
         }
 
-        binding.recyclerviewContent.addOnScrollListener(onScrollListener)
 
         binding.recyclerviewContent.apply {
+
+            addOnScrollListener(onScrollListener)
 
             contentAdapter = ContentAdapter(
                 context = requireContext(),
@@ -263,16 +288,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
             is UIState.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.errorTextView.visibility = View.GONE
             }
 
             is UIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
-                binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.VISIBLE
             }
 
             UIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.GONE
             }
         }
     }

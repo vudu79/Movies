@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.dto
+package ru.vodolatskii.movies.data.entity.dto
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -42,7 +42,7 @@ fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
             description = it.description,
             posterUrl = it.poster.url,
             isFavorite = false,
-            rating = it.rating.kp.toFloat()
+            rating = it.rating.kp
         )
         movie
     }

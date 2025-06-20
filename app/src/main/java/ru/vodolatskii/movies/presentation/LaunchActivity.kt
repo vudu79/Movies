@@ -1,29 +1,34 @@
 package ru.vodolatskii.movies.presentation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.repositiryImpl.RepositoryProvider
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import ru.vodolatskii.movies.presentation.viewmodels.MyViewModelFactory
 
+
+@SuppressLint("CustomSplashScreen")
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding
-    lateinit var viewModel: MoviesViewModel
-
+    private val viewModel: MoviesViewModel by viewModels {
+        App.instance.dagger.viewModelsFactory()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLaunchBinding.inflate(layoutInflater)
         val root = binding.root
         setContentView(root)
+
+        App.instance.dagger.inject(this)
 
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -32,10 +37,7 @@ class LaunchActivity : AppCompatActivity() {
             insets
         }
 
-        val factory = MyViewModelFactory(RepositoryProvider.provideRepository())
-        viewModel = ViewModelProvider(this, factory)[MoviesViewModel::class.java]
         viewModel.getPopularMovies()
-
 
         val tvAnimation = AnimationUtils.loadAnimation(this, R.anim.tv_set_anim)
         binding.tv.startAnimation(tvAnimation)

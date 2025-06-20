@@ -4,8 +4,13 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
+    id ("kotlin-kapt") // Add this line
+
 }
 
+kapt {
+    generateStubs = true
+}
 
 android {
     namespace = "ru.vodolatskii.movies"
@@ -17,9 +22,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -117,10 +120,22 @@ dependencies {
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.espresso.core)
-    debugImplementation (libs.androidx.fragment.testing.manifest)
-    androidTestImplementation (libs.androidx.fragment.testing)
+    debugImplementation(libs.androidx.fragment.testing.manifest)
+    androidTestImplementation(libs.androidx.fragment.testing)
+
+    // Dagger core
+    implementation (libs.dagger)
+    annotationProcessor (libs.dagger.compiler)
+
+    // If using Kotlin, add kapt (Kotlin Annotation Processing Tool)
+    kapt (libs.dagger.compiler)
+    kapt (libs.kotlinx.metadata.jvm)
+
+
+    // For Android-specific components like Activities, Fragments, etc.
+     implementation (libs.google.dagger.android)
+     implementation (libs.google.dagger.android.support)
+     annotationProcessor (libs.google.dagger.android.processor)
 
 }
-
-
 

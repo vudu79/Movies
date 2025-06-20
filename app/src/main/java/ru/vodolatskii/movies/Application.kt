@@ -2,30 +2,25 @@ package ru.vodolatskii.movies
 
 import android.app.Application
 import android.content.res.Configuration
-import androidx.room.Room
-import ru.vodolatskii.movies.data.RoomDB
+import com.github.ajalt.timberkt.BuildConfig
+import ru.vodolatskii.movies.di.AppComponent
+import ru.vodolatskii.movies.di.DaggerAppComponent
 import timber.log.Timber
 
 class App : Application() {
 
-    lateinit var db: RoomDB
-
-    var loadPopularMoviesLimit:Int = 20
-
+    lateinit var dagger: AppComponent
+    var loadPopularMoviesLimit: Int = 30
     var isFirstLaunch = true
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        dagger = DaggerAppComponent.factory().create(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
-
-        db = Room
-            .databaseBuilder(applicationContext, RoomDB::class.java, "my-room-database")
-            .fallbackToDestructiveMigration()
-            .build()
     }
 
     // Вызывается при изменении конфигурации, например, поворот

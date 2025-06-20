@@ -72,6 +72,7 @@ class ContentAdapter(
 
                 Glide.with(holder.itemView.context)
                     .load(Movie.posterUrl)
+//                    .placeholder(R.drawable.loading_img)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
