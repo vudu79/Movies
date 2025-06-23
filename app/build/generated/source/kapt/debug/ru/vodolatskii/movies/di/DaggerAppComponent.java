@@ -16,6 +16,7 @@ import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl_Factory;
 import ru.vodolatskii.movies.data.service.KPApiService;
 import ru.vodolatskii.movies.data.service.TmdbApiService;
+import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
 import ru.vodolatskii.movies.presentation.MainActivity;
@@ -67,6 +68,8 @@ public final class DaggerAppComponent {
 
     private Provider<TmdbApiService> provideKPServiceTMDBProvider;
 
+    private Provider<PreferenceProvider> provideSharedPreferenceProvider;
+
     private Provider<MovieRepositoryImpl> movieRepositoryImplProvider;
 
     private Provider<MovieRepository> provideRepositoryProvider;
@@ -92,7 +95,8 @@ public final class DaggerAppComponent {
       this.provideKPServiceProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceFactory.create(remoteModuleParam, provideRetrofitKPProvider));
       this.provideRetrofitTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitTMDBFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
       this.provideKPServiceTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceTMDBFactory.create(remoteModuleParam, provideRetrofitTMDBProvider));
-      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider);
+      this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
+      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
       this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
     }

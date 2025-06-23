@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.service.KPApiService;
 import ru.vodolatskii.movies.data.service.TmdbApiService;
+import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -26,27 +27,30 @@ public final class MovieRepositoryImpl_Factory implements Factory<MovieRepositor
 
   private final Provider<TmdbApiService> tmdbApiServiceProvider;
 
+  private final Provider<PreferenceProvider> preferencesProvider;
+
   public MovieRepositoryImpl_Factory(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider,
-      Provider<TmdbApiService> tmdbApiServiceProvider) {
+      Provider<KPApiService> kpApiServiceProvider, Provider<TmdbApiService> tmdbApiServiceProvider,
+      Provider<PreferenceProvider> preferencesProvider) {
     this.movieDaoProvider = movieDaoProvider;
     this.kpApiServiceProvider = kpApiServiceProvider;
     this.tmdbApiServiceProvider = tmdbApiServiceProvider;
+    this.preferencesProvider = preferencesProvider;
   }
 
   @Override
   public MovieRepositoryImpl get() {
-    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), tmdbApiServiceProvider.get());
+    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), tmdbApiServiceProvider.get(), preferencesProvider.get());
   }
 
   public static MovieRepositoryImpl_Factory create(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider,
-      Provider<TmdbApiService> tmdbApiServiceProvider) {
-    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, tmdbApiServiceProvider);
+      Provider<KPApiService> kpApiServiceProvider, Provider<TmdbApiService> tmdbApiServiceProvider,
+      Provider<PreferenceProvider> preferencesProvider) {
+    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, tmdbApiServiceProvider, preferencesProvider);
   }
 
   public static MovieRepositoryImpl newInstance(MovieDao movieDao, KPApiService kpApiService,
-      TmdbApiService tmdbApiService) {
-    return new MovieRepositoryImpl(movieDao, kpApiService, tmdbApiService);
+      TmdbApiService tmdbApiService, PreferenceProvider preferences) {
+    return new MovieRepositoryImpl(movieDao, kpApiService, tmdbApiService, preferences);
   }
 }

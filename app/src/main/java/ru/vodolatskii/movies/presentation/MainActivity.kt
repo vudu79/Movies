@@ -10,10 +10,15 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.data.entity.Movie
@@ -24,6 +29,7 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
     val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
     }
@@ -36,7 +42,22 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val drawerLayout : DrawerLayout = binding.drawerLayout
+        val navView : NavigationView = binding.navView
+
+        setSupportActionBar(binding.topAppBar)
+
         navController = findNavController(R.id.my_nav_host_fragment)
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.settings_fragment_root
+            ), drawerLayout
+        )
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
+        navView.setupWithNavController(navController)
 
         binding.bottomNavigation.setupWithNavController(navController)
 
@@ -64,6 +85,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+       val navController = findNavController(R.id.my_nav_host_fragment)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
 
@@ -97,10 +123,25 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setupClickListeners() {
-        binding.topAppBar.setNavigationOnClickListener {
-            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-                .show()
+
+        binding.navView.setNavigationItemSelectedListener { menuItem ->
+            menuItem.isChecked = true
+            binding.drawerLayout.closeDrawers()
+
+            when (menuItem.itemId) {
+                R.id.settingsFragment -> {
+                    navController.navigate(R.id.settingsFragment)
+                    true
+                }
+
+                else -> false
+            }
         }
+//
+//        binding.topAppBar.setNavigationOnClickListener {
+//            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
+//                .show()
+//        }
 
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -138,29 +179,6 @@ class MainActivity : AppCompatActivity() {
             return InternetType.MOBILE //  xaxaxaxa
         }
     }
-
-    //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        val id = item.itemId
-//        if (id == R.id.button_search) {
-//            viewModel.switchSearchViewVisibility(true)
-//            return true
-//        }
-//
-//        return super.onOptionsItemSelected(item)
-//    }
-
-
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//
-//        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
-//
-//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-//        val searchView = menu.findItem(R.id.button_search).actionView as SearchView
-//        val component = ComponentName(this, MainActivity::class.java)
-//        val searchableInfo = searchManager.getSearchableInfo(component)
-//        searchView.setSearchableInfo(searchableInfo)
-//        return true
-//    }
 }
 
 private enum class InternetType {

@@ -23,4 +23,5 @@
     <string name="radio_button_upcoming">Скоро</string>
     <string name="radio_button_playing">В кинотеатрах</string>
     <string name="radio_group_header">Подборка на главном экране:</string>
+    <string name="item_settings_drawer">Settings</string>
 </resources>

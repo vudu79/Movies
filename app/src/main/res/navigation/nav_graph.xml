@@ -28,4 +28,8 @@
         android:name="ru.vodolatskii.movies.presentation.fragments.AfterFragment"
         android:label="fragment_after"
         tools:layout="@layout/fragment_after" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ru.vodolatskii.movies.SettingsFragment"
+        android:label="SettingsFragment" />
 </navigation>
