@@ -13,4 +13,8 @@ interface MovieRepository {
     suspend fun deleteMovieFromFavorites(movie: Movie)
 
     suspend fun getAllMoviesFromFavorites(): List<Movie>?
+
+    fun getDefaultCategoryFromPreferences() :String
+
+    fun saveDefaultCategoryToPreferences(category: String)
 }

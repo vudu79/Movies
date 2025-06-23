@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -8,6 +9,7 @@ import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
+import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import javax.inject.Inject
@@ -16,7 +18,8 @@ import javax.inject.Inject
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val kpApiService: KPApiService,
-    private val tmdbApiService: TmdbApiService
+    private val tmdbApiService: TmdbApiService,
+    private val preferences: PreferenceProvider
 ) : MovieRepository {
 
     override suspend fun getPopularMovieKPResponse(
@@ -48,6 +51,7 @@ class MovieRepositoryImpl @Inject constructor(
         callback: MoviesViewModel.ApiCallback
     ) {
         val response = tmdbApiService.getSearchResponse(
+            category = getDefaultCategoryFromPreferences(),
             page = page,
             language = "ru-RU",
         )
@@ -76,4 +80,12 @@ class MovieRepositoryImpl @Inject constructor(
     override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
         return movieDao.getAllMovie()
     }
+
+
+    //Метод для сохранения настроек
+    override  fun saveDefaultCategoryToPreferences(category: String) {
+        preferences.saveDefaultCategory(category)
+    }
+    //Метод для получения настроек
+    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
 }

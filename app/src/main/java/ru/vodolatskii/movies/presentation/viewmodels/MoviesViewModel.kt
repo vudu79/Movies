@@ -19,6 +19,8 @@ class MoviesViewModel @Inject constructor(
     private val repository: MovieRepository,
 ) : ViewModel() {
 
+    val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
+
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
@@ -35,6 +37,11 @@ class MoviesViewModel @Inject constructor(
 
     var pageCount = 1
         private set
+
+
+    init {
+        getCategoryProperty()
+    }
 
 
     fun switchSearchViewVisibility(state: Boolean) {
@@ -146,13 +153,22 @@ class MoviesViewModel @Inject constructor(
     }
 
 
+    private fun getCategoryProperty() {
+        //Кладем категорию в LiveData
+        categoryPropertyLifeData.value = repository.getDefaultCategoryFromPreferences()
+    }
+
+    fun putCategoryProperty(category: String) {
+        //Сохраняем в настройки
+        repository.saveDefaultCategoryToPreferences(category)
+        //И сразу забираем, чтобы сохранить состояние в модели
+        getCategoryProperty()
+    }
+
+
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)
         fun onFailure(error: ErrorResponseDto)
     }
 }
 
-//curl --request GET \
-//--url 'https://api.themoviedb.org/3/trending/movie/day?language=en-US' \
-//--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3YzMyNDUyOTlhMDBiNGNmZTU5MzdhZGM5MDRkZGQwYiIsIm5iZiI6MTc0Nzk0NDU4MS4xMTIsInN1YiI6IjY4MmY4NDg1NjM2ODcwMmEyMWI2YTUxYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.gqqroOOQUKINr-EuwLXLUVZpw-rj3VuzGeb08dtwjec' \
-//--header 'accept: application/json'
