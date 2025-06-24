@@ -3,6 +3,9 @@ package ru.vodolatskii.movies.data.entity.dto
 import com.squareup.moshi.Json
 import ru.vodolatskii.movies.common.Constant
 import ru.vodolatskii.movies.data.entity.Movie
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 
 data class TMDBPopularMoviesRespDto(
@@ -48,8 +51,15 @@ data class Result(
 )
 
 
-fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
+private fun getTimeStump(dateString: String) : Long{
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    val date = dateFormat.parse(dateString)
+    val calendar = Calendar.getInstance()
+    date?.let { calendar.setTime(it) }
+    return calendar.timeInMillis
+}
 
+fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
     val notNullList = this.tmdbFilms.filter {
         it.title != null &&
                 it.id != null &&
@@ -66,7 +76,9 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
             description = it.overview!!,
             posterUrl = Constant.IMAGES_URL + "original" + it.posterPath,
             isFavorite = false,
-            rating = it.voteAverage!!
+            rating = it.voteAverage!!,
+            releaseDate = it.releaseDate!!,
+            releaseDateTimeStump = getTimeStump(it.releaseDate) ?: 0
         )
         movie
     }

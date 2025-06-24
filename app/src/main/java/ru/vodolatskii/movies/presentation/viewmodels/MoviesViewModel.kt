@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import ru.vodolatskii.movies.common.SortEvents
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.domain.MovieRepository
@@ -48,6 +49,29 @@ class MoviesViewModel @Inject constructor(
         getCategoryProperty()
         getRequestLanguage()
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
+    }
+
+    fun onSortRVEvents(event: SortEvents){
+        when(event){
+            SortEvents.ALPHABET -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.name
+                }
+                _homeState.value = UIState.Success(sortedList)
+            }
+            SortEvents.DATE -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.releaseDateTimeStump
+                }
+                _homeState.value = UIState.Success(sortedList)
+            }
+            SortEvents.RATING -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.rating
+                }.reversed()
+                _homeState.value = UIState.Success(sortedList)
+            }
+        }
     }
 
     fun clearLoadedPages() {

@@ -36,9 +36,9 @@ public final class RoomDB_Impl extends RoomDB {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `favorite_movie` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `movieId` INTEGER NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `posterUrl` TEXT NOT NULL, `rating` REAL NOT NULL, `isFavorite` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `favorite_movie` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `movieId` INTEGER NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `posterUrl` TEXT NOT NULL, `rating` REAL NOT NULL, `releaseDate` TEXT NOT NULL, `releaseDateTimeStump` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0579f59a9868d40c0e69aef21a5e5398')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0f96aa4eeee626ad39c6fdf53a14d4ba')");
       }
 
       @Override
@@ -87,13 +87,15 @@ public final class RoomDB_Impl extends RoomDB {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsFavoriteMovie = new HashMap<String, TableInfo.Column>(7);
+        final HashMap<String, TableInfo.Column> _columnsFavoriteMovie = new HashMap<String, TableInfo.Column>(9);
         _columnsFavoriteMovie.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("movieId", new TableInfo.Column("movieId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("description", new TableInfo.Column("description", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("posterUrl", new TableInfo.Column("posterUrl", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("rating", new TableInfo.Column("rating", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsFavoriteMovie.put("releaseDate", new TableInfo.Column("releaseDate", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsFavoriteMovie.put("releaseDateTimeStump", new TableInfo.Column("releaseDateTimeStump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFavoriteMovie.put("isFavorite", new TableInfo.Column("isFavorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysFavoriteMovie = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesFavoriteMovie = new HashSet<TableInfo.Index>(0);
@@ -106,7 +108,7 @@ public final class RoomDB_Impl extends RoomDB {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "0579f59a9868d40c0e69aef21a5e5398", "6cfc8bb0bd03638c4a68c8d70bf42c8d");
+    }, "0f96aa4eeee626ad39c6fdf53a14d4ba", "dfe6946e3c0c7fa5c79b146f5120c163");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

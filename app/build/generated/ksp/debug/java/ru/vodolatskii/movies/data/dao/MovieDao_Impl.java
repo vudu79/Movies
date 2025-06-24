@@ -42,7 +42,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `favorite_movie` (`id`,`movieId`,`name`,`description`,`posterUrl`,`rating`,`isFavorite`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `favorite_movie` (`id`,`movieId`,`name`,`description`,`posterUrl`,`rating`,`releaseDate`,`releaseDateTimeStump`,`isFavorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -54,8 +54,10 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindString(4, entity.getDescription());
         statement.bindString(5, entity.getPosterUrl());
         statement.bindDouble(6, entity.getRating());
+        statement.bindString(7, entity.getReleaseDate());
+        statement.bindLong(8, entity.getReleaseDateTimeStump());
         final int _tmp = entity.isFavorite() ? 1 : 0;
-        statement.bindLong(7, _tmp);
+        statement.bindLong(9, _tmp);
       }
     };
     this.__deletionAdapterOfMovie = new EntityDeletionOrUpdateAdapter<Movie>(__db) {
@@ -75,7 +77,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `favorite_movie` SET `id` = ?,`movieId` = ?,`name` = ?,`description` = ?,`posterUrl` = ?,`rating` = ?,`isFavorite` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `favorite_movie` SET `id` = ?,`movieId` = ?,`name` = ?,`description` = ?,`posterUrl` = ?,`rating` = ?,`releaseDate` = ?,`releaseDateTimeStump` = ?,`isFavorite` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -87,9 +89,11 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindString(4, entity.getDescription());
         statement.bindString(5, entity.getPosterUrl());
         statement.bindDouble(6, entity.getRating());
+        statement.bindString(7, entity.getReleaseDate());
+        statement.bindLong(8, entity.getReleaseDateTimeStump());
         final int _tmp = entity.isFavorite() ? 1 : 0;
-        statement.bindLong(7, _tmp);
-        statement.bindLong(8, entity.getId());
+        statement.bindLong(9, _tmp);
+        statement.bindLong(10, entity.getId());
       }
     };
   }
@@ -161,6 +165,8 @@ public final class MovieDao_Impl implements MovieDao {
       final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
       final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "posterUrl");
       final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
+      final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "releaseDate");
+      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "releaseDateTimeStump");
       final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "isFavorite");
       final List<Movie> _result = new ArrayList<Movie>(_cursor.getCount());
       while (_cursor.moveToNext()) {
@@ -177,11 +183,15 @@ public final class MovieDao_Impl implements MovieDao {
         _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
         final double _tmpRating;
         _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
+        final String _tmpReleaseDate;
+        _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
+        final long _tmpReleaseDateTimeStump;
+        _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
         final boolean _tmpIsFavorite;
         final int _tmp;
         _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
         _tmpIsFavorite = _tmp != 0;
-        _item = new Movie(_tmpId,_tmpMovieId,_tmpName,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpIsFavorite);
+        _item = new Movie(_tmpId,_tmpMovieId,_tmpName,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpIsFavorite);
         _result.add(_item);
       }
       return _result;

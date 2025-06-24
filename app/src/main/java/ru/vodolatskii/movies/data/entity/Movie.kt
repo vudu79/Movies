@@ -16,5 +16,7 @@ data class Movie(
     val description: String = "",
     val posterUrl: String = "",
     val rating: Double = 0.0,
+    val releaseDate: String = "",
+    val releaseDateTimeStump: Long = 0L,
     var isFavorite: Boolean = false
 ) : Parcelable

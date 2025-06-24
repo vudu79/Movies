@@ -26,6 +26,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.common.SortEvents
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.presentation.MainActivity
@@ -395,19 +396,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
         speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.sort_alph -> {
-                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true  // false will close it without animation
                 }
 
                 R.id.sort_date -> {
-                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    viewModel.onSortRVEvents(SortEvents.DATE)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }
 
                 R.id.sort_rating -> {
-                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    viewModel.onSortRVEvents(SortEvents.RATING)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }
