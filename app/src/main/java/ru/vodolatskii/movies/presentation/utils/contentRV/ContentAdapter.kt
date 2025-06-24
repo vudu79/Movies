@@ -68,25 +68,26 @@ class ContentAdapter(
     override fun onBindViewHolder(holder: ContentViewHolder, position: Int) {
         when (holder) {
             is ContentViewHolder -> {
-                val Movie = asyncListDiffer.currentList[position]
+                val movie = asyncListDiffer.currentList[position]
 
                 Glide.with(holder.itemView.context)
-                    .load(Movie.posterUrl)
+                    .load(movie.posterUrl)
 //                    .placeholder(R.drawable.loading_img)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
 
-                holder.title.text = Movie.name
+                holder.title.text = movie.name
 
-                holder.description.text = Movie.description
+                holder.description.text = movie.description
 
-                holder.rating.setProgress((Movie.rating * 10).toInt())
+                holder.rating.setProgress((movie.rating * 10).toInt())
 
                 holder.card.setOnClickListener {
                     ViewCompat.setTransitionName(holder.description, "text_transition_name")
-                    onItemClick(Movie, holder.description)
+                    onItemClick(movie, holder.description)
                 }
+                holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
 
 //                setAnimation(holder.shineView)
             }
@@ -132,6 +133,7 @@ class ContentAdapter(
             itemView.findViewById(R.id.poster_image)
         val title: TextView = itemView.findViewById(R.id.title)
         val description: TextView = itemView.findViewById(R.id.description)
+        val releaseDate: TextView = itemView.findViewById(R.id.release_date)
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
 //        val shineView: View = itemView.findViewById(R.id.shine)
