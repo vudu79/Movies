@@ -63,12 +63,14 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
+        app:itemTextAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@drawable/night"
+        android:background="@drawable/night2"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
+        app:headerLayout="@layout/drawer_header_main"
+        app:itemIconTint="#FFFFFF"
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
