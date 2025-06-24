@@ -5,11 +5,14 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -30,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var  actionBarDrawerToggle: ActionBarDrawerToggle
+
     val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
     }
@@ -44,18 +49,26 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout : DrawerLayout = binding.drawerLayout
         val navView : NavigationView = binding.navView
+        val toolBar : Toolbar = binding.topAppBar
 
-        setSupportActionBar(binding.topAppBar)
+//        setSupportActionBar(toolBar)
+
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close )
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
+        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         navController = findNavController(R.id.my_nav_host_fragment)
 
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.settings_fragment_root
-            ), drawerLayout
-        )
-
-        setupActionBarWithNavController(navController, appBarConfiguration)
+//        appBarConfiguration = AppBarConfiguration(
+//            setOf(
+//                R.id.settingsFragment
+//            ), drawerLayout
+//        )
+//
+//        setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setupWithNavController(navController)
 
@@ -92,10 +105,19 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // check conndition for drawer item with menu item
+        return if (actionBarDrawerToggle.onOptionsItemSelected(item)){
+            true
+        }else{
+            super.onOptionsItemSelected(item)
+        }
+    }
+
 
     private fun setupObservers() {
         viewModel.isSearchViewVisible.observe(this) { state ->
-            binding.topAppBarLayout.visibility = if (state) View.GONE else View.VISIBLE
+            binding.topAppBar.visibility = if (state) View.GONE else View.VISIBLE
         }
     }
 

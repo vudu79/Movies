@@ -6,19 +6,12 @@
     android:layout_height="176dp"
     android:gravity="bottom"
     android:padding="16dp"
-    android:background="@drawable/favorite_background"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:background="@drawable/gradient_background"
+    android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:src="@drawable/tv_set_icon"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/item_settings_drawer"
-        android:textColor="@color/white"
-        android:textStyle="bold"/>
 
 </LinearLayout>

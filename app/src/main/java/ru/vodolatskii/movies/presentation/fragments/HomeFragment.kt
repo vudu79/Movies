@@ -39,7 +39,6 @@ internal interface ContentAdapterController {
     fun updateAdapterData(data: List<Movie>?)
 }
 
-
 class HomeFragment : Fragment(), ContentAdapterController {
 
     private lateinit var binding: FragmentHomeBinding
