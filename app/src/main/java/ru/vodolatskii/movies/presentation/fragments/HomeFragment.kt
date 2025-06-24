@@ -80,7 +80,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
-        viewModel.getPopularMovies()
+        viewModel.getMoviesFromApi()
     }
 
     private fun checkToolBar() {
@@ -148,7 +148,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
             contentAdapter.setData(emptyList())
             viewModel.clearLoadedPages()
             viewModel.clearCachedMovieList()
-            viewModel.getPopularMovies()
+            viewModel.getMoviesFromApi()
             binding.pullToRefresh.isRefreshing = false
         }
 
@@ -202,7 +202,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
                 if (!recyclerView.canScrollVertically(1)) {
                     viewModel.plusPageCount()
-                    viewModel.getPopularMovies()
+                    viewModel.getMoviesFromApi()
                 }
 
 

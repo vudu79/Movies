@@ -37,7 +37,7 @@ class LaunchActivity : AppCompatActivity() {
             insets
         }
 
-        viewModel.getPopularMovies()
+        viewModel.getMoviesFromApi()
 
         val tvAnimation = AnimationUtils.loadAnimation(this, R.anim.tv_set_anim)
         binding.tv.startAnimation(tvAnimation)

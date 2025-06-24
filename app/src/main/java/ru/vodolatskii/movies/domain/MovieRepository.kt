@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.domain
 
+import android.content.SharedPreferences
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -17,4 +18,6 @@ interface MovieRepository {
     fun getDefaultCategoryFromPreferences() :String
 
     fun saveDefaultCategoryToPreferences(category: String)
+
+    fun getPreference(): SharedPreferences
 }

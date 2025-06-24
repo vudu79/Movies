@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 class MoviesViewModel @Inject constructor(
     private val repository: MovieRepository,
-) : ViewModel() {
+) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
 
@@ -42,26 +43,25 @@ class MoviesViewModel @Inject constructor(
     var pageCount = 1
         private set
 
-
     init {
         getCategoryProperty()
+        repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
-    fun clearLoadedPages(){
+    fun clearLoadedPages() {
         loadedPages.clear()
     }
 
-    fun clearCachedMovieList(){
+    fun clearCachedMovieList() {
         cachedMovieList.clear()
     }
+
 
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
 
-
-
-    fun getPopularMovies() {
+    fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _homeState.value = UIState.Loading
@@ -76,8 +76,10 @@ class MoviesViewModel @Inject constructor(
                                 _homeState.value = UIState.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
                             }
+
                             override fun onFailure(error: ErrorResponseDto) {
-                                _homeState.value = UIState.Error("Response code - ${error.statusCode}\n${error.message}")
+                                _homeState.value =
+                                    UIState.Error("Response code - ${error.statusCode}\n${error.message}")
                             }
                         })
                 } else {
@@ -179,11 +181,24 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-
-
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)
         fun onFailure(error: ErrorResponseDto)
+    }
+
+    companion object {
+        private const val KEY_DEFAULT_CATEGORY = "default_category"
+        private const val DEFAULT_CATEGORY = "popular"
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            KEY_DEFAULT_CATEGORY -> {
+                clearLoadedPages()
+                clearCachedMovieList()
+                getMoviesFromApi()
+            }
+        }
     }
 }
 

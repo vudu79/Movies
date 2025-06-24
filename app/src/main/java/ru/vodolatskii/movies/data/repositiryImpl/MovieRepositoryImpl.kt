@@ -51,7 +51,6 @@ class MovieRepositoryImpl @Inject constructor(
         page: Int,
         callback: MoviesViewModel.ApiCallback
     ) {
-        Log.d("mytag", "asasd = ${getDefaultCategoryFromPreferences()}")
         val response = tmdbApiService.getSearchResponse(
             category = getDefaultCategoryFromPreferences(),
             page = page,
@@ -86,6 +85,10 @@ class MovieRepositoryImpl @Inject constructor(
 
     override  fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
+    }
+
+    override fun getPreference(): SharedPreferences {
+       return preferences.getInstance()
     }
 
     override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
