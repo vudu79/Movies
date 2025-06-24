@@ -143,6 +143,14 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
     private fun setupObservers() {
+
+        binding.pullToRefresh.setOnRefreshListener {
+            contentAdapter.setData(emptyList())
+            viewModel.clearLoadedPages()
+            viewModel.getPopularMovies()
+            binding.pullToRefresh.isRefreshing = false
+        }
+
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 (activity as MainActivity).viewModel.homeState.collect { uiState ->

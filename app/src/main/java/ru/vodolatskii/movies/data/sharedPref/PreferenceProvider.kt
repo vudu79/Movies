@@ -13,7 +13,7 @@ class PreferenceProvider(context: Context) {
     init {
         //Логика для первого запуска приложения, чтобы положить наши настройки,
         //Сюда потом можно добавить и другие настройки
-        if(preference.getBoolean(KEY_FIRST_LAUNCH, false)) {
+        if(preference.getBoolean(KEY_FIRST_LAUNCH, true)) {
             preference.edit { putString(KEY_DEFAULT_CATEGORY, DEFAULT_CATEGORY) }
             preference.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
         }

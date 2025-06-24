@@ -40,6 +40,7 @@ timberkt = "1.5.1"
 
 room = "2.6.1"
 ksp = "2.0.21-1.0.28"
+swiperefreshlayout = "1.1.0"
 
 
 [libraries]
@@ -90,6 +91,7 @@ timberkt = { module = "com.github.ajalt:timberkt", version.ref = "timberkt" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

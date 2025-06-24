@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -50,6 +51,7 @@ class MovieRepositoryImpl @Inject constructor(
         page: Int,
         callback: MoviesViewModel.ApiCallback
     ) {
+        Log.d("mytag", "asasd = ${getDefaultCategoryFromPreferences()}")
         val response = tmdbApiService.getSearchResponse(
             category = getDefaultCategoryFromPreferences(),
             page = page,
@@ -82,10 +84,9 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
 
-    //Метод для сохранения настроек
     override  fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
     }
-    //Метод для получения настроек
+
     override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
 }

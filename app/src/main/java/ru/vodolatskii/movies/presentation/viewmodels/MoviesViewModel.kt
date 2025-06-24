@@ -34,6 +34,7 @@ class MoviesViewModel @Inject constructor(
     var cacheFavoriteMovieList: MutableList<Movie> = mutableListOf()
 
     var loadedPages: MutableSet<Int> = mutableSetOf()
+        private set
 
     var pageCount = 1
         private set
@@ -43,10 +44,16 @@ class MoviesViewModel @Inject constructor(
         getCategoryProperty()
     }
 
+    fun clearLoadedPages(){
+        loadedPages.clear()
+    }
+
 
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
+
+
 
     fun getPopularMovies() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -164,6 +171,8 @@ class MoviesViewModel @Inject constructor(
         //И сразу забираем, чтобы сохранить состояние в модели
         getCategoryProperty()
     }
+
+
 
 
     interface ApiCallback {
