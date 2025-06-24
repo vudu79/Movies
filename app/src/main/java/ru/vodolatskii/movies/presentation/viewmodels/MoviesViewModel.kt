@@ -21,6 +21,7 @@ class MoviesViewModel @Inject constructor(
 ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
+    val requestLanguageLifeData: MutableLiveData<String> = MutableLiveData()
 
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
@@ -45,6 +46,7 @@ class MoviesViewModel @Inject constructor(
 
     init {
         getCategoryProperty()
+        getRequestLanguage()
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
@@ -55,7 +57,6 @@ class MoviesViewModel @Inject constructor(
     fun clearCachedMovieList() {
         cachedMovieList.clear()
     }
-
 
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
@@ -68,7 +69,7 @@ class MoviesViewModel @Inject constructor(
 
                 if (!loadedPages.contains(pageCount) || cachedMovieList.isEmpty()) {
 
-                    repository.getPopularMovieTMDBResponse(
+                    repository.getMovieResponceFromTMDBApi(
                         page = pageCount,
                         callback = object : ApiCallback {
                             override fun onSuccess(films: MutableList<Movie>) {
@@ -162,24 +163,27 @@ class MoviesViewModel @Inject constructor(
                 .toMutableList()
     }
 
-
     fun plusPageCount() {
         pageCount += 1
     }
 
+    private fun getRequestLanguage() {
+        requestLanguageLifeData.value = repository.getRequestLanguageFromPreferences()
+    }
 
     private fun getCategoryProperty() {
-        //Кладем категорию в LiveData
         categoryPropertyLifeData.value = repository.getDefaultCategoryFromPreferences()
     }
 
-    fun putCategoryProperty(category: String) {
-        //Сохраняем в настройки
-        repository.saveDefaultCategoryToPreferences(category)
-        //И сразу забираем, чтобы сохранить состояние в модели
-        getCategoryProperty()
+    fun putRequestLanguage(language: String) {
+        repository.saveRequestLanguageToPreferences(language)
+        getRequestLanguage()
     }
 
+    fun putCategoryProperty(category: String) {
+        repository.saveDefaultCategoryToPreferences(category)
+        getCategoryProperty()
+    }
 
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)
@@ -188,12 +192,12 @@ class MoviesViewModel @Inject constructor(
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"
-        private const val DEFAULT_CATEGORY = "popular"
+        private const val KEY_DEFAULT_LANGUAGE = "default_language"
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
-            KEY_DEFAULT_CATEGORY -> {
+            KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
                 clearLoadedPages()
                 clearCachedMovieList()
                 getMoviesFromApi()

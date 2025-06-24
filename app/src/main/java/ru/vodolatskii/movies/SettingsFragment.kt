@@ -15,7 +15,6 @@ class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
     lateinit var viewModel: MoviesViewModel
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -27,32 +26,54 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //Подключаем анимации и передаем номер позиции у кнопки в нижнем меню
-        AnimationHelper.performFragmentCircularRevealAnimation(binding.settingsFragmentRoot, requireActivity(), 5)
-        //Слушаем, какой у нас сейчас выбран вариант в настройках
+        setupObservers()
+        setupListeners()
+    }
+
+    private fun setupObservers() {
         viewModel.categoryPropertyLifeData.observe(viewLifecycleOwner, Observer<String> {
-            when(it) {
-                POPULAR_CATEGORY -> binding.radioGroup.check(R.id.radio_popular)
-                TOP_RATED_CATEGORY -> binding.radioGroup.check(R.id.radio_top_rated)
-                UPCOMING_CATEGORY -> binding.radioGroup.check(R.id.radio_upcoming)
-                NOW_PLAYING_CATEGORY -> binding.radioGroup.check(R.id.radio_now_playing)
+            when (it) {
+                POPULAR_CATEGORY -> binding.radioGroupCategory.check(R.id.radio_popular)
+                TOP_RATED_CATEGORY -> binding.radioGroupCategory.check(R.id.radio_top_rated)
+                UPCOMING_CATEGORY -> binding.radioGroupCategory.check(R.id.radio_upcoming)
+                NOW_PLAYING_CATEGORY -> binding.radioGroupCategory.check(R.id.radio_now_playing)
             }
         })
-        //Слушатель для отправки нового состояния в настройки
-        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            when(checkedId) {
+
+        viewModel.requestLanguageLifeData.observe(viewLifecycleOwner, Observer<String> {
+            when (it) {
+                REQUEST_LANG_EN -> binding.radioGroupLanguage.check(R.id.radio_lang_en)
+                REQUEST_LANG_RU -> binding.radioGroupLanguage.check(R.id.radio_lang_ru)
+            }
+        })
+    }
+
+    private fun setupListeners() {
+        binding.radioGroupCategory.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
                 R.id.radio_popular -> viewModel.putCategoryProperty(POPULAR_CATEGORY)
                 R.id.radio_top_rated -> viewModel.putCategoryProperty(TOP_RATED_CATEGORY)
                 R.id.radio_upcoming -> viewModel.putCategoryProperty(UPCOMING_CATEGORY)
                 R.id.radio_now_playing -> viewModel.putCategoryProperty(NOW_PLAYING_CATEGORY)
             }
         }
+
+        binding.radioGroupLanguage.setOnCheckedChangeListener { lang, checkedId ->
+            when (checkedId) {
+                R.id.radio_lang_en -> viewModel.putRequestLanguage(REQUEST_LANG_EN)
+                R.id.radio_lang_ru -> viewModel.putRequestLanguage(REQUEST_LANG_RU)
+            }
+        }
     }
+
 
     companion object {
         private const val POPULAR_CATEGORY = "popular"
         private const val TOP_RATED_CATEGORY = "top_rated"
         private const val UPCOMING_CATEGORY = "upcoming"
         private const val NOW_PLAYING_CATEGORY = "now_playing"
+
+        private const val REQUEST_LANG_RU = "ru-RU"
+        private const val REQUEST_LANG_EN = "en-US"
     }
 }

@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -47,14 +46,14 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPopularMovieTMDBResponse(
+    override suspend fun getMovieResponceFromTMDBApi(
         page: Int,
         callback: MoviesViewModel.ApiCallback
     ) {
         val response = tmdbApiService.getSearchResponse(
             category = getDefaultCategoryFromPreferences(),
             page = page,
-            language = "ru-RU",
+            language = getRequestLanguageFromPreferences(),
         )
         val body = response.body()
 
@@ -69,7 +68,6 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun insertMovieToFavorites(movie: Movie) {
         movieDao.insert(movie)
     }
@@ -82,14 +80,19 @@ class MovieRepositoryImpl @Inject constructor(
         return movieDao.getAllMovie()
     }
 
+    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
+
+    override fun getRequestLanguageFromPreferences() = preferences.getRequestLanguage()
+
+    override fun saveRequestLanguageToPreferences(language: String) {
+        preferences.saveRequestLanguage(language)
+    }
 
     override  fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
     }
 
     override fun getPreference(): SharedPreferences {
-       return preferences.getInstance()
+        return preferences.getInstance()
     }
-
-    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
 }

@@ -22,7 +22,10 @@
     <string name="radio_button_top_rated">Топ</string>
     <string name="radio_button_upcoming">Скоро</string>
     <string name="radio_button_playing">В кинотеатрах</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_en">English</string>
     <string name="radio_group_header">Подборка на главном экране:</string>
+    <string name="request_language_header">Язык текста в подборке:</string>
     <string name="item_settings_drawer">Settings</string>
 
     <string name="open">open</string>

@@ -7,7 +7,7 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 interface MovieRepository {
     suspend fun getPopularMovieKPResponse(page: Int, callback: MoviesViewModel.ApiCallback)
 
-    suspend fun getPopularMovieTMDBResponse(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponceFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
     suspend fun insertMovieToFavorites(movie: Movie)
 
@@ -15,9 +15,13 @@ interface MovieRepository {
 
     suspend fun getAllMoviesFromFavorites(): List<Movie>?
 
-    fun getDefaultCategoryFromPreferences() :String
+    fun getDefaultCategoryFromPreferences(): String
 
     fun saveDefaultCategoryToPreferences(category: String)
 
     fun getPreference(): SharedPreferences
+
+    fun getRequestLanguageFromPreferences(): String
+
+    fun saveRequestLanguageToPreferences(language: String)
 }
