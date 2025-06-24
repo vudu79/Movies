@@ -9,6 +9,7 @@ import dagger.internal.InstanceFactory;
 import dagger.internal.Preconditions;
 import javax.inject.Provider;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import ru.vodolatskii.movies.data.RoomDB;
 import ru.vodolatskii.movies.data.dao.MovieDao;
@@ -56,6 +57,8 @@ public final class DaggerAppComponent {
 
     private Provider<MovieDao> provideMovieDaoProvider;
 
+    private Provider<HttpLoggingInterceptor> provideHttpLoggingInterceptorProvider;
+
     private Provider<OkHttpClient> provideHttpClientProvider;
 
     private Provider<Moshi> provideMoshiProvider;
@@ -89,7 +92,8 @@ public final class DaggerAppComponent {
       this.contextProvider = InstanceFactory.create(contextParam);
       this.provideDBProvider = DoubleCheck.provider(DatabaseModule_ProvideDBFactory.create(databaseModuleParam, contextProvider));
       this.provideMovieDaoProvider = DoubleCheck.provider(DatabaseModule_ProvideMovieDaoFactory.create(databaseModuleParam, provideDBProvider));
-      this.provideHttpClientProvider = DoubleCheck.provider(RemoteModule_ProvideHttpClientFactory.create(remoteModuleParam));
+      this.provideHttpLoggingInterceptorProvider = DoubleCheck.provider(RemoteModule_ProvideHttpLoggingInterceptorFactory.create(remoteModuleParam));
+      this.provideHttpClientProvider = DoubleCheck.provider(RemoteModule_ProvideHttpClientFactory.create(remoteModuleParam, provideHttpLoggingInterceptorProvider));
       this.provideMoshiProvider = DoubleCheck.provider(RemoteModule_ProvideMoshiFactory.create(remoteModuleParam));
       this.provideRetrofitKPProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitKPFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
       this.provideKPServiceProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceFactory.create(remoteModuleParam, provideRetrofitKPProvider));

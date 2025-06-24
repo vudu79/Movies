@@ -65,6 +65,7 @@ secrets {
 }
 
 dependencies {
+    implementation(libs.material)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -76,9 +77,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.retrofit)
-    implementation(libs.retrofit2.converter.gson)
-    implementation(libs.converter.scalars)
+
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -90,9 +89,14 @@ dependencies {
 
     implementation(libs.androidx.recyclerview)
     annotationProcessor(libs.compiler)
-    implementation(libs.material)
 
-    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.converter.scalars)
+    implementation (libs.okhttp.v492)
+    implementation (libs.logging.interceptor.v492)
+    implementation(libs.converter.gson.v260)
+    implementation(libs.gson)
 
     implementation(libs.coordinatorlayout)
     implementation(libs.material)
@@ -108,10 +112,6 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-
-    implementation(libs.logging.interceptor)
-    implementation(libs.converter.gson.v260)
-    implementation(libs.gson)
 
 
     // Testing-only dependencies

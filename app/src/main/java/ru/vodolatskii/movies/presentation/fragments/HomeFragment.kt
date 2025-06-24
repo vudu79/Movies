@@ -129,10 +129,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    contentAdapter.setData(viewModel.cachePopularMovieList)
+                    contentAdapter.setData(viewModel.cachedMovieList)
                     return true
                 }
-                val result = viewModel.cachePopularMovieList.filter {
+                val result = viewModel.cachedMovieList.filter {
                     it.name.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
@@ -147,6 +147,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
             viewModel.clearLoadedPages()
+            viewModel.clearCachedMovieList()
             viewModel.getPopularMovies()
             binding.pullToRefresh.isRefreshing = false
         }

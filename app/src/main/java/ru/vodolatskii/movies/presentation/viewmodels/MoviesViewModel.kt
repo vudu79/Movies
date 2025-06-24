@@ -30,8 +30,11 @@ class MoviesViewModel @Inject constructor(
     private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
     val favoriteState: StateFlow<UIState> = _favoriteState
 
-    var cachePopularMovieList: MutableList<Movie> = mutableListOf()
-    var cacheFavoriteMovieList: MutableList<Movie> = mutableListOf()
+    var cachedMovieList: MutableList<Movie> = mutableListOf()
+        private set
+
+    var cachedFavoriteMovieList: MutableList<Movie> = mutableListOf()
+        private set
 
     var loadedPages: MutableSet<Int> = mutableSetOf()
         private set
@@ -48,6 +51,9 @@ class MoviesViewModel @Inject constructor(
         loadedPages.clear()
     }
 
+    fun clearCachedMovieList(){
+        cachedMovieList.clear()
+    }
 
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
@@ -60,14 +66,14 @@ class MoviesViewModel @Inject constructor(
             try {
                 _homeState.value = UIState.Loading
 
-                if (!loadedPages.contains(pageCount) || cachePopularMovieList.isEmpty()) {
+                if (!loadedPages.contains(pageCount) || cachedMovieList.isEmpty()) {
 
                     repository.getPopularMovieTMDBResponse(
                         page = pageCount,
                         callback = object : ApiCallback {
                             override fun onSuccess(films: MutableList<Movie>) {
-                                cachePopularMovieList.addAll(films)
-                                _homeState.value = UIState.Success(cachePopularMovieList)
+                                cachedMovieList.addAll(films)
+                                _homeState.value = UIState.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
                             }
                             override fun onFailure(error: ErrorResponseDto) {
@@ -75,7 +81,7 @@ class MoviesViewModel @Inject constructor(
                             }
                         })
                 } else {
-                    _homeState.value = UIState.Success(cachePopularMovieList)
+                    _homeState.value = UIState.Success(cachedMovieList)
                 }
 
             } catch (e: Exception) {
@@ -90,16 +96,16 @@ class MoviesViewModel @Inject constructor(
             try {
                 _favoriteState.value = UIState.Loading
 
-                if (cacheFavoriteMovieList.isEmpty()) {
+                if (cachedFavoriteMovieList.isEmpty()) {
                     repository.getAllMoviesFromFavorites()?.let {
-                        cacheFavoriteMovieList = it.toMutableList()
+                        cachedFavoriteMovieList = it.toMutableList()
 
-                        _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
+                        _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
                     } ?: let {
                         _favoriteState.value = UIState.Error("В избранном пока ничего нет")
                     }
                 } else {
-                    _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
+                    _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
                 }
 
             } catch (e: Exception) {
@@ -116,20 +122,20 @@ class MoviesViewModel @Inject constructor(
 
             if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
                 repository.insertMovieToFavorites(movie)
-                cacheFavoriteMovieList.add(movie)
+                cachedFavoriteMovieList.add(movie)
 
-                cachePopularMovieList =
-                    cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                cachedMovieList =
+                    cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                         .toMutableList()
 
-                _homeState.value = UIState.Success(cachePopularMovieList)
-                _favoriteState.value = UIState.Success(cacheFavoriteMovieList)
+                _homeState.value = UIState.Success(cachedMovieList)
+                _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
             }
 
-            cachePopularMovieList =
-                cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+            cachedMovieList =
+                cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                     .toMutableList()
-            _homeState.value = UIState.Success(cachePopularMovieList)
+            _homeState.value = UIState.Success(cachedMovieList)
         }
     }
 
@@ -137,11 +143,11 @@ class MoviesViewModel @Inject constructor(
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
-            cacheFavoriteMovieList =
-                cacheFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+            cachedFavoriteMovieList =
+                cachedFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                     .toMutableList()
-            if (!cachePopularMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
-                cachePopularMovieList.add(movie)
+            if (!cachedMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
+                cachedMovieList.add(movie)
 //                _homeState.value = UIState.Success(cachePopularMovieList)
             }
         }
@@ -149,8 +155,8 @@ class MoviesViewModel @Inject constructor(
 
 
     fun deleteFromPopular(movie: Movie) {
-        cachePopularMovieList =
-            cachePopularMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+        cachedMovieList =
+            cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
                 .toMutableList()
     }
 

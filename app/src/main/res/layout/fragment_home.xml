@@ -18,14 +18,12 @@
         android:layout_marginHorizontal="2dp"
         android:background="@drawable/searchview_background"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/recyclerview_container"
+        app:layout_constraintBottom_toTopOf="@id/pull_to_refresh"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!--    recyclerView with progressBar-->
-
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/pull_to_refresh"
         android:layout_width="match_parent"
@@ -69,5 +67,4 @@
 
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
