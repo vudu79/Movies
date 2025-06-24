@@ -138,5 +138,8 @@ dependencies {
      implementation (libs.google.dagger.android.support)
      annotationProcessor (libs.google.dagger.android.processor)
 
+    implementation (libs.speed.dial)
+
+
 }
 

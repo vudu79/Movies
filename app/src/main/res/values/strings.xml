@@ -30,4 +30,7 @@
 
     <string name="open">open</string>
     <string name="close">close</string>
+    <string name="alphabet">По алфавиту</string>
+    <string name="date">По дате</string>
+    <string name="rating">По рейтингу</string>
 </resources>

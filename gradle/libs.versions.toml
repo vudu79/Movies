@@ -36,6 +36,7 @@ recyclerview = "1.3.2"
 retrofit = "2.9.0"
 secret = "2.0.1"
 secretsGradlePlugin = "2.0.1"
+speedDial = "3.3.0"
 symbolProcessingApi = "1.5.0-1.0.0-alpha10"
 timber = "4.7.1"
 timberkt = "1.5.1"
@@ -88,6 +89,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 retrofit2-converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+speed-dial = { module = "com.leinardi.android:speed-dial", version.ref = "speedDial" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 timberkt = { module = "com.github.ajalt:timberkt", version.ref = "timberkt" }

@@ -1,11 +1,15 @@
 package ru.vodolatskii.movies.presentation.fragments
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -16,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialView
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
@@ -51,6 +58,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -81,6 +89,8 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupSearchViewListeners()
         checkToolBar()
         viewModel.getMoviesFromApi()
+        initSpeedDial(savedInstanceState == null)
+
     }
 
     private fun checkToolBar() {
@@ -182,7 +192,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
-//            var currentPosition = 0
+            //            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
 //                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -238,21 +248,16 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
 
         binding.recyclerviewContent.apply {
-
             addOnScrollListener(onScrollListener)
 
             contentAdapter = ContentAdapter(
                 context = requireContext(),
-
                 onItemClick = { movie, view ->
-
                     (activity as MainActivity).launchDetailsFragment(movie, view)
-
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                             View.VISIBLE
                     }
-
                 },
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
@@ -329,19 +334,85 @@ class HomeFragment : Fragment(), ContentAdapterController {
             contentAdapter.setData(data)
         }
     }
-//
-//    fun launchDetailsFragment(movie: Movie, view: View) {
-//        val bundle = Bundle()
-//        bundle.putParcelable("movie", movie)
-//
-//        val fr = DetailsFragment()
-//        fr.arguments = bundle
-//
-//        parentFragmentManager
-//            .beginTransaction()
-//            .addSharedElement(view, view.getTransitionName())
-//            .replace(R.id.my_nav_host_fragment, fr)
-//            .addToBackStack(null)
-//            .commit()
-//    }
+
+
+    private fun initSpeedDial(addActionItems: Boolean) {
+        val speedDialView: SpeedDialView = binding.speedDial
+        if (addActionItems) {
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_alph, R.drawable.baseline_sort_by_alpha_24,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.alphabet)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create(),
+            )
+
+            val drawable =
+                AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_date_range_24)
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_date, drawable,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.date)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create()
+            )
+
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_rating, R.drawable.baseline_auto_graph_24,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.rating)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create(),
+            )
+        }
+
+        speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
+            override fun onMainActionSelected(): Boolean {
+                Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                return false  // True to keep the Speed Dial open
+            }
+
+            override fun onToggleChanged(isOpen: Boolean) {
+                Log.d("mytag", "Speed dial toggle state changed. Open = $isOpen")
+            }
+        })
+
+        speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.sort_alph -> {
+                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true  // false will close it without animation
+                }
+
+                R.id.sort_date -> {
+                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true
+                }
+
+                R.id.sort_rating -> {
+                    Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true
+                }
+            }
+            true  // To keep the Speed Dial open
+        })
+    }
 }

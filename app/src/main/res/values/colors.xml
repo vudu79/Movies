@@ -10,6 +10,7 @@
     <color name="background_alfa">#00E7E2EF</color>
     <color name="gradient_start">#ED8A6B</color>
     <color name="gradient_end">#7B3CEF</color>
+    <color name="gradient_end2">#4805C1</color>
 
     <color name="colorPrimary">#F7F6F8</color>
     <color name="colorPrimaryDark">#F6F4F8</color>

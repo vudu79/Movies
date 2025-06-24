@@ -6,6 +6,7 @@
         <item name="android:textColorSecondary">@color/colorAccent</item>
         <item name="android:colorBackground">@color/black</item>
         <item name="android:windowContentTransitions">true</item>
+        <item name="colorAccent">@color/gradient_end</item>
         <item name="drawerArrowStyle">@style/DrawerIcon</item>
     </style>
 

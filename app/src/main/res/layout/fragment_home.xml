@@ -50,6 +50,18 @@
                 android:layout_marginVertical="5dp"
                 tools:listitem="@layout/recyclerview_content_item" />
 
+            <com.leinardi.android.speeddial.SpeedDialView
+                android:id="@+id/speedDial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="2dp"
+                app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"
+                app:sdExpansionMode="top"
+                app:sdMainFabAnimationRotateAngle="90"
+                app:sdMainFabClosedSrc="@drawable/baseline_sort_24"
+                app:sdMainFabOpenedSrc="@drawable/baseline_sort_24"
+                 />
             <ProgressBar
                 android:id="@+id/progress_circular"
                 android:layout_width="wrap_content"
