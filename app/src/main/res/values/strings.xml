@@ -26,7 +26,8 @@
     <string name="language_en">English</string>
     <string name="radio_group_header">Подборка на главном экране:</string>
     <string name="request_language_header">Язык текста в подборке:</string>
-    <string name="item_settings_drawer">Settings</string>
+    <string name="item_settings_drawer">Настройки</string>
+    <string name="storage">Хранилище</string>
 
     <string name="open">open</string>
     <string name="close">close</string>
@@ -43,4 +44,7 @@
     <string name="rating_mode">Сохранять с рейтингом выше</string>
     <string name="date_save_mode">Сохранять по дате релиза и позже</string>
     <string name="exit">Выйти</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="exit_app">Выйти из приложения?</string>
 </resources>

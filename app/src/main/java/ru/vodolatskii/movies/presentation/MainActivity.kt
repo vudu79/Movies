@@ -48,39 +48,25 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupDrawerMenu()
+        setupObservers()
+        setupClickListeners()
+    }
+
+    private fun setupDrawerMenu() {
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val toolBar: Toolbar = binding.topAppBar
-
-//        setSupportActionBar(toolBar)
-
         actionBarDrawerToggle =
             ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         navController = findNavController(R.id.my_nav_host_fragment)
-
-//        appBarConfiguration = AppBarConfiguration(
-//            setOf(
-//                R.id.settingsFragment
-//            ), drawerLayout
-//        )
-//
-//        setupActionBarWithNavController(navController, appBarConfiguration)
-
         navView.setupWithNavController(navController)
-
         binding.bottomNavigation.setupWithNavController(navController)
-
-        setupObservers()
-
-        setupClickListeners()
     }
-
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -89,11 +75,11 @@ class MainActivity : AppCompatActivity() {
         if (count <= 1) {
 
             AlertDialog.Builder(this)
-                .setTitle("Выйти из приложения?")
-                .setPositiveButton("Да") { _, _ ->
+                .setTitle(R.string.exit_app)
+                .setPositiveButton(R.string.yes) { _, _ ->
                     finish()
                 }
-                .setNegativeButton("Нет") { _, _ ->
+                .setNegativeButton(R.string.no) { _, _ ->
                 }
                 .show()
 
@@ -151,18 +137,23 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.settingsFragment)
                     true
                 }
+                R.id.storageFragment -> {
+                    navController.navigate(R.id.storageFragment)
+                    true
+                }
                 R.id.exit -> {
                     AlertDialog.Builder(this)
-                        .setTitle("Выйти из приложения?")
+                        .setTitle(R.string.exit_app)
                         .setIcon(R.drawable.baseline_warning_24)
-                        .setPositiveButton("Да") { _, _ ->
+                        .setPositiveButton(R.string.yes) { _, _ ->
                             finish()
                         }
-                        .setNegativeButton("Нет") { _, _ ->
+                        .setNegativeButton(R.string.no) { _, _ ->
                         }
                         .show()
                     false
                 }
+
                 else -> false
             }
         }

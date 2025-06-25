@@ -32,7 +32,6 @@ class MovieRepositoryImpl @Inject constructor(
     private val sqlDb = sqlDatabaseHelper.readableDatabase
     private lateinit var cursor: Cursor
 
-
     private fun getTimeStump(dateInt: Int): Long {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         val date = dateFormat.parse("$dateInt-01-01")
@@ -40,7 +39,6 @@ class MovieRepositoryImpl @Inject constructor(
         date?.let { calendar.setTime(it) }
         return calendar.timeInMillis
     }
-
 
     override fun putToDb(movie: Movie) {
         if (getMovieSavingMode()) {
@@ -103,7 +101,16 @@ class MovieRepositoryImpl @Inject constructor(
         sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")
     }
 
-
+    override fun getMovieCount(): Int {
+        var count = 0
+        val cursor = sqlDb.rawQuery("SELECT COUNT(*) FROM ${SQLDatabaseHelper.TABLE_NAME}", null)
+        cursor.use {
+            if (it.moveToFirst()) {
+                count = it.getInt(0)
+            }
+        }
+        return count
+    }
 
 
     override suspend fun getMovieResponseFromKPApi(

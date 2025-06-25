@@ -25,6 +25,7 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+    val movieCountInDBModeData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
     val dateSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -90,6 +91,7 @@ class MoviesViewModel @Inject constructor(
                                     repository.putToDb(it)
                                 }
                             }
+
                             override fun onFailure(error: ErrorResponseDto) {
                                 if (getMoviesFromStorage().isEmpty()) {
                                     _homeState.value =
@@ -183,8 +185,12 @@ class MoviesViewModel @Inject constructor(
                 .toMutableList()
     }
 
-    fun deleteAllFromDB(){
+    fun deleteAllFromDB() {
         repository.deleteAllFromDB()
+    }
+
+    fun getMovieCountFromDB() {
+        movieCountInDBModeData.value = repository.getMovieCount()
     }
 
     fun onSortRVEvents(event: SortEvents) {
@@ -241,6 +247,7 @@ class MoviesViewModel @Inject constructor(
     private fun getRequestLanguage() {
         requestLanguageLifeData.value = repository.getRequestLanguageFromPreferences()
     }
+
     fun putRequestLanguage(language: String) {
         repository.saveRequestLanguageToPreferences(language)
         getRequestLanguage()
@@ -249,6 +256,7 @@ class MoviesViewModel @Inject constructor(
     private fun getCategoryProperty() {
         categoryPropertyLifeData.value = repository.getDefaultCategoryFromPreferences()
     }
+
     fun putCategoryProperty(category: String) {
         repository.saveDefaultCategoryToPreferences(category)
         getCategoryProperty()
@@ -257,6 +265,7 @@ class MoviesViewModel @Inject constructor(
     private fun getContentSource() {
         contentSourceLiveData.value = repository.getContentSourceFromPreferences()
     }
+
     fun putContentSource(source: String) {
         repository.saveContentSourceFromPreferences(source)
         getContentSource()
@@ -265,6 +274,7 @@ class MoviesViewModel @Inject constructor(
     private fun getAllMovieSavingMode() {
         allMoviesSavingLiveModeData.value = repository.getMovieSavingMode()
     }
+
     fun setAllMovieSavingMode(isChecked: Boolean) {
         repository.saveMovieSavingMode(isChecked)
         getAllMovieSavingMode()
@@ -273,6 +283,7 @@ class MoviesViewModel @Inject constructor(
     private fun getRatingMovieSavingMode() {
         ratingSavingModeLiveData.value = repository.getRatingMovieSavingMode()
     }
+
     fun setRatingMovieSavingMode(value: Int) {
         repository.saveRatingMovieSavingMode(value)
         getRatingMovieSavingMode()
@@ -281,11 +292,11 @@ class MoviesViewModel @Inject constructor(
     private fun getDateMovieSavingMode() {
         dateSavingModeLiveData.value = repository.getDateMovieSavingMode()
     }
+
     fun setDateMovieSavingMode(value: Int) {
         repository.saveDateMovieSavingMode(value)
         getDateMovieSavingMode()
     }
-
 
 
     interface ApiCallback {

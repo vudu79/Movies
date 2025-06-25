@@ -47,4 +47,6 @@ interface MovieRepository {
     fun saveDateMovieSavingMode(value: Int)
 
     fun deleteAllFromDB()
+
+    fun getMovieCount():Int
 }
