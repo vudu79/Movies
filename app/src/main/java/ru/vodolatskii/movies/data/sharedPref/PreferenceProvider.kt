@@ -13,6 +13,7 @@ class PreferenceProvider(context: Context) {
         if (preference.getBoolean(KEY_FIRST_LAUNCH, true)) {
             preference.edit { putString(KEY_DEFAULT_CATEGORY, DEFAULT_CATEGORY) }
             preference.edit { putString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) }
+            preference.edit { putString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) }
             preference.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
         }
     }
@@ -37,6 +38,15 @@ class PreferenceProvider(context: Context) {
     fun getRequestLanguage() =
         preference.getString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
 
+    fun getContentSource() =
+        preference.getString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) ?: DEFAULT_CONTENT_SOURCE
+
+    fun saveContentSource(source: String) {
+        preference.edit {
+            putString(KEY_CONTENT_SOURCE, source)
+        }
+    }
+
 
     companion object {
         private const val SP_FILE_NAME = "settings"
@@ -46,5 +56,8 @@ class PreferenceProvider(context: Context) {
 
         private const val KEY_DEFAULT_LANGUAGE = "default_language"
         private const val DEFAULT_LANGUAGE = "ru-RU"
+
+        private const val KEY_CONTENT_SOURCE = "default_source"
+        private const val DEFAULT_CONTENT_SOURCE = "internet"
     }
 }

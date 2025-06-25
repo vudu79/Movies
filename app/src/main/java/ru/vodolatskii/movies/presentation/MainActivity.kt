@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -83,11 +84,11 @@ class MainActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
-        val count = supportFragmentManager.getBackStackEntryCount()
+        val count = supportFragmentManager.backStackEntryCount
         if (count <= 1) {
 
             AlertDialog.Builder(this)
-                .setTitle("Вы хотите выйти?")
+                .setTitle("Выйти из приложения?")
                 .setPositiveButton("Да") { _, _ ->
                     finish()
                 }
@@ -114,18 +115,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun setupObservers() {
         viewModel.isSearchViewVisible.observe(this) { state ->
             binding.topAppBar.visibility = if (state) View.GONE else View.VISIBLE
         }
     }
 
-
     fun shareMoviesViewModel(): MoviesViewModel {
         return viewModel
     }
-
 
     fun launchDetailsFragment(movie: Movie, view: View) {
         val bundle = Bundle()
@@ -143,7 +141,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
     private fun setupClickListeners() {
 
         binding.navView.setNavigationItemSelectedListener { menuItem ->
@@ -159,11 +156,7 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-//
-//        binding.topAppBar.setNavigationOnClickListener {
-//            Toast.makeText(this, "Будет дополнительная навигация с настройками", Toast.LENGTH_SHORT)
-//                .show()
-//        }
+
 
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -171,39 +164,11 @@ class MainActivity : AppCompatActivity() {
                     viewModel.switchSearchViewVisibility(true)
                     true
                 }
-
                 else -> false
             }
         }
     }
-
-
-    private fun checkInternetStatus(context: Context): InternetType {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            val network = connectivityManager.activeNetwork ?: return InternetType.NONE
-
-            val activeNetwork =
-                connectivityManager.getNetworkCapabilities(network) ?: return InternetType.NONE
-
-            return when {
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> InternetType.WIFI
-                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> InternetType.MOBILE
-                else -> InternetType.NONE // xaxaxaxa
-            }
-        } else {
-            @Suppress("DEPRECATION") val networkInfo =
-                connectivityManager.activeNetworkInfo ?: return InternetType.NONE
-            @Suppress("DEPRECATION")
-            return InternetType.MOBILE //  xaxaxaxa
-        }
-    }
 }
 
-private enum class InternetType {
-    WIFI, MOBILE, NONE
-}
+
 

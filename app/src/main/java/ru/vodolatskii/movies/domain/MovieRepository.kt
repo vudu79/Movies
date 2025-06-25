@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
+import okio.Source
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -25,7 +26,11 @@ interface MovieRepository {
 
     fun saveRequestLanguageToPreferences(language: String)
 
-     fun putToDb(movie: Movie)
+    fun putToDb(movie: Movie)
 
-     fun getAllFromDB(): List<Movie>
+    fun getAllFromDB(): List<Movie>
+
+    fun getContentSourceFromPreferences(): String?
+
+    fun saveContentSourceFromPreferences(source: String)
 }

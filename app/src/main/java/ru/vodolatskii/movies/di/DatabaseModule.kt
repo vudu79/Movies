@@ -8,6 +8,7 @@ import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.RoomDB
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
+import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import javax.inject.Singleton
 
 @Module
@@ -31,4 +32,9 @@ class DatabaseModule() {
     @Singleton
     @Provides
     fun provideSqlDatabaseHelper(context: Context) = SQLDatabaseHelper(context)
+
+    @Singleton
+    @Provides
+    fun provideResourceProvider(context: Context) = AndroidResourceProvider(context)
+
 }

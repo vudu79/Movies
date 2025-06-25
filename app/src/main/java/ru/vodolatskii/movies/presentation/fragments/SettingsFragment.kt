@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies
+package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentSettingsBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 class SettingsFragment : Fragment() {
@@ -46,6 +46,13 @@ class SettingsFragment : Fragment() {
                 REQUEST_LANG_RU -> binding.radioGroupLanguage.check(R.id.radio_lang_ru)
             }
         })
+
+        viewModel.contentSourceLiveData.observe(viewLifecycleOwner, Observer<String> {
+            when (it) {
+                SOURCE_INTERNET -> binding.radioGroupInternetStorageHome.check(R.id.radio_internet_source)
+                SOURCE_STORAGE -> binding.radioGroupInternetStorageHome.check(R.id.radio_storage_source)
+            }
+        })
     }
 
     private fun setupListeners() {
@@ -64,6 +71,13 @@ class SettingsFragment : Fragment() {
                 R.id.radio_lang_ru -> viewModel.putRequestLanguage(REQUEST_LANG_RU)
             }
         }
+
+        binding.radioGroupInternetStorageHome.setOnCheckedChangeListener { lang, checkedId ->
+            when (checkedId) {
+                R.id.radio_internet_source -> viewModel.putSource(SOURCE_INTERNET)
+                R.id.radio_storage_source -> viewModel.putSource(SOURCE_STORAGE)
+            }
+        }
     }
 
 
@@ -75,5 +89,8 @@ class SettingsFragment : Fragment() {
 
         private const val REQUEST_LANG_RU = "ru-RU"
         private const val REQUEST_LANG_EN = "en-US"
+
+        private const val SOURCE_INTERNET  = "internet"
+        private const val SOURCE_STORAGE = "storage"
     }
 }

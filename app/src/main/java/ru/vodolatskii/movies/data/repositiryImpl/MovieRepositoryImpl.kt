@@ -29,14 +29,14 @@ class MovieRepositoryImpl @Inject constructor(
     private val sqlDb = sqlDatabaseHelper.readableDatabase
     private lateinit var cursor: Cursor
 
-    override fun putToDb(Movie: Movie) {
+    override fun putToDb(movie: Movie) {
         val cv = ContentValues()
         cv.apply {
-            put(SQLDatabaseHelper.COLUMN_TITLE, Movie.title)
-            put(SQLDatabaseHelper.COLUMN_POSTER, Movie.posterUrl)
-            put(SQLDatabaseHelper.COLUMN_DESCRIPTION, Movie.description)
-            put(SQLDatabaseHelper.COLUMN_RATING, Movie.rating)
-            put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, Movie.releaseDate)
+            put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
+            put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
+            put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
+            put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
+            put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
         }
         sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
     }
@@ -125,7 +125,6 @@ class MovieRepositoryImpl @Inject constructor(
         return movieDao.getAllMovie()
     }
 
-    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
 
     override fun getRequestLanguageFromPreferences() = preferences.getRequestLanguage()
 
@@ -133,9 +132,21 @@ class MovieRepositoryImpl @Inject constructor(
         preferences.saveRequestLanguage(language)
     }
 
+    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
+
     override fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
     }
+
+    override fun getContentSourceFromPreferences() = preferences.getContentSource()
+
+    override fun saveContentSourceFromPreferences(source: String) {
+        preferences.saveContentSource(source)
+    }
+
+
+
+
 
     override fun getPreference(): SharedPreferences {
         return preferences.getInstance()
