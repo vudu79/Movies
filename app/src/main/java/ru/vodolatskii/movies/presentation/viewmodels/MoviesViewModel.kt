@@ -25,7 +25,9 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    val isAllMoviesSaveLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
+    val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
+    val dateSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
     val contentSourceLiveData: MutableLiveData<String> = MutableLiveData()
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
     val requestLanguageLifeData: MutableLiveData<String> = MutableLiveData()
@@ -58,8 +60,10 @@ class MoviesViewModel @Inject constructor(
 
 
     private fun setupSettings() {
-        getSource()
-        getMovieSavingMode()
+        getContentSource()
+        getAllMovieSavingMode()
+        getRatingMovieSavingMode()
+        getDateMovieSavingMode()
         getCategoryProperty()
         getRequestLanguage()
     }
@@ -206,6 +210,16 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
+                clearLoadedPages()
+                clearCachedMovieList()
+                getMoviesFromApi()
+            }
+        }
+    }
+
     fun clearLoadedPages() {
         loadedPages.clear()
     }
@@ -225,7 +239,6 @@ class MoviesViewModel @Inject constructor(
     private fun getRequestLanguage() {
         requestLanguageLifeData.value = repository.getRequestLanguageFromPreferences()
     }
-
     fun putRequestLanguage(language: String) {
         repository.saveRequestLanguageToPreferences(language)
         getRequestLanguage()
@@ -234,43 +247,48 @@ class MoviesViewModel @Inject constructor(
     private fun getCategoryProperty() {
         categoryPropertyLifeData.value = repository.getDefaultCategoryFromPreferences()
     }
-
     fun putCategoryProperty(category: String) {
         repository.saveDefaultCategoryToPreferences(category)
         getCategoryProperty()
     }
 
+    private fun getContentSource() {
+        contentSourceLiveData.value = repository.getContentSourceFromPreferences()
+    }
+    fun putContentSource(source: String) {
+        repository.saveContentSourceFromPreferences(source)
+        getContentSource()
+    }
+
+    private fun getAllMovieSavingMode() {
+        allMoviesSavingLiveModeData.value = repository.getMovieSavingMode()
+    }
+    fun setAllMovieSavingMode(isChecked: Boolean) {
+        repository.saveMovieSavingMode(isChecked)
+        getAllMovieSavingMode()
+    }
+
+    private fun getRatingMovieSavingMode() {
+        ratingSavingModeLiveData.value = repository.getRatingMovieSavingMode()
+    }
+    fun setRatingMovieSavingMode(value: Int) {
+        repository.saveRatingMovieSavingMode(value)
+        getRatingMovieSavingMode()
+    }
+
+    private fun getDateMovieSavingMode() {
+        dateSavingModeLiveData.value = repository.getDateMovieSavingMode()
+    }
+    fun setDateMovieSavingMode(value: Int) {
+        repository.saveDateMovieSavingMode(value)
+        getDateMovieSavingMode()
+    }
+
+
+
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)
         fun onFailure(error: ErrorResponseDto)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        when (key) {
-            KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
-                clearLoadedPages()
-                clearCachedMovieList()
-                getMoviesFromApi()
-            }
-        }
-    }
-
-    private fun getSource() {
-        contentSourceLiveData.value = repository.getContentSourceFromPreferences()
-    }
-
-    fun putSource(source: String) {
-        repository.saveContentSourceFromPreferences(source)
-        getSource()
-    }
-
-    private fun getMovieSavingMode() {
-        isAllMoviesSaveLiveData.value = repository.getMovieSavingMode()
-    }
-
-    fun setMovieSavingMode(isChecked: Boolean) {
-        repository.saveMovieSavingMode(isChecked)
-        getMovieSavingMode()
     }
 
 

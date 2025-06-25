@@ -15,33 +15,33 @@ class PreferenceProvider(context: Context) {
             preference.edit { putString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) }
             preference.edit { putString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) }
             preference.edit { putBoolean(KEY_SAVE_MOVIE_MODE, DEFAULT_SAVE_MOVIE_MODE) }
+            preference.edit { putInt(KEY_RATING_SAVE_MOVIE_MODE, DEFAULT_RATING_SAVE_MOVIE_MODE) }
+            preference.edit { putInt(KEY_DATE_SAVE_MOVIE_MODE, DEFAULT_DATE_SAVE_MOVIE_MODE) }
+
             preference.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
         }
     }
 
     fun getInstance() = preference
 
+    fun getDefaultCategory() =
+        preference.getString(KEY_DEFAULT_CATEGORY, DEFAULT_CATEGORY) ?: DEFAULT_CATEGORY
     fun saveDefaultCategory(category: String) {
         preference.edit {
             putString(KEY_DEFAULT_CATEGORY, category)
         }
     }
 
+    fun getRequestLanguage() =
+        preference.getString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
     fun saveRequestLanguage(language: String) {
         preference.edit {
             putString(KEY_DEFAULT_LANGUAGE, language)
         }
     }
 
-    fun getDefaultCategory() =
-        preference.getString(KEY_DEFAULT_CATEGORY, DEFAULT_CATEGORY) ?: DEFAULT_CATEGORY
-
-    fun getRequestLanguage() =
-        preference.getString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
-
     fun getContentSource() =
         preference.getString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) ?: DEFAULT_CONTENT_SOURCE
-
     fun saveContentSource(source: String) {
         preference.edit {
             putString(KEY_CONTENT_SOURCE, source)
@@ -50,11 +50,25 @@ class PreferenceProvider(context: Context) {
 
     fun getMovieSavingMode() =
         preference.getBoolean(KEY_SAVE_MOVIE_MODE, DEFAULT_SAVE_MOVIE_MODE)
-            ?: DEFAULT_SAVE_MOVIE_MODE
-
     fun saveMovieSavingMode(checked: Boolean) {
         preference.edit {
             putBoolean(KEY_SAVE_MOVIE_MODE, checked)
+        }
+    }
+
+    fun getRatingMovieSavingMode()=
+        preference.getInt(KEY_RATING_SAVE_MOVIE_MODE, DEFAULT_RATING_SAVE_MOVIE_MODE)
+    fun saveRatingMovieSavingMode(value: Int) {
+        preference.edit {
+            putInt(KEY_RATING_SAVE_MOVIE_MODE, value)
+        }
+    }
+
+    fun getDateMovieSavingMode()=
+        preference.getInt(KEY_DATE_SAVE_MOVIE_MODE, DEFAULT_DATE_SAVE_MOVIE_MODE)
+    fun saveDateMovieSavingMode(value: Int) {
+        preference.edit {
+            putInt(KEY_DATE_SAVE_MOVIE_MODE, value)
         }
     }
 
@@ -73,5 +87,11 @@ class PreferenceProvider(context: Context) {
 
         private const val KEY_SAVE_MOVIE_MODE = "save_mode"
         private const val DEFAULT_SAVE_MOVIE_MODE = true
+
+        private const val KEY_RATING_SAVE_MOVIE_MODE = "rating_save_mode"
+        private const val DEFAULT_RATING_SAVE_MOVIE_MODE = 0
+
+        private const val KEY_DATE_SAVE_MOVIE_MODE = "date_save_mode"
+        private const val DEFAULT_DATE_SAVE_MOVIE_MODE = 1950
     }
 }

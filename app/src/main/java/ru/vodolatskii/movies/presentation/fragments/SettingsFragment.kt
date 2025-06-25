@@ -56,42 +56,54 @@ class SettingsFragment : Fragment() {
                 SOURCE_STORAGE -> binding.radioGroupInternetStorageHome.check(R.id.radio_storage_source)
             }
         })
-        viewModel.isAllMoviesSaveLiveData.observe(viewLifecycleOwner, Observer<Boolean> {
+
+        viewModel.allMoviesSavingLiveModeData.observe(viewLifecycleOwner, Observer<Boolean> {
             binding.switchSaveMovieDb.isChecked = it
+        })
+
+        viewModel.ratingSavingModeLiveData.observe(viewLifecycleOwner, Observer<Int> {
+            binding.seekBarRating.progress = it
+        })
+
+        viewModel.dateSavingModeLiveData.observe(viewLifecycleOwner, Observer<Int> {
+            binding.seekBarDate.progress = it
         })
     }
 
     private fun setupListeners() {
-
-        binding.seekBarReleaseRating.setOnSeekBarChangeListener(
+        binding.seekBarRating.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                    binding.textViewReleaseRating.text = seek.progress.toString()
+                    binding.textViewRating.text = seek.progress.toString()
                 }
-
                 override fun onStartTrackingTouch(seek: SeekBar) {}
-
                 override fun onStopTrackingTouch(seek: SeekBar) {
-                    val output = "Progress is: " + seek.progress + "%"
+                    viewModel.setRatingMovieSavingMode(seek.progress)
                 }
             })
 
-        binding.seekBaDate.setOnSeekBarChangeListener(
+        binding.seekBarDate.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                     binding.textViewDate.text = seek.progress.toString()
                 }
-
                 override fun onStartTrackingTouch(seek: SeekBar) {}
-
                 override fun onStopTrackingTouch(seek: SeekBar) {
-                    val output = "Progress is: " + seek.progress + "%"
+                    viewModel.setDateMovieSavingMode(seek.progress)
                 }
             })
 
-
         binding.switchSaveMovieDb.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            viewModel.setMovieSavingMode(isChecked)
+            viewModel.setAllMovieSavingMode(isChecked)
+            binding.seekBarRating.isEnabled = !isChecked
+            binding.seekBarDate.isEnabled = !isChecked
+
+            binding.seekBarDate.progress = if (isChecked) 0 else (viewModel.dateSavingModeLiveData.value ?: 0)
+            binding.seekBarRating.progress = if (isChecked) 0 else ( viewModel.dateSavingModeLiveData.value ?: 0)
+
+            binding.textViewDate.text = if (isChecked) "-"  else viewModel.dateSavingModeLiveData.value.toString()
+            binding.textViewRating.text =
+                if (isChecked) "-" else viewModel.ratingSavingModeLiveData.value.toString()
         })
 
         binding.radioGroupCategory.setOnCheckedChangeListener { group, checkedId ->
@@ -112,8 +124,8 @@ class SettingsFragment : Fragment() {
 
         binding.radioGroupInternetStorageHome.setOnCheckedChangeListener { lang, checkedId ->
             when (checkedId) {
-                R.id.radio_internet_source -> viewModel.putSource(SOURCE_INTERNET)
-                R.id.radio_storage_source -> viewModel.putSource(SOURCE_STORAGE)
+                R.id.radio_internet_source -> viewModel.putContentSource(SOURCE_INTERNET)
+                R.id.radio_storage_source -> viewModel.putContentSource(SOURCE_STORAGE)
             }
         }
     }

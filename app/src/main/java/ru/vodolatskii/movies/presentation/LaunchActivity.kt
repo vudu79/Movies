@@ -65,20 +65,20 @@ class LaunchActivity : AppCompatActivity() {
     private fun switchContentSource() {
         when (checkInternetStatus(this)) {
             InternetType.WIFI -> {
-                viewModel.putSource(SOURCE_INTERNET)
+                viewModel.putContentSource(SOURCE_INTERNET)
                 Toast.makeText(this, "On Line", Toast.LENGTH_LONG).show()
                 viewModel.getMoviesFromApi()
             }
 
             InternetType.MOBILE -> {
-                viewModel.putSource(SOURCE_INTERNET)
+                viewModel.putContentSource(SOURCE_INTERNET)
                 Toast.makeText(this, "On Line", Toast.LENGTH_LONG).show()
                 viewModel.getMoviesFromApi()
             }
 
             InternetType.NONE -> {
                 Toast.makeText(this, "Off Line", Toast.LENGTH_LONG).show()
-                viewModel.putSource(SOURCE_STORAGE)
+                viewModel.putContentSource(SOURCE_STORAGE)
                 viewModel.getMoviesFromStorage()
             }
         }

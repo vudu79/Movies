@@ -127,29 +127,37 @@ class MovieRepositoryImpl @Inject constructor(
 
 
     override fun getRequestLanguageFromPreferences() = preferences.getRequestLanguage()
-
     override fun saveRequestLanguageToPreferences(language: String) {
         preferences.saveRequestLanguage(language)
     }
 
-    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
 
+    override fun getDefaultCategoryFromPreferences() = preferences.getDefaultCategory()
     override fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
     }
 
+
     override fun getContentSourceFromPreferences() = preferences.getContentSource()
-
-
-
     override fun saveContentSourceFromPreferences(source: String) {
         preferences.saveContentSource(source)
     }
 
-    override fun getMovieSavingMode()= preferences.getMovieSavingMode()
 
+    override fun getMovieSavingMode() = preferences.getMovieSavingMode()
     override fun saveMovieSavingMode(checked: Boolean) {
         preferences.saveMovieSavingMode(checked)
+    }
+
+
+    override fun getRatingMovieSavingMode() = preferences.getRatingMovieSavingMode()
+    override fun saveRatingMovieSavingMode(value: Int) {
+        preferences.saveRatingMovieSavingMode(value)
+    }
+
+    override fun getDateMovieSavingMode()= preferences.getDateMovieSavingMode()
+    override fun saveDateMovieSavingMode(value: Int) {
+        preferences.saveDateMovieSavingMode(value)
     }
 
 

@@ -200,7 +200,7 @@
                 android:textColor="@android:color/white" />
 
             <TextView
-                android:id="@+id/textView_release_rating"
+                android:id="@+id/text_view_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -210,7 +210,7 @@
         </LinearLayout>
 
         <SeekBar
-            android:id="@+id/seekBar_release_rating"
+            android:id="@+id/seek_bar_rating"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="8dp"
@@ -251,7 +251,7 @@
         </LinearLayout>
 
         <SeekBar
-            android:id="@+id/seekBaк_date"
+            android:id="@+id/seek_bar_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"

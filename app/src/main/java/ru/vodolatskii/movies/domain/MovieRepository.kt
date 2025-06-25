@@ -37,4 +37,12 @@ interface MovieRepository {
     fun getMovieSavingMode(): Boolean
 
     fun saveMovieSavingMode(checked: Boolean)
+
+    fun getRatingMovieSavingMode(): Int
+
+    fun saveRatingMovieSavingMode(value: Int)
+
+    fun getDateMovieSavingMode(): Int
+
+    fun saveDateMovieSavingMode(value: Int)
 }
