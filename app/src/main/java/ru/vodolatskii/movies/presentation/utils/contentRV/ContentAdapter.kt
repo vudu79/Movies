@@ -72,8 +72,8 @@ class ContentAdapter(
 
                 Glide.with(holder.itemView.context)
                     .load(movie.posterUrl)
-                    .error(R.drawable.outline_cancel_24)
-                    .placeholder(R.drawable.baseline_download_for_offline_24)
+                    .error(R.drawable.baseline_error_outline_24)
+                    .placeholder(R.drawable.baseline_arrow_circle_down_24)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
@@ -97,7 +97,6 @@ class ContentAdapter(
             }
         }
     }
-
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         val tempList: MutableList<Movie> = asyncListDiffer.currentList.toMutableList()
