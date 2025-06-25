@@ -51,40 +51,6 @@ class MoviesViewModel @Inject constructor(
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
-    fun onSortRVEvents(event: SortEvents){
-        when(event){
-            SortEvents.ALPHABET -> {
-                val sortedList = cachedMovieList.sortedBy {
-                    it.name
-                }
-                _homeState.value = UIState.Success(sortedList)
-            }
-            SortEvents.DATE -> {
-                val sortedList = cachedMovieList.sortedBy {
-                    it.releaseDateTimeStump
-                }
-                _homeState.value = UIState.Success(sortedList)
-            }
-            SortEvents.RATING -> {
-                val sortedList = cachedMovieList.sortedBy {
-                    it.rating
-                }.reversed()
-                _homeState.value = UIState.Success(sortedList)
-            }
-        }
-    }
-
-    fun clearLoadedPages() {
-        loadedPages.clear()
-    }
-
-    fun clearCachedMovieList() {
-        cachedMovieList.clear()
-    }
-
-    fun switchSearchViewVisibility(state: Boolean) {
-        _isSearchViewVisible.value = state
-    }
 
     fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -100,11 +66,15 @@ class MoviesViewModel @Inject constructor(
                                 cachedMovieList.addAll(films)
                                 _homeState.value = UIState.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
+                                films.forEach {
+                                    repository.putToDb(it)
+                                }
                             }
 
                             override fun onFailure(error: ErrorResponseDto) {
-                                _homeState.value =
-                                    UIState.Error("Response code - ${error.statusCode}\n${error.message}")
+//                                _homeState.value =
+//                                    UIState.Error("Response code - ${error.statusCode}\n${error.message}")
+                                _homeState.value = UIState.Success(repository.getAllFromDB())
                             }
                         })
                 } else {
@@ -112,7 +82,9 @@ class MoviesViewModel @Inject constructor(
                 }
 
             } catch (e: Exception) {
-                _homeState.value = UIState.Error("Error - $e")
+//                _homeState.value = UIState.Error("Error - $e")
+                _homeState.value = UIState.Success(repository.getAllFromDB())
+
             }
         }
     }
@@ -147,12 +119,12 @@ class MoviesViewModel @Inject constructor(
 
             val fav = repository.getAllMoviesFromFavorites()
 
-            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.name == it.name }) {
+            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.title == it.title }) {
                 repository.insertMovieToFavorites(movie)
                 cachedFavoriteMovieList.add(movie)
 
                 cachedMovieList =
-                    cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                    cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
                         .toMutableList()
 
                 _homeState.value = UIState.Success(cachedMovieList)
@@ -160,7 +132,7 @@ class MoviesViewModel @Inject constructor(
             }
 
             cachedMovieList =
-                cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
                     .toMutableList()
             _homeState.value = UIState.Success(cachedMovieList)
         }
@@ -171,9 +143,9 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
             cachedFavoriteMovieList =
-                cachedFavoriteMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+                cachedFavoriteMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
                     .toMutableList()
-            if (!cachedMovieList.any { movie.movieId == it.movieId && movie.name == it.name }) {
+            if (!cachedMovieList.any { movie.movieId == it.movieId && movie.title == it.title }) {
                 cachedMovieList.add(movie)
 //                _homeState.value = UIState.Success(cachePopularMovieList)
             }
@@ -183,8 +155,44 @@ class MoviesViewModel @Inject constructor(
 
     fun deleteFromPopular(movie: Movie) {
         cachedMovieList =
-            cachedMovieList.filter { movie.movieId != it.movieId && movie.name != it.name }
+            cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
                 .toMutableList()
+    }
+
+
+    fun onSortRVEvents(event: SortEvents){
+        when(event){
+            SortEvents.ALPHABET -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.title
+                }
+                _homeState.value = UIState.Success(sortedList)
+            }
+            SortEvents.DATE -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.releaseDateTimeStump
+                }
+                _homeState.value = UIState.Success(sortedList)
+            }
+            SortEvents.RATING -> {
+                val sortedList = cachedMovieList.sortedBy {
+                    it.rating
+                }.reversed()
+                _homeState.value = UIState.Success(sortedList)
+            }
+        }
+    }
+
+    fun clearLoadedPages() {
+        loadedPages.clear()
+    }
+
+    fun clearCachedMovieList() {
+        cachedMovieList.clear()
+    }
+
+    fun switchSearchViewVisibility(state: Boolean) {
+        _isSearchViewVisible.value = state
     }
 
     fun plusPageCount() {
@@ -214,11 +222,6 @@ class MoviesViewModel @Inject constructor(
         fun onFailure(error: ErrorResponseDto)
     }
 
-    companion object {
-        private const val KEY_DEFAULT_CATEGORY = "default_category"
-        private const val KEY_DEFAULT_LANGUAGE = "default_language"
-    }
-
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
@@ -227,6 +230,11 @@ class MoviesViewModel @Inject constructor(
                 getMoviesFromApi()
             }
         }
+    }
+
+    companion object {
+        private const val KEY_DEFAULT_CATEGORY = "default_category"
+        private const val KEY_DEFAULT_LANGUAGE = "default_language"
     }
 }
 

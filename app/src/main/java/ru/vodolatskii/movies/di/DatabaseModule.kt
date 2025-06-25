@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
+import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.RoomDB
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
@@ -15,7 +16,7 @@ class DatabaseModule() {
     @Singleton
     @Provides
     fun provideDB(context: Context) : RoomDB = Room
-        .databaseBuilder(context, RoomDB::class.java, "my-room-database")
+        .databaseBuilder(context, RoomDB::class.java, "films.db")
         .fallbackToDestructiveMigration()
         .build()
 
@@ -26,4 +27,8 @@ class DatabaseModule() {
     @Singleton
     @Provides
     fun provideSharedPreference(context: Context) = PreferenceProvider(context)
+
+    @Singleton
+    @Provides
+    fun provideSqlDatabaseHelper(context: Context) = SQLDatabaseHelper(context)
 }

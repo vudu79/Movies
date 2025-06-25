@@ -144,7 +144,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     return true
                 }
                 val result = viewModel.cachedMovieList.filter {
-                    it.name.toLowerCase(Locale.getDefault())
+                    it.title.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
                 contentAdapter.setData(result)

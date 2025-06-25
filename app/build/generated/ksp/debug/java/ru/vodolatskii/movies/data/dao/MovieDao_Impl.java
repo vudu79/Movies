@@ -42,7 +42,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `favorite_movie` (`id`,`movieId`,`name`,`description`,`posterUrl`,`rating`,`releaseDate`,`releaseDateTimeStump`,`isFavorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `favorite_movie` (`id`,`movieId`,`title`,`description`,`posterUrl`,`rating`,`releaseDate`,`releaseDateTimeStump`,`isFavorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -50,7 +50,7 @@ public final class MovieDao_Impl implements MovieDao {
           @NonNull final Movie entity) {
         statement.bindLong(1, entity.getId());
         statement.bindLong(2, entity.getMovieId());
-        statement.bindString(3, entity.getName());
+        statement.bindString(3, entity.getTitle());
         statement.bindString(4, entity.getDescription());
         statement.bindString(5, entity.getPosterUrl());
         statement.bindDouble(6, entity.getRating());
@@ -77,7 +77,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `favorite_movie` SET `id` = ?,`movieId` = ?,`name` = ?,`description` = ?,`posterUrl` = ?,`rating` = ?,`releaseDate` = ?,`releaseDateTimeStump` = ?,`isFavorite` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `favorite_movie` SET `id` = ?,`movieId` = ?,`title` = ?,`description` = ?,`posterUrl` = ?,`rating` = ?,`releaseDate` = ?,`releaseDateTimeStump` = ?,`isFavorite` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -85,7 +85,7 @@ public final class MovieDao_Impl implements MovieDao {
           @NonNull final Movie entity) {
         statement.bindLong(1, entity.getId());
         statement.bindLong(2, entity.getMovieId());
-        statement.bindString(3, entity.getName());
+        statement.bindString(3, entity.getTitle());
         statement.bindString(4, entity.getDescription());
         statement.bindString(5, entity.getPosterUrl());
         statement.bindDouble(6, entity.getRating());
@@ -161,7 +161,7 @@ public final class MovieDao_Impl implements MovieDao {
     try {
       final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
       final int _cursorIndexOfMovieId = CursorUtil.getColumnIndexOrThrow(_cursor, "movieId");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+      final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
       final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
       final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "posterUrl");
       final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
@@ -175,8 +175,8 @@ public final class MovieDao_Impl implements MovieDao {
         _tmpId = _cursor.getLong(_cursorIndexOfId);
         final long _tmpMovieId;
         _tmpMovieId = _cursor.getLong(_cursorIndexOfMovieId);
-        final String _tmpName;
-        _tmpName = _cursor.getString(_cursorIndexOfName);
+        final String _tmpTitle;
+        _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
         final String _tmpDescription;
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final String _tmpPosterUrl;
@@ -191,7 +191,7 @@ public final class MovieDao_Impl implements MovieDao {
         final int _tmp;
         _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
         _tmpIsFavorite = _tmp != 0;
-        _item = new Movie(_tmpId,_tmpMovieId,_tmpName,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpIsFavorite);
+        _item = new Movie(_tmpId,_tmpMovieId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpIsFavorite);
         _result.add(_item);
       }
       return _result;

@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
-                tools:listitem="@layout/recyclerview_content_item" />
+                tools:listitem="@layout/recyclerview_movie_item_layout" />
 
             <com.leinardi.android.speeddial.SpeedDialView
                 android:id="@+id/speedDial"

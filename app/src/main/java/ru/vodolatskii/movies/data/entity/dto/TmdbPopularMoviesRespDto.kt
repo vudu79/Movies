@@ -72,7 +72,7 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
     val movieList: List<Movie> = notNullList.map {
         val movie = Movie(
             movieId = it.id!!.toLong(),
-            name = it.title!!,
+            title = it.title!!,
             description = it.overview!!,
             posterUrl = Constant.IMAGES_URL + "original" + it.posterPath,
             isFavorite = false,

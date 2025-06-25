@@ -38,7 +38,7 @@ fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
     val movieList: List<Movie> = this.docs.map {
         val movie = Movie(
             movieId = it.id,
-            name = it.name,
+            title = it.name,
             description = it.description,
             posterUrl = it.poster.url,
             isFavorite = false,

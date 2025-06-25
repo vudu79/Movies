@@ -111,7 +111,7 @@ class FavoriteFragment : Fragment() {
                     return true
                 }
                 val result = viewModel.cachedFavoriteMovieList.filter {
-                    it.name.toLowerCase(Locale.getDefault())
+                    it.title.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
                 favoriteAdapter.setData(result)

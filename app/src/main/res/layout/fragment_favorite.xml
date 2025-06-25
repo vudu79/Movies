@@ -37,7 +37,7 @@
             android:id="@+id/recycler_view_fav"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/recyclerview_content_item" />
+            tools:listitem="@layout/recyclerview_movie_item_layout" />
 
         <ProgressBar
             android:id="@+id/progress_circular_fav"

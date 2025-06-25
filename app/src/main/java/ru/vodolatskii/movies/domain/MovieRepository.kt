@@ -24,4 +24,8 @@ interface MovieRepository {
     fun getRequestLanguageFromPreferences(): String
 
     fun saveRequestLanguageToPreferences(language: String)
+
+     fun putToDb(movie: Movie)
+
+     fun getAllFromDB(): List<Movie>
 }

@@ -1,8 +1,11 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
+import android.content.ContentValues
 import android.content.SharedPreferences
+import android.database.Cursor
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
+import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
@@ -19,8 +22,50 @@ class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val kpApiService: KPApiService,
     private val tmdbApiService: TmdbApiService,
-    private val preferences: PreferenceProvider
+    private val preferences: PreferenceProvider,
+    private val sqlDatabaseHelper: SQLDatabaseHelper
+
 ) : MovieRepository {
+    private val sqlDb = sqlDatabaseHelper.readableDatabase
+    private lateinit var cursor: Cursor
+
+    override fun putToDb(Movie: Movie) {
+        val cv = ContentValues()
+        cv.apply {
+            put(SQLDatabaseHelper.COLUMN_TITLE, Movie.title)
+            put(SQLDatabaseHelper.COLUMN_POSTER, Movie.posterUrl)
+            put(SQLDatabaseHelper.COLUMN_DESCRIPTION, Movie.description)
+            put(SQLDatabaseHelper.COLUMN_RATING, Movie.rating)
+            put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, Movie.releaseDate)
+        }
+        sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
+    }
+
+    override fun getAllFromDB(): List<Movie> {
+        cursor = sqlDb.rawQuery("SELECT * FROM ${SQLDatabaseHelper.TABLE_NAME}", null)
+        val result = mutableListOf<Movie>()
+        if (cursor.moveToFirst()) {
+            do {
+                val title = cursor.getString(1)
+                val posterUrl = cursor.getString(2)
+                val description = cursor.getString(3)
+                val releaseDate = cursor.getString(4)
+                val rating = cursor.getDouble(5)
+
+                result.add(
+                    Movie(
+                        posterUrl = posterUrl,
+                        rating = rating,
+                        releaseDate = releaseDate,
+                        isFavorite = false,
+                        title = title,
+                        description = description
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        return result
+    }
 
     override suspend fun getPopularMovieKPResponse(
         page: Int,
@@ -88,7 +133,7 @@ class MovieRepositoryImpl @Inject constructor(
         preferences.saveRequestLanguage(language)
     }
 
-    override  fun saveDefaultCategoryToPreferences(category: String) {
+    override fun saveDefaultCategoryToPreferences(category: String) {
         preferences.saveDefaultCategory(category)
     }
 

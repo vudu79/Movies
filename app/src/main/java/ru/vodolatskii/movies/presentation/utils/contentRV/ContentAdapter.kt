@@ -72,12 +72,13 @@ class ContentAdapter(
 
                 Glide.with(holder.itemView.context)
                     .load(movie.posterUrl)
-//                    .placeholder(R.drawable.loading_img)
+                    .error(R.drawable.outline_cancel_24)
+                    .placeholder(R.drawable.baseline_download_for_offline_24)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
 
-                holder.title.text = movie.name
+                holder.title.text = movie.title
 
                 holder.description.text = movie.description
 

@@ -12,7 +12,7 @@ data class Movie(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val movieId: Long = 0,
-    val name: String = "",
+    val title: String = "",
     val description: String = "",
     val posterUrl: String = "",
     val rating: Double = 0.0,
