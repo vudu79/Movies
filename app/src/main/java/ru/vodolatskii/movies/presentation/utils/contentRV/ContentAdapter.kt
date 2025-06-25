@@ -57,7 +57,7 @@ class ContentAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
         return ContentViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.recyclerview_content_item, parent, false)
+                .inflate(R.layout.recyclerview_movie_item_layout, parent, false)
         )
     }
 

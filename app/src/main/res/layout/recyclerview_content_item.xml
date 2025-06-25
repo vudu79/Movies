@@ -58,13 +58,13 @@
                 android:layout_below="@+id/title"
                 android:layout_marginHorizontal="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_toEndOf="@+id/card_image"
                 android:maxLines="3"
-                android:justificationMode="inter_word"
                 android:textAlignment="gravity"
-                android:textAppearance="@style/Base.CardView"
                 android:textColor="@color/white"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:justificationMode="inter_word"
+                android:layout_toEndOf="@+id/card_image"
+                android:textAppearance="@style/Base.CardView"/>
 
             <TextView
                 android:id="@+id/release_date"
