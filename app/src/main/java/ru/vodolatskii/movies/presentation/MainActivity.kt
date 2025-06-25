@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var  actionBarDrawerToggle: ActionBarDrawerToggle
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
@@ -48,13 +48,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val drawerLayout : DrawerLayout = binding.drawerLayout
-        val navView : NavigationView = binding.navView
-        val toolBar : Toolbar = binding.topAppBar
+        val drawerLayout: DrawerLayout = binding.drawerLayout
+        val navView: NavigationView = binding.navView
+        val toolBar: Toolbar = binding.topAppBar
 
 //        setSupportActionBar(toolBar)
 
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close )
+        actionBarDrawerToggle =
+            ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
@@ -102,15 +103,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-       val navController = findNavController(R.id.my_nav_host_fragment)
+        val navController = findNavController(R.id.my_nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // check conndition for drawer item with menu item
-        return if (actionBarDrawerToggle.onOptionsItemSelected(item)){
+        return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
-        }else{
+        } else {
             super.onOptionsItemSelected(item)
         }
     }
@@ -142,17 +143,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             binding.drawerLayout.closeDrawers()
-
             when (menuItem.itemId) {
                 R.id.settingsFragment -> {
                     navController.navigate(R.id.settingsFragment)
                     true
                 }
-
+                R.id.exit -> {
+                    AlertDialog.Builder(this)
+                        .setTitle("Выйти из приложения?")
+                        .setIcon(R.drawable.baseline_warning_24)
+                        .setPositiveButton("Да") { _, _ ->
+                            finish()
+                        }
+                        .setNegativeButton("Нет") { _, _ ->
+                        }
+                        .show()
+                    false
+                }
                 else -> false
             }
         }
@@ -164,6 +174,7 @@ class MainActivity : AppCompatActivity() {
                     viewModel.switchSearchViewVisibility(true)
                     true
                 }
+
                 else -> false
             }
         }

@@ -58,7 +58,6 @@ class MoviesViewModel @Inject constructor(
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
-
     private fun setupSettings() {
         getContentSource()
         getAllMovieSavingMode()
@@ -184,6 +183,9 @@ class MoviesViewModel @Inject constructor(
                 .toMutableList()
     }
 
+    fun deleteAllFromDB(){
+        repository.deleteAllFromDB()
+    }
 
     fun onSortRVEvents(event: SortEvents) {
         when (event) {

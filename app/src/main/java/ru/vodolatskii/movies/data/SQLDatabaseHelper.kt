@@ -15,6 +15,7 @@ class SQLDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
                     "$COLUMN_POSTER TEXT," +
                     "$COLUMN_DESCRIPTION TEXT," +
                     "$COLUMN_RELEASE_DATE TEXT," +
+                    "$COLUMN_TIME_STUMP INTEGER," +
                     "$COLUMN_RATING REAL);"
         )
     }
@@ -34,6 +35,7 @@ class SQLDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         const val COLUMN_POSTER = "poster_path"
         const val COLUMN_DESCRIPTION = "overview"
         const val COLUMN_RELEASE_DATE = "release_date"
+        const val COLUMN_TIME_STUMP = "time_stump"
         const val COLUMN_RATING = "vote_average"
     }
 }

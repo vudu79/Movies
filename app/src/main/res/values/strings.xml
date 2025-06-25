@@ -42,4 +42,5 @@
     <string name="save_movie_mod">Сохранять все фильмы в в пямять телефона</string>
     <string name="rating_mode">Сохранять с рейтингом выше</string>
     <string name="date_save_mode">Сохранять по дате релиза и позже</string>
+    <string name="exit">Выйти</string>
 </resources>

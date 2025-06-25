@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import ru.vodolatskii.movies.R
@@ -71,11 +73,26 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupListeners() {
+
+        binding.buttonDelete.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Удалить все фильмы из хранилища?")
+                .setIcon(R.drawable.baseline_warning_24)
+                .setPositiveButton("Да") { _, _ ->
+                    viewModel.deleteAllFromDB()
+                    Toast.makeText(requireContext(), "Все фильмы удалены!", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("Нет") { _, _ ->
+                }
+
+                .show()
+        }
         binding.seekBarRating.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                     binding.textViewRating.text = seek.progress.toString()
                 }
+
                 override fun onStartTrackingTouch(seek: SeekBar) {}
                 override fun onStopTrackingTouch(seek: SeekBar) {
                     viewModel.setRatingMovieSavingMode(seek.progress)
@@ -87,6 +104,7 @@ class SettingsFragment : Fragment() {
                 override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                     binding.textViewDate.text = seek.progress.toString()
                 }
+
                 override fun onStartTrackingTouch(seek: SeekBar) {}
                 override fun onStopTrackingTouch(seek: SeekBar) {
                     viewModel.setDateMovieSavingMode(seek.progress)
@@ -98,10 +116,13 @@ class SettingsFragment : Fragment() {
             binding.seekBarRating.isEnabled = !isChecked
             binding.seekBarDate.isEnabled = !isChecked
 
-            binding.seekBarDate.progress = if (isChecked) 0 else (viewModel.dateSavingModeLiveData.value ?: 0)
-            binding.seekBarRating.progress = if (isChecked) 0 else ( viewModel.dateSavingModeLiveData.value ?: 0)
+            binding.seekBarDate.progress =
+                if (isChecked) 0 else (viewModel.dateSavingModeLiveData.value ?: 0)
+            binding.seekBarRating.progress =
+                if (isChecked) 0 else (viewModel.dateSavingModeLiveData.value ?: 0)
 
-            binding.textViewDate.text = if (isChecked) "-"  else viewModel.dateSavingModeLiveData.value.toString()
+            binding.textViewDate.text =
+                if (isChecked) "-" else viewModel.dateSavingModeLiveData.value.toString()
             binding.textViewRating.text =
                 if (isChecked) "-" else viewModel.ratingSavingModeLiveData.value.toString()
         })

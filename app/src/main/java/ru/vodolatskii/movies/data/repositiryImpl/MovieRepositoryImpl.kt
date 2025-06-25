@@ -15,6 +15,9 @@ import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -29,16 +32,43 @@ class MovieRepositoryImpl @Inject constructor(
     private val sqlDb = sqlDatabaseHelper.readableDatabase
     private lateinit var cursor: Cursor
 
+
+    private fun getTimeStump(dateInt: Int): Long {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val date = dateFormat.parse("$dateInt-01-01")
+        val calendar = Calendar.getInstance()
+        date?.let { calendar.setTime(it) }
+        return calendar.timeInMillis
+    }
+
+
     override fun putToDb(movie: Movie) {
-        val cv = ContentValues()
-        cv.apply {
-            put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
-            put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
-            put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
-            put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
-            put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
+        if (getMovieSavingMode()) {
+            val cv = ContentValues()
+            cv.apply {
+                put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
+                put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
+                put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
+                put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
+                put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
+                put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
+            }
+            sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
+        } else if (
+            movie.rating >= getRatingMovieSavingMode() &&
+            movie.releaseDateTimeStump >= getTimeStump(getDateMovieSavingMode())
+        ) {
+            val cv = ContentValues()
+            cv.apply {
+                put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
+                put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
+                put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
+                put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
+                put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
+                put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
+            }
+            sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
         }
-        sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
     }
 
     override fun getAllFromDB(): List<Movie> {
@@ -50,7 +80,8 @@ class MovieRepositoryImpl @Inject constructor(
                 val posterUrl = cursor.getString(2)
                 val description = cursor.getString(3)
                 val releaseDate = cursor.getString(4)
-                val rating = cursor.getDouble(5)
+                val timeStump = cursor.getLong(5)
+                val rating = cursor.getDouble(6)
 
                 result.add(
                     Movie(
@@ -59,7 +90,8 @@ class MovieRepositoryImpl @Inject constructor(
                         releaseDate = releaseDate,
                         isFavorite = false,
                         title = title,
-                        description = description
+                        description = description,
+                        releaseDateTimeStump = timeStump
                     )
                 )
             } while (cursor.moveToNext())
@@ -67,7 +99,14 @@ class MovieRepositoryImpl @Inject constructor(
         return result
     }
 
-    override suspend fun getPopularMovieKPResponse(
+    override fun deleteAllFromDB() {
+        sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")
+    }
+
+
+
+
+    override suspend fun getMovieResponseFromKPApi(
         page: Int,
         callback: MoviesViewModel.ApiCallback
     ) {
@@ -155,7 +194,7 @@ class MovieRepositoryImpl @Inject constructor(
         preferences.saveRatingMovieSavingMode(value)
     }
 
-    override fun getDateMovieSavingMode()= preferences.getDateMovieSavingMode()
+    override fun getDateMovieSavingMode() = preferences.getDateMovieSavingMode()
     override fun saveDateMovieSavingMode(value: Int) {
         preferences.saveDateMovieSavingMode(value)
     }

@@ -6,7 +6,7 @@ import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 interface MovieRepository {
-    suspend fun getPopularMovieKPResponse(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponseFromKPApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
     suspend fun getMovieResponceFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
@@ -45,4 +45,6 @@ interface MovieRepository {
     fun getDateMovieSavingMode(): Int
 
     fun saveDateMovieSavingMode(value: Int)
+
+    fun deleteAllFromDB()
 }
