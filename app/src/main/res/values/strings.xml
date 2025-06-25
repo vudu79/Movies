@@ -38,4 +38,8 @@
     <string name="internet_source">Интернет</string>
     <string name="storage_source">Память устройства</string>
     <string name="storage_settings">Настройки хранилища</string>
+    <string name="delete_button">Удалить фильмы из памяти</string>
+    <string name="save_movie_mod">Сохранять все фильмы в в пямять телефона</string>
+    <string name="rating_mode">Сохранять с рейтингом выше</string>
+    <string name="date_save_mode">Сохранять по дате релиза и позже</string>
 </resources>

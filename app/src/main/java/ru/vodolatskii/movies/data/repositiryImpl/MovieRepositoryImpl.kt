@@ -140,12 +140,17 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getContentSourceFromPreferences() = preferences.getContentSource()
 
+
+
     override fun saveContentSourceFromPreferences(source: String) {
         preferences.saveContentSource(source)
     }
 
+    override fun getMovieSavingMode()= preferences.getMovieSavingMode()
 
-
+    override fun saveMovieSavingMode(checked: Boolean) {
+        preferences.saveMovieSavingMode(checked)
+    }
 
 
     override fun getPreference(): SharedPreferences {

@@ -25,6 +25,7 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+    val isAllMoviesSaveLiveData: MutableLiveData<Boolean> = MutableLiveData()
     val contentSourceLiveData: MutableLiveData<String> = MutableLiveData()
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
     val requestLanguageLifeData: MutableLiveData<String> = MutableLiveData()
@@ -55,8 +56,10 @@ class MoviesViewModel @Inject constructor(
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
+
     private fun setupSettings() {
         getSource()
+        getMovieSavingMode()
         getCategoryProperty()
         getRequestLanguage()
     }
@@ -259,6 +262,15 @@ class MoviesViewModel @Inject constructor(
     fun putSource(source: String) {
         repository.saveContentSourceFromPreferences(source)
         getSource()
+    }
+
+    private fun getMovieSavingMode() {
+        isAllMoviesSaveLiveData.value = repository.getMovieSavingMode()
+    }
+
+    fun setMovieSavingMode(isChecked: Boolean) {
+        repository.saveMovieSavingMode(isChecked)
+        getMovieSavingMode()
     }
 
 

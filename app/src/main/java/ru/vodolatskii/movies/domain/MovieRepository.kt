@@ -33,4 +33,8 @@ interface MovieRepository {
     fun getContentSourceFromPreferences(): String?
 
     fun saveContentSourceFromPreferences(source: String)
+
+    fun getMovieSavingMode(): Boolean
+
+    fun saveMovieSavingMode(checked: Boolean)
 }

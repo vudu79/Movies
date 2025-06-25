@@ -1,15 +1,18 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
+import android.widget.SeekBar
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentSettingsBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+
 
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
@@ -53,9 +56,44 @@ class SettingsFragment : Fragment() {
                 SOURCE_STORAGE -> binding.radioGroupInternetStorageHome.check(R.id.radio_storage_source)
             }
         })
+        viewModel.isAllMoviesSaveLiveData.observe(viewLifecycleOwner, Observer<Boolean> {
+            binding.switchSaveMovieDb.isChecked = it
+        })
     }
 
     private fun setupListeners() {
+
+        binding.seekBarReleaseRating.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                    binding.textViewReleaseRating.text = seek.progress.toString()
+                }
+
+                override fun onStartTrackingTouch(seek: SeekBar) {}
+
+                override fun onStopTrackingTouch(seek: SeekBar) {
+                    val output = "Progress is: " + seek.progress + "%"
+                }
+            })
+
+        binding.seekBaDate.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                    binding.textViewDate.text = seek.progress.toString()
+                }
+
+                override fun onStartTrackingTouch(seek: SeekBar) {}
+
+                override fun onStopTrackingTouch(seek: SeekBar) {
+                    val output = "Progress is: " + seek.progress + "%"
+                }
+            })
+
+
+        binding.switchSaveMovieDb.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            viewModel.setMovieSavingMode(isChecked)
+        })
+
         binding.radioGroupCategory.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_popular -> viewModel.putCategoryProperty(POPULAR_CATEGORY)
@@ -90,7 +128,7 @@ class SettingsFragment : Fragment() {
         private const val REQUEST_LANG_RU = "ru-RU"
         private const val REQUEST_LANG_EN = "en-US"
 
-        private const val SOURCE_INTERNET  = "internet"
+        private const val SOURCE_INTERNET = "internet"
         private const val SOURCE_STORAGE = "storage"
     }
 }
