@@ -7,29 +7,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-//
-
-val genreMap = mapOf(
-    28 to "Action",
-    12 to "Adventure",
-    16 to "Animation",
-    35 to "Comedy",
-    80 to "Crime",
-    99 to "Documentary",
-    18 to "Drama",
-    10751 to "Family",
-    14 to "Fantasy",
-    36 to "History",
-    27 to "Horror",
-    10402 to "Music",
-    9648 to "Mystery",
-    10749 to "Romance",
-    878 to "Science Fiction",
-    10770 to "TV Movie",
-    53 to "Thriller",
-    10752 to "War",
-    37 to "Western"
-)
 
 
 data class TMDBPopularMoviesRespDto(
@@ -93,7 +70,6 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
                 it.originalTitle != null &&
                 it.genreIds != null
     }
-
     val movieList: List<Movie> = notNullList.map {
         val movie = Movie(
             apiId = it.id!!.toLong(),
@@ -103,7 +79,7 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
             isFavorite = false,
             rating = it.voteAverage!!,
             releaseDate = it.releaseDate!!,
-            genreList = convertGenreIds(it.genreIds!!),
+            genreList = it.genreIds!!,
             releaseDateTimeStump = getTimeStump(it.releaseDate) ?: 0
         )
         movie
@@ -111,8 +87,24 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
     return movieList.toMutableList()
 }
 
-private fun convertGenreIds(genreIds: List<Int>): List<String> {
-    return genreIds.map {
-        genreMap.getOrDefault(it, "")
-    }
-}
+val genreMap = mapOf(
+    28 to "Action",
+    12 to "Adventure",
+    16 to "Animation",
+    35 to "Comedy",
+    80 to "Crime",
+    99 to "Documentary",
+    18 to "Drama",
+    10751 to "Family",
+    14 to "Fantasy",
+    36 to "History",
+    27 to "Horror",
+    10402 to "Music",
+    9648 to "Mystery",
+    10749 to "Romance",
+    878 to "Science Fiction",
+    10770 to "TV Movie",
+    53 to "Thriller",
+    10752 to "War",
+    37 to "Western"
+)

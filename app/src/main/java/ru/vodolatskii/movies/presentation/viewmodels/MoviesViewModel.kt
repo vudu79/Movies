@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,12 +11,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.common.SortEvents
+import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.data.entity.convertToModel
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
+import ru.vodolatskii.movies.presentation.utils.DataModel
+import ru.vodolatskii.movies.presentation.utils.StorageSearchEvents
 import ru.vodolatskii.movies.presentation.utils.UIState
 import javax.inject.Inject
 
@@ -26,6 +29,7 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+    val listViewDataModelModeData: MutableLiveData<List<DataModel>> = MutableLiveData()
     val movieCountInDBModeData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -61,6 +65,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     private fun setupSettings() {
+        initListViewDataModel()
         getContentSource()
         getAllMovieSavingMode()
         getRatingMovieSavingMode()
@@ -298,6 +303,49 @@ class MoviesViewModel @Inject constructor(
     fun setDateMovieSavingMode(value: Int) {
         repository.saveDateMovieSavingMode(value)
         getDateMovieSavingMode()
+    }
+
+    fun onStorageSearchEvent(events: StorageSearchEvents) {
+        val rating: Double
+        val date: Int
+        val title: String
+        val genres: List<Int>
+        try {
+            rating = events.rating.toDouble()
+            date = events.date.toInt()
+            title = events.title
+            genres = events.genres
+
+        } catch (e: Exception) {
+            Log.d("mytag", "cast error $e")
+        }
+
+    }
+
+
+    private fun initListViewDataModel() {
+        val dataModel = ArrayList<DataModel>()
+        dataModel.add(DataModel(Pair(28, "Action"), false))
+        dataModel.add(DataModel(Pair(12, "Adventure"), false))
+        dataModel.add(DataModel(Pair(16, "Animation"), false))
+        dataModel.add(DataModel(Pair(35, "Comedy"), false))
+        dataModel.add(DataModel(Pair(80, "Crime"), false))
+        dataModel.add(DataModel(Pair(80, "Crime"), false))
+        dataModel.add(DataModel(Pair(99, "Documentary"), false))
+        dataModel.add(DataModel(Pair(18, "Drama"), false))
+        dataModel.add(DataModel(Pair(10751, "Family"), false))
+        dataModel.add(DataModel(Pair(14, "Fantasy"), false))
+        dataModel.add(DataModel(Pair(36, "History"), false))
+        dataModel.add(DataModel(Pair(27, "Horror"), false))
+        dataModel.add(DataModel(Pair(10402, "Music"), false))
+        dataModel.add(DataModel(Pair(9648, "Mystery"), false))
+        dataModel.add(DataModel(Pair(10749, "Romance"), false))
+        dataModel.add(DataModel(Pair(878, "Science Fiction"), false))
+        dataModel.add(DataModel(Pair(10770, "TV Movie"), false))
+        dataModel.add(DataModel(Pair(53, "Thriller"), false))
+        dataModel.add(DataModel(Pair(10752, "War"), false))
+        dataModel.add(DataModel(Pair(37, "Western"), false))
+        listViewDataModelModeData.value = dataModel
     }
 
 

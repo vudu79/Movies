@@ -44,7 +44,7 @@ data class Genre(
     @PrimaryKey(autoGenerate = true)
     val idGenre: Long = 0,
     val idGenreFK: Long,
-    val genre: String
+    val genre: Int
 )
 
 fun MovieWithGenre.convertToModel(): Movie {

@@ -1,17 +1,17 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.databinding.FragmentStorageBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.utils.AnimationHelper
+import ru.vodolatskii.movies.presentation.utils.CustomListViewAdapter
+import ru.vodolatskii.movies.presentation.utils.DataModel
+import ru.vodolatskii.movies.presentation.utils.StorageSearchEvents
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -20,6 +20,10 @@ class StorageFragment : Fragment() {
     private lateinit var binding: FragmentStorageBinding
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
+
+    private var dataModel: ArrayList<DataModel>? = null
+    private lateinit var listView: ListView
+    private lateinit var adapter: CustomListViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +39,7 @@ class StorageFragment : Fragment() {
             false
         )
         viewModel = (activity as MainActivity).shareMoviesViewModel()
+        listView = binding.listView
         return binding.root
     }
 
@@ -42,11 +47,57 @@ class StorageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 //        setupContentRV()
         setupObservers()
-        setupSearchViewListeners()
+        setupListeners()
+        setupListView()
         viewModel.getMovieCountFromDB()
+
+
     }
 
-    private fun setupSearchViewListeners() {
+    private fun setupListView() {
+        dataModel = ArrayList<DataModel>()
+        dataModel!!.add(DataModel(Pair(28, "Action"), false))
+        dataModel!!.add(DataModel(Pair(12, "Adventure"), false))
+        dataModel!!.add(DataModel(Pair(16, "Animation"), false))
+        dataModel!!.add(DataModel(Pair(35, "Comedy"), false))
+        dataModel!!.add(DataModel(Pair(80, "Crime"), false))
+        dataModel!!.add(DataModel(Pair(80, "Crime"), false))
+        dataModel!!.add(DataModel(Pair(99, "Documentary"), false))
+        dataModel!!.add(DataModel(Pair(18, "Drama"), false))
+        dataModel!!.add(DataModel(Pair(10751, "Family"), false))
+        dataModel!!.add(DataModel(Pair(14, "Fantasy"), false))
+        dataModel!!.add(DataModel(Pair(36, "History"), false))
+        dataModel!!.add(DataModel(Pair(27, "Horror"), false))
+        dataModel!!.add(DataModel(Pair(10402, "Music"), false))
+        dataModel!!.add(DataModel(Pair(9648, "Mystery"), false))
+        dataModel!!.add(DataModel(Pair(10749, "Romance"), false))
+        dataModel!!.add(DataModel(Pair(878, "Science Fiction"), false))
+        dataModel!!.add(DataModel(Pair(10770, "TV Movie"), false))
+        dataModel!!.add(DataModel(Pair(53, "Thriller"), false))
+        dataModel!!.add(DataModel(Pair(10752, "War"), false))
+        dataModel!!.add(DataModel(Pair(37, "Western"), false))
+
+        adapter = CustomListViewAdapter(dataModel!!, requireContext()) { position ->
+            val dataItem: DataModel = dataModel!![position] as DataModel
+            dataItem.checked = !dataItem.checked
+            adapter.notifyDataSetChanged()
+            viewModel.onStorageSearchEvent(
+                StorageSearchEvents(
+                    rating = binding.editTextRating.text.toString(),
+                    date = binding.editTextDate.text.toString(),
+                    title = binding.editTextTitle.text.toString(),
+                    genres = dataModel!!.filter { it.checked }
+                        .map { Pair(it.pier.first, it.pier.second) }
+                )
+            )
+        }
+        listView.adapter = adapter
+    }
+
+    private fun setupListeners() {
+        binding.buttonSearch.setOnClickListener {
+
+        }
     }
 
     private fun setupObservers() {

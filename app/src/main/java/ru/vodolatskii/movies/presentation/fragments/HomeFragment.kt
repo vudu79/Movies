@@ -26,7 +26,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.common.SortEvents
+import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
