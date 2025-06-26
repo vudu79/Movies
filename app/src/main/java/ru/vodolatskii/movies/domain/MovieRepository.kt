@@ -1,20 +1,20 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
-import okio.Source
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.MovieWithGenre
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 interface MovieRepository {
     suspend fun getMovieResponseFromKPApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
-    suspend fun getMovieResponceFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponseFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
     suspend fun insertMovieToFavorites(movie: Movie)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 
-    suspend fun getAllMoviesFromFavorites(): List<Movie>?
+    suspend fun getAllMoviesFromFavorites(): List<MovieWithGenre>?
 
     fun getDefaultCategoryFromPreferences(): String
 
@@ -26,7 +26,7 @@ interface MovieRepository {
 
     fun saveRequestLanguageToPreferences(language: String)
 
-    fun putToDb(movie: Movie)
+    fun putMovieToDbWithSettings(movie: Movie)
 
     fun getAllFromDB(): List<Movie>
 

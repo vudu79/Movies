@@ -3,17 +3,19 @@ package ru.vodolatskii.movies.data.repositiryImpl
 import android.content.ContentValues
 import android.content.SharedPreferences
 import android.database.Cursor
+import android.util.Log
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -40,22 +42,22 @@ class MovieRepositoryImpl @Inject constructor(
         return calendar.timeInMillis
     }
 
-    override fun putToDb(movie: Movie) {
+    override fun putMovieToDbWithSettings(movie: Movie) {
         if (getMovieSavingMode()) {
-            val cv = ContentValues()
-            cv.apply {
-                put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
-                put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
-                put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
-                put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
-                put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
-                put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
-            }
-            sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
+            putMovieToDB(movie)
         } else if (
             movie.rating >= getRatingMovieSavingMode() &&
             movie.releaseDateTimeStump >= getTimeStump(getDateMovieSavingMode())
         ) {
+            putMovieToDB(movie)
+        }
+    }
+
+    private fun putMovieToDB(movie: Movie) {
+        var movieId = -1L
+
+        sqlDb.beginTransaction()
+        try {
             val cv = ContentValues()
             cv.apply {
                 put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
@@ -65,7 +67,20 @@ class MovieRepositoryImpl @Inject constructor(
                 put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
                 put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
             }
-            sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
+            movieId = sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
+
+            val cvGenre = ContentValues()
+            movie.genreList.forEach {
+                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE_ID_FK, movieId)
+                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE, it)
+                sqlDb.insertOrThrow(SQLDatabaseHelper.TABLE_GENRE_NAME, null, cvGenre)
+            }
+
+            sqlDb.setTransactionSuccessful()
+        } catch (e: Exception) {
+            Log.d("mytag", "Error while trying to add post to database")
+        } finally {
+            sqlDb.endTransaction()
         }
     }
 
@@ -137,7 +152,7 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getMovieResponceFromTMDBApi(
+    override suspend fun getMovieResponseFromTMDBApi(
         page: Int,
         callback: MoviesViewModel.ApiCallback
     ) {
@@ -160,15 +175,15 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertMovieToFavorites(movie: Movie) {
-        movieDao.insert(movie)
+        movieDao.insertMovieWithGenre(movie)
     }
 
     override suspend fun deleteMovieFromFavorites(movie: Movie) {
-        movieDao.delete(movie)
+        movieDao.deleteFavoriteMovie(movie)
     }
 
-    override suspend fun getAllMoviesFromFavorites(): List<Movie>? {
-        return movieDao.getAllMovie()
+    override suspend fun getAllMoviesFromFavorites(): List<MovieWithGenre>? {
+        return movieDao.getAllMovieFromFavorite()
     }
 
 

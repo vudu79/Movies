@@ -1,6 +1,6 @@
 package ru.vodolatskii.movies.presentation.utils
 
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.domain.models.Movie
 
 
 sealed class UIState() {

@@ -18,6 +18,14 @@ class SQLDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
                     "$COLUMN_TIME_STUMP INTEGER," +
                     "$COLUMN_RATING REAL);"
         )
+
+        db?.execSQL(
+            "CREATE TABLE $TABLE_GENRE_NAME (" +
+                    "$COLUMN_GENRE_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "$COLUMN_GENRE_ID_FK INTEGER REFERENCES $TABLE_NAME," +
+                    "$COLUMN_GENRE TEXT);"
+
+        )
     }
     //Миграций мы не предполагаем, поэтому метод пустой
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -28,6 +36,11 @@ class SQLDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         private const val DATABASE_NAME = "films.db"
         //Версия БД
         private const val DATABASE_VERSION = 1
+
+        const val TABLE_GENRE_NAME = "genre_films_table"
+        const val COLUMN_GENRE_ID = "id_genre"
+        const val COLUMN_GENRE_ID_FK = "id_genre_fk"
+        const val COLUMN_GENRE = "genre"
 
         const val TABLE_NAME = "cashed_films_table"
         const val COLUMN_ID = "id"

@@ -27,8 +27,8 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.SortEvents
-import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.UIState

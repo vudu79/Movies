@@ -11,9 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.SortEvents
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.convertToModel
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.domain.MovieRepository
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.UIState
 import javax.inject.Inject
@@ -80,7 +81,7 @@ class MoviesViewModel @Inject constructor(
             try {
                 _homeState.value = UIState.Loading
                 if (!loadedPages.contains(pageCount) || cachedMovieList.isEmpty()) {
-                    repository.getMovieResponceFromTMDBApi(
+                    repository.getMovieResponseFromTMDBApi(
                         page = pageCount,
                         callback = object : ApiCallback {
                             override fun onSuccess(films: MutableList<Movie>) {
@@ -88,7 +89,7 @@ class MoviesViewModel @Inject constructor(
                                 _homeState.value = UIState.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
                                 films.forEach {
-                                    repository.putToDb(it)
+                                    repository.putMovieToDbWithSettings(it)
                                 }
                             }
 
@@ -122,8 +123,9 @@ class MoviesViewModel @Inject constructor(
                 _favoriteState.value = UIState.Loading
 
                 if (cachedFavoriteMovieList.isEmpty()) {
-                    repository.getAllMoviesFromFavorites()?.let {
-                        cachedFavoriteMovieList = it.toMutableList()
+                    repository.getAllMoviesFromFavorites()?.let { movieWithGenreList ->
+                        cachedFavoriteMovieList =
+                            movieWithGenreList.map { it.convertToModel() }.toMutableList()
 
                         _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
                     } ?: let {
@@ -145,12 +147,12 @@ class MoviesViewModel @Inject constructor(
 
             val fav = repository.getAllMoviesFromFavorites()
 
-            if (fav.isNullOrEmpty() || !fav.any { movie.movieId == it.movieId && movie.title == it.title }) {
+            if (fav.isNullOrEmpty() || !fav.any { movie.apiId == it.movie.apiId && movie.title == it.movie.title }) {
                 repository.insertMovieToFavorites(movie)
                 cachedFavoriteMovieList.add(movie)
 
                 cachedMovieList =
-                    cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
+                    cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                         .toMutableList()
 
                 _homeState.value = UIState.Success(cachedMovieList)
@@ -158,7 +160,7 @@ class MoviesViewModel @Inject constructor(
             }
 
             cachedMovieList =
-                cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
+                cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                     .toMutableList()
             _homeState.value = UIState.Success(cachedMovieList)
         }
@@ -169,9 +171,9 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteMovieFromFavorites(movie)
             cachedFavoriteMovieList =
-                cachedFavoriteMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
+                cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                     .toMutableList()
-            if (!cachedMovieList.any { movie.movieId == it.movieId && movie.title == it.title }) {
+            if (!cachedMovieList.any { movie.apiId == it.apiId && movie.title == it.title }) {
                 cachedMovieList.add(movie)
 //                _homeState.value = UIState.Success(cachePopularMovieList)
             }
@@ -181,7 +183,7 @@ class MoviesViewModel @Inject constructor(
 
     fun deleteFromPopular(movie: Movie) {
         cachedMovieList =
-            cachedMovieList.filter { movie.movieId != it.movieId && movie.title != it.title }
+            cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                 .toMutableList()
     }
 
