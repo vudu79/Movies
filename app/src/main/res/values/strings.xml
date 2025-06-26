@@ -47,4 +47,9 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="exit_app">Выйти из приложения?</string>
+    <string name="search_filter">Фильтр поиска</string>
+    <string name="media_count">количество медиа в базе -</string>
+    <string name="rating_media">Рейтинг и выше</string>
+    <string name="string_in_media">Строка в названии</string>
+    <string name="release_date">Дата релиза</string>
 </resources>

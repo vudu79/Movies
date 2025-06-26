@@ -15,6 +15,7 @@ data class Movie(
     val rating: Double = 0.0,
     val releaseDate: String = "",
     val releaseDateTimeStump: Long = 0L,
+    val releaseDateYear: Int = -1,
     var isFavorite: Boolean = false,
     var genreList: List<Int> = emptyList()
 ) : Parcelable

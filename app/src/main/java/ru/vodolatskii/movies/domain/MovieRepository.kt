@@ -49,4 +49,6 @@ interface MovieRepository {
     fun deleteAllFromDB()
 
     fun getMovieCount():Int
+
+    fun getAllFromDBByFilter(rating: Double, date: Int, title: String): List<Movie>
 }

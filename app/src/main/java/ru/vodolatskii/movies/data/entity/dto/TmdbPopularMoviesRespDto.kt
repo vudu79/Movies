@@ -8,7 +8,6 @@ import java.util.Calendar
 import java.util.Locale
 
 
-
 data class TMDBPopularMoviesRespDto(
     @Json(name = "page")
     val page: Int,
@@ -60,6 +59,14 @@ private fun getTimeStump(dateString: String): Long {
     return calendar.timeInMillis
 }
 
+private fun getYear(dateString: String): Int {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    val date = dateFormat.parse(dateString)
+    val calendar = Calendar.getInstance()
+    date?.let { calendar.setTime(it) }
+    return calendar.get(Calendar.YEAR)
+}
+
 fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
     val notNullList = this.tmdbFilms.filter {
         it.title != null &&
@@ -80,7 +87,8 @@ fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
             rating = it.voteAverage!!,
             releaseDate = it.releaseDate!!,
             genreList = it.genreIds!!,
-            releaseDateTimeStump = getTimeStump(it.releaseDate) ?: 0
+            releaseDateTimeStump = getTimeStump(it.releaseDate),
+            releaseDateYear = getYear(it.releaseDate)
         )
         movie
     }

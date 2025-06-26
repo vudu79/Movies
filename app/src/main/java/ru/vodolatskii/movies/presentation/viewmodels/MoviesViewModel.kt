@@ -18,7 +18,7 @@ import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.DataModel
-import ru.vodolatskii.movies.presentation.utils.StorageSearchEvents
+import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIState
 import javax.inject.Inject
 
@@ -65,7 +65,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     private fun setupSettings() {
-        initListViewDataModel()
+//        initListViewDataModel()
         getContentSource()
         getAllMovieSavingMode()
         getRatingMovieSavingMode()
@@ -186,7 +186,7 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-    fun deleteFromPopular(movie: Movie) {
+    fun deleteFromCachedList(movie: Movie) {
         cachedMovieList =
             cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                 .toMutableList()
@@ -305,49 +305,54 @@ class MoviesViewModel @Inject constructor(
         getDateMovieSavingMode()
     }
 
-    fun onStorageSearchEvent(events: StorageSearchEvents) {
-        val rating: Double
-        val date: Int
-        val title: String
-        val genres: List<Int>
+    fun onStorageSearchEvent(events: StorageSearchEvent) {
+
+        Log.d("mytag", "${events.title} --- ${events.rating}  --- ${events.date}")
+
+
         try {
-            rating = events.rating.toDouble()
-            date = events.date.toInt()
-            title = events.title
-            genres = events.genres
+            val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
+            val date = if (events.date.equals("")) 0 else events.date.toInt()
+            val title = events.title
+            val genres = events.genres
+            val result =
+                repository.getAllFromDBByFilter(rating = rating, date = date, title = title)
+
+            result.forEach {
+                Log.d("mytag", "${it.title} --- ${it.rating}  --- ${it.releaseDateYear}")
+            }
 
         } catch (e: Exception) {
             Log.d("mytag", "cast error $e")
         }
-
     }
 
 
-    private fun initListViewDataModel() {
-        val dataModel = ArrayList<DataModel>()
-        dataModel.add(DataModel(Pair(28, "Action"), false))
-        dataModel.add(DataModel(Pair(12, "Adventure"), false))
-        dataModel.add(DataModel(Pair(16, "Animation"), false))
-        dataModel.add(DataModel(Pair(35, "Comedy"), false))
-        dataModel.add(DataModel(Pair(80, "Crime"), false))
-        dataModel.add(DataModel(Pair(80, "Crime"), false))
-        dataModel.add(DataModel(Pair(99, "Documentary"), false))
-        dataModel.add(DataModel(Pair(18, "Drama"), false))
-        dataModel.add(DataModel(Pair(10751, "Family"), false))
-        dataModel.add(DataModel(Pair(14, "Fantasy"), false))
-        dataModel.add(DataModel(Pair(36, "History"), false))
-        dataModel.add(DataModel(Pair(27, "Horror"), false))
-        dataModel.add(DataModel(Pair(10402, "Music"), false))
-        dataModel.add(DataModel(Pair(9648, "Mystery"), false))
-        dataModel.add(DataModel(Pair(10749, "Romance"), false))
-        dataModel.add(DataModel(Pair(878, "Science Fiction"), false))
-        dataModel.add(DataModel(Pair(10770, "TV Movie"), false))
-        dataModel.add(DataModel(Pair(53, "Thriller"), false))
-        dataModel.add(DataModel(Pair(10752, "War"), false))
-        dataModel.add(DataModel(Pair(37, "Western"), false))
-        listViewDataModelModeData.value = dataModel
-    }
-
+//    private fun initListViewDataModel() {
+//        val dataModel = ArrayList<DataModel>()
+//        dataModel.add(DataModel(Pair(28, "Action"), false))
+//        dataModel.add(DataModel(Pair(12, "Adventure"), false))
+//        dataModel.add(DataModel(Pair(16, "Animation"), false))
+//        dataModel.add(DataModel(Pair(35, "Comedy"), false))
+//        dataModel.add(DataModel(Pair(80, "Crime"), false))
+//        dataModel.add(DataModel(Pair(80, "Crime"), false))
+//        dataModel.add(DataModel(Pair(99, "Documentary"), false))
+//        dataModel.add(DataModel(Pair(18, "Drama"), false))
+//        dataModel.add(DataModel(Pair(10751, "Family"), false))
+//        dataModel.add(DataModel(Pair(14, "Fantasy"), false))
+//        dataModel.add(DataModel(Pair(36, "History"), false))
+//        dataModel.add(DataModel(Pair(27, "Horror"), false))
+//        dataModel.add(DataModel(Pair(10402, "Music"), false))
+//        dataModel.add(DataModel(Pair(9648, "Mystery"), false))
+//        dataModel.add(DataModel(Pair(10749, "Romance"), false))
+//        dataModel.add(DataModel(Pair(878, "Science Fiction"), false))
+//        dataModel.add(DataModel(Pair(10770, "TV Movie"), false))
+//        dataModel.add(DataModel(Pair(53, "Thriller"), false))
+//        dataModel.add(DataModel(Pair(10752, "War"), false))
+//        dataModel.add(DataModel(Pair(37, "Western"), false))
+//        listViewDataModelModeData.value = dataModel
+//    }
+//
 
     interface ApiCallback {
         fun onSuccess(films: MutableList<Movie>)

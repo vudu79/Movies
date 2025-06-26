@@ -66,6 +66,7 @@ class MovieRepositoryImpl @Inject constructor(
                 put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
                 put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
                 put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
+                put(SQLDatabaseHelper.COLUMN_YEAR, movie.releaseDateYear)
             }
             movieId = sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
 
@@ -94,7 +95,8 @@ class MovieRepositoryImpl @Inject constructor(
                 val description = cursor.getString(3)
                 val releaseDate = cursor.getString(4)
                 val timeStump = cursor.getLong(5)
-                val rating = cursor.getDouble(6)
+                val year = cursor.getInt(6)
+                val rating = cursor.getDouble(7)
 
                 result.add(
                     Movie(
@@ -104,13 +106,54 @@ class MovieRepositoryImpl @Inject constructor(
                         isFavorite = false,
                         title = title,
                         description = description,
-                        releaseDateTimeStump = timeStump
+                        releaseDateTimeStump = timeStump,
+                        releaseDateYear = year
                     )
                 )
             } while (cursor.moveToNext())
         }
         return result
     }
+
+
+    override fun getAllFromDBByFilter(rating: Double, date: Int, title: String): List<Movie> {
+
+        cursor = sqlDb.rawQuery(
+            "SELECT * FROM ${SQLDatabaseHelper.TABLE_NAME} WHERE ($rating = 0.0 OR " +
+                    "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
+                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
+        )
+        Log.d("mytag" , "count -- ${cursor.count}")
+
+
+        val result = mutableListOf<Movie>()
+        if (cursor.moveToFirst()) {
+            do {
+                val _title = cursor.getString(1)
+                val posterUrl = cursor.getString(2)
+                val description = cursor.getString(3)
+                val releaseDate = cursor.getString(4)
+                val timeStump = cursor.getLong(5)
+                val year = cursor.getInt(6)
+                val _rating = cursor.getDouble(7)
+
+                result.add(
+                    Movie(
+                        posterUrl = posterUrl,
+                        rating = _rating,
+                        releaseDate = releaseDate,
+                        isFavorite = false,
+                        title = _title,
+                        description = description,
+                        releaseDateTimeStump = timeStump,
+                        releaseDateYear = year
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        return result
+    }
+
 
     override fun deleteAllFromDB() {
         sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")

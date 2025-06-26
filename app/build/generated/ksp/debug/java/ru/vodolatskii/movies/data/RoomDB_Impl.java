@@ -38,9 +38,9 @@ public final class RoomDB_Impl extends RoomDB {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `favorite_movie` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `apiId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `posterUrl` TEXT NOT NULL, `rating` REAL NOT NULL, `releaseDate` TEXT NOT NULL, `releaseDateTimeStump` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idGenreFK` INTEGER NOT NULL, `genre` TEXT NOT NULL, FOREIGN KEY(`idGenreFK`) REFERENCES `favorite_movie`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idGenreFK` INTEGER NOT NULL, `genre` INTEGER NOT NULL, FOREIGN KEY(`idGenreFK`) REFERENCES `favorite_movie`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9d8d2b3dd0a2573a8ade64c254dace2f')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '45f9c2d37de73af1f7220ed136d670d2')");
       }
 
       @Override
@@ -113,7 +113,7 @@ public final class RoomDB_Impl extends RoomDB {
         final HashMap<String, TableInfo.Column> _columnsGenre = new HashMap<String, TableInfo.Column>(3);
         _columnsGenre.put("idGenre", new TableInfo.Column("idGenre", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsGenre.put("idGenreFK", new TableInfo.Column("idGenreFK", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsGenre.put("genre", new TableInfo.Column("genre", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsGenre.put("genre", new TableInfo.Column("genre", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysGenre = new HashSet<TableInfo.ForeignKey>(1);
         _foreignKeysGenre.add(new TableInfo.ForeignKey("favorite_movie", "CASCADE", "NO ACTION", Arrays.asList("idGenreFK"), Arrays.asList("id")));
         final HashSet<TableInfo.Index> _indicesGenre = new HashSet<TableInfo.Index>(0);
@@ -126,7 +126,7 @@ public final class RoomDB_Impl extends RoomDB {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "9d8d2b3dd0a2573a8ade64c254dace2f", "431910d3ccd3497cd0b64d79816dd5b4");
+    }, "45f9c2d37de73af1f7220ed136d670d2", "5fe2181bb236bb1243d22208ac583925");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

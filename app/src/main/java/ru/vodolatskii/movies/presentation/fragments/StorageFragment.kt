@@ -11,7 +11,7 @@ import ru.vodolatskii.movies.databinding.FragmentStorageBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.CustomListViewAdapter
 import ru.vodolatskii.movies.presentation.utils.DataModel
-import ru.vodolatskii.movies.presentation.utils.StorageSearchEvents
+import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -81,22 +81,21 @@ class StorageFragment : Fragment() {
             val dataItem: DataModel = dataModel!![position] as DataModel
             dataItem.checked = !dataItem.checked
             adapter.notifyDataSetChanged()
-            viewModel.onStorageSearchEvent(
-                StorageSearchEvents(
-                    rating = binding.editTextRating.text.toString(),
-                    date = binding.editTextDate.text.toString(),
-                    title = binding.editTextTitle.text.toString(),
-                    genres = dataModel!!.filter { it.checked }
-                        .map { Pair(it.pier.first, it.pier.second) }
-                )
-            )
         }
         listView.adapter = adapter
     }
 
     private fun setupListeners() {
         binding.buttonSearch.setOnClickListener {
-
+            viewModel.onStorageSearchEvent(
+                StorageSearchEvent(
+                    rating = binding.editTextRating.text.toString(),
+                    date = binding.editTextDate.text.toString(),
+                    title = binding.editTextTitle.text.toString(),
+                    genres = dataModel!!.filter { it.checked }
+                        .map { it.pier.first }
+                )
+            )
         }
     }
 

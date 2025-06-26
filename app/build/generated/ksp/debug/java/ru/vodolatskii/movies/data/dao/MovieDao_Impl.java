@@ -81,7 +81,7 @@ public final class MovieDao_Impl implements MovieDao {
           @NonNull final Genre entity) {
         statement.bindLong(1, entity.getIdGenre());
         statement.bindLong(2, entity.getIdGenreFK());
-        statement.bindString(3, entity.getGenre());
+        statement.bindLong(3, entity.getGenre());
       }
     };
     this.__preparedStmtOfDeleteMovieWithoutGenre = new SharedSQLiteStatement(__db) {
@@ -285,8 +285,8 @@ public final class MovieDao_Impl implements MovieDao {
           _tmpIdGenre = _cursor.getLong(_cursorIndexOfIdGenre);
           final long _tmpIdGenreFK;
           _tmpIdGenreFK = _cursor.getLong(_cursorIndexOfIdGenreFK);
-          final String _tmpGenre;
-          _tmpGenre = _cursor.getString(_cursorIndexOfGenre);
+          final int _tmpGenre;
+          _tmpGenre = _cursor.getInt(_cursorIndexOfGenre);
           _item_1 = new Genre(_tmpIdGenre,_tmpIdGenreFK,_tmpGenre);
           _tmpRelation.add(_item_1);
         }

@@ -265,7 +265,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-                    viewModel.deleteFromPopular(movie = movie)
+                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 
