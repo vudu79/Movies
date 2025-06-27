@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.entity.Genre
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
@@ -55,7 +56,6 @@ class MovieRepositoryImpl @Inject constructor(
 
     private fun putMovieToDB(movie: Movie) {
         var movieId = -1L
-
         sqlDb.beginTransaction()
         try {
             val cv = ContentValues()
@@ -79,7 +79,7 @@ class MovieRepositoryImpl @Inject constructor(
 
             sqlDb.setTransactionSuccessful()
         } catch (e: Exception) {
-            Log.d("mytag", "Error while trying to add post to database")
+
         } finally {
             sqlDb.endTransaction()
         }
@@ -116,15 +116,22 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
 
-    override fun getAllFromDBByFilter(rating: Double, date: Int, title: String): List<Movie> {
+    override fun getAllFromDBByFilter(
+        rating: Double,
+        date: Int,
+        title: String,
+        genre: List<Int>
+    ): List<Movie> {
 
         cursor = sqlDb.rawQuery(
-            "SELECT * FROM ${SQLDatabaseHelper.TABLE_NAME} WHERE ($rating = 0.0 OR " +
+            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
+                    " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
+                    "${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id WHERE ($rating = 0.0 OR " +
                     "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
                     "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
         )
-        Log.d("mytag" , "count -- ${cursor.count}")
 
+        Log.d("mytag", "count -- ${cursor.count}")
 
         val result = mutableListOf<Movie>()
         if (cursor.moveToFirst()) {
@@ -136,6 +143,7 @@ class MovieRepositoryImpl @Inject constructor(
                 val timeStump = cursor.getLong(5)
                 val year = cursor.getInt(6)
                 val _rating = cursor.getDouble(7)
+                val genre = cursor.getInt(8)
 
                 result.add(
                     Movie(
@@ -146,12 +154,24 @@ class MovieRepositoryImpl @Inject constructor(
                         title = _title,
                         description = description,
                         releaseDateTimeStump = timeStump,
-                        releaseDateYear = year
+                        releaseDateYear = year,
+                        genreList = listOf(genre),
                     )
                 )
             } while (cursor.moveToNext())
         }
-        return result
+
+        val genreFilteredList = result.groupBy {
+            it.genreList[0]
+        }.filter { genre.contains(it.key) }.values.flatten()
+
+
+        if (title != "") {
+            val titleFilteredList = genreFilteredList.filter {
+                it.title.contains(title)
+            }
+            return titleFilteredList
+        } else return genreFilteredList
     }
 
 

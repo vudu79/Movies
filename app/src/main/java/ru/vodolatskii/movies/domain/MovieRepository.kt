@@ -50,5 +50,5 @@ interface MovieRepository {
 
     fun getMovieCount():Int
 
-    fun getAllFromDBByFilter(rating: Double, date: Int, title: String): List<Movie>
+    fun getAllFromDBByFilter(rating: Double, date: Int, title: String, genres: List<Int>): List<Movie>
 }
