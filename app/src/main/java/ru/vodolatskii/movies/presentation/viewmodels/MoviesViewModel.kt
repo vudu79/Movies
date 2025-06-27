@@ -192,14 +192,6 @@ class MoviesViewModel @Inject constructor(
                 .toMutableList()
     }
 
-    fun deleteAllFromDB() {
-        repository.deleteAllFromDB()
-    }
-
-    fun getMovieCountFromDB() {
-        movieCountInDBModeData.value = repository.getMovieCount()
-    }
-
     fun onSortRVEvents(event: SortEvents) {
         when (event) {
             SortEvents.ALPHABET -> {
@@ -225,6 +217,36 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
+    fun onStorageSearchEvent(events: StorageSearchEvent) {
+        var result = emptyList<Movie>()
+        try {
+            val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
+            val date = if (events.date.equals("")) 0 else events.date.toInt()
+            val title = events.title
+            val genres = events.genres
+
+            if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
+                result = repository.getAllFromDB()
+            } else {
+                result = repository.getAllFromDBByFilter(
+                    rating = rating,
+                    date = date,
+                    title = title,
+                    genres = genres
+                )
+//                result.forEach {
+//                    Log.d(
+//                        "mytag",
+//                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - ${it.genreList[0]}"
+//                    )
+//                }
+            }
+        } catch (e: Exception) {
+            Log.d("mytag", "cast error $e")
+        }
+    }
+
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
@@ -233,6 +255,14 @@ class MoviesViewModel @Inject constructor(
                 getMoviesFromApi()
             }
         }
+    }
+
+    fun deleteAllFromDB() {
+        repository.deleteAllFromDB()
+    }
+
+    fun getMovieCountFromDB() {
+        movieCountInDBModeData.value = repository.getMovieCount()
     }
 
     fun clearLoadedPages() {
@@ -304,47 +334,6 @@ class MoviesViewModel @Inject constructor(
         repository.saveDateMovieSavingMode(value)
         getDateMovieSavingMode()
     }
-
-    fun onStorageSearchEvent(events: StorageSearchEvent) {
-        var result = emptyList<Movie>()
-
-        try {
-            val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
-            val date = if (events.date.equals("")) 0 else events.date.toInt()
-            val title = events.title
-            val genres = events.genres
-
-            if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
-                result = repository.getAllFromDB()
-                Log.d("mytag", "${result.size}")
-
-                result.forEach {
-                    Log.d(
-                        "mytag",
-                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - }"
-                    )
-                }
-            } else {
-                result = repository.getAllFromDBByFilter(
-                    rating = rating,
-                    date = date,
-                    title = title,
-                    genres = genres
-                )
-                result.forEach {
-                    Log.d(
-                        "mytag",
-                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - ${it.genreList[0]}"
-                    )
-                }
-            }
-
-
-        } catch (e: Exception) {
-            Log.d("mytag", "cast error $e")
-        }
-    }
-
 
 //    private fun initListViewDataModel() {
 //        val dataModel = ArrayList<DataModel>()

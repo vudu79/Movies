@@ -85,31 +85,51 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override fun getAllFromDB(): List<Movie> {
-        cursor = sqlDb.rawQuery("SELECT * FROM ${SQLDatabaseHelper.TABLE_NAME}", null)
+        cursor = sqlDb.rawQuery(
+            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON ${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id",
+            null
+        )
         val result = mutableListOf<Movie>()
+        val resultList = mutableListOf<Movie>()
         if (cursor.moveToFirst()) {
             do {
-                val title = cursor.getString(1)
+                val _title = cursor.getString(1)
                 val posterUrl = cursor.getString(2)
                 val description = cursor.getString(3)
                 val releaseDate = cursor.getString(4)
                 val timeStump = cursor.getLong(5)
                 val year = cursor.getInt(6)
-                val rating = cursor.getDouble(7)
+                val _rating = cursor.getDouble(7)
+                val genre = cursor.getInt(8)
 
                 result.add(
                     Movie(
                         posterUrl = posterUrl,
-                        rating = rating,
+                        rating = _rating,
                         releaseDate = releaseDate,
                         isFavorite = false,
-                        title = title,
+                        title = _title,
                         description = description,
                         releaseDateTimeStump = timeStump,
-                        releaseDateYear = year
+                        releaseDateYear = year,
+                        genreList = listOf(genre)
                     )
                 )
             } while (cursor.moveToNext())
+        }
+
+        val res = result.groupBy {
+            it.title
+        }
+
+        for (entry in res) {
+            val values = entry.value
+            val l = values.flatMap {
+                it.genreList
+            }
+            val movie = values[0]
+            movie.genreList = l
+            resultList.add(movie)
         }
         return result
     }
