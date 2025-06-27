@@ -131,9 +131,8 @@ class MovieRepositoryImpl @Inject constructor(
             movie.genreList = l
             resultList.add(movie)
         }
-        return result
+        return resultList
     }
-
 
     override fun getAllFromDBByFilter(
         rating: Double,
@@ -141,7 +140,6 @@ class MovieRepositoryImpl @Inject constructor(
         title: String,
         genres: List<Int>
     ): List<Movie> {
-
         cursor = sqlDb.rawQuery(
             "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
                     " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
@@ -149,8 +147,6 @@ class MovieRepositoryImpl @Inject constructor(
                     "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
                     "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
         )
-
-        Log.d("mytag", "count -- ${cursor.count}")
 
         val result = mutableListOf<Movie>()
         if (cursor.moveToFirst()) {
@@ -196,7 +192,6 @@ class MovieRepositoryImpl @Inject constructor(
             return titleFilteredList
         } else return result
     }
-
 
     override fun deleteAllFromDB() {
         sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")

@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.data.entity.dto.toGenresString
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
@@ -90,9 +91,10 @@ class ContentAdapter(
                 }
                 holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
 
+                val genreString = movie.genreList.toGenresString()
+                holder.genres.text = "Жанры: $genreString"
 //                setAnimation(holder.shineView)
             }
-
             else -> {
             }
         }
@@ -136,6 +138,7 @@ class ContentAdapter(
         val releaseDate: TextView = itemView.findViewById(R.id.release_date)
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
+        val genres: TextView = itemView.findViewById(R.id.genre_list)
 //        val shineView: View = itemView.findViewById(R.id.shine)
     }
 
