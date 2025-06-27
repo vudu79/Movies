@@ -306,22 +306,39 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun onStorageSearchEvent(events: StorageSearchEvent) {
+        var result = emptyList<Movie>()
+
         try {
             val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
             val date = if (events.date.equals("")) 0 else events.date.toInt()
             val title = events.title
             val genres = events.genres
-            val result =
-                repository.getAllFromDBByFilter(
+
+            if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
+                result = repository.getAllFromDB()
+                Log.d("mytag", "${result.size}")
+
+                result.forEach {
+                    Log.d(
+                        "mytag",
+                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - }"
+                    )
+                }
+            } else {
+                result = repository.getAllFromDBByFilter(
                     rating = rating,
                     date = date,
                     title = title,
                     genres = genres
                 )
+                result.forEach {
+                    Log.d(
+                        "mytag",
+                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - ${it.genreList[0]}"
+                    )
+                }
+            }
 
-//            result.forEach {
-//                Log.d("mytag", "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - ${it.genreList[0]}")
-//            }
 
         } catch (e: Exception) {
             Log.d("mytag", "cast error $e")

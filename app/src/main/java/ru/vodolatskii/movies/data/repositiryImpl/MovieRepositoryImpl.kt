@@ -8,7 +8,6 @@ import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
-import ru.vodolatskii.movies.data.entity.Genre
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
@@ -120,7 +119,7 @@ class MovieRepositoryImpl @Inject constructor(
         rating: Double,
         date: Int,
         title: String,
-        genre: List<Int>
+        genres: List<Int>
     ): List<Movie> {
 
         cursor = sqlDb.rawQuery(
@@ -160,18 +159,22 @@ class MovieRepositoryImpl @Inject constructor(
                 )
             } while (cursor.moveToNext())
         }
-
-        val genreFilteredList = result.groupBy {
-            it.genreList[0]
-        }.filter { genre.contains(it.key) }.values.flatten()
-
-
-        if (title != "") {
-            val titleFilteredList = genreFilteredList.filter {
-                it.title.contains(title)
+        if (genres.isNotEmpty()) {
+            val genreFilteredList = result.groupBy {
+                it.genreList[0]
+            }.filter { genres.contains(it.key) }.values.flatten()
+            if (title != "") {
+                val titleFilteredList = genreFilteredList.filter {
+                    it.title.lowercase().contains(title.lowercase())
+                }
+                return titleFilteredList
+            } else return genreFilteredList
+        } else if (title != "") {
+            val titleFilteredList = result.filter {
+                it.title.lowercase().contains(title.lowercase())
             }
             return titleFilteredList
-        } else return genreFilteredList
+        } else return result
     }
 
 
