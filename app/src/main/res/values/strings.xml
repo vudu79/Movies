@@ -52,4 +52,8 @@
     <string name="rating_media">Рейтинг и выше</string>
     <string name="string_in_media">Строка в названии</string>
     <string name="release_date">Дата релиза</string>
+    <string name="search">Найти</string>
+    <string name="movieP_genre">Жанры фильмов</string>
+    <string name="show_all">Загрузить весь контент</string>
+    <string name="go_to_filter">Поиск с фильтрами</string>
 </resources>

@@ -33,8 +33,12 @@
         android:name="ru.vodolatskii.movies.presentation.fragments.SettingsFragment"
         android:label="SettingsFragment" />
     <fragment
-        android:id="@+id/storageFragment"
-        android:name="ru.vodolatskii.movies.presentation.fragments.StorageFragment"
-        android:label="fragment_storage"
-        tools:layout="@layout/fragment_storage" />
+        android:id="@+id/storageMenuFragment"
+        android:name="ru.vodolatskii.movies.presentation.fragments.StorageMenuFragment"
+        android:label="StorageMenuFragment" />
+    <fragment
+        android:id="@+id/storageRVFragment"
+        android:name="ru.vodolatskii.movies.presentation.fragments.StorageRVFragment"
+        android:label="StorageRVFragment" />
+
 </navigation>

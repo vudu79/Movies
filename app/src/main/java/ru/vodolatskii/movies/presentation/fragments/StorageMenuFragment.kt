@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import android.widget.ListView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import ru.vodolatskii.movies.databinding.FragmentStorageBinding
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.databinding.FragmentStorageMenuBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.CustomListViewAdapter
 import ru.vodolatskii.movies.presentation.utils.DataModel
@@ -15,11 +18,12 @@ import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
-class StorageFragment : Fragment() {
+class StorageMenuFragment : Fragment() {
 
-    private lateinit var binding: FragmentStorageBinding
+    private lateinit var binding: FragmentStorageMenuBinding
     lateinit var contentAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
+    private lateinit var navController: NavController
 
     private var dataModel: ArrayList<DataModel>? = null
     private lateinit var listView: ListView
@@ -33,12 +37,13 @@ class StorageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentStorageBinding.inflate(
+        binding = FragmentStorageMenuBinding.inflate(
             inflater,
             container,
             false
         )
         viewModel = (activity as MainActivity).shareMoviesViewModel()
+        navController = (activity as MainActivity).navController
         listView = binding.listView
         return binding.root
     }
@@ -50,8 +55,47 @@ class StorageFragment : Fragment() {
         setupListeners()
         setupListView()
         viewModel.getMovieCountFromDB()
+    }
 
 
+    private fun setupListeners() {
+        binding.buttonSearch.setOnClickListener {
+            viewModel.onStorageSearchEvent(
+                StorageSearchEvent(
+                    rating = binding.editTextRating.text.toString(),
+                    date = binding.editTextDate.text.toString(),
+                    title = binding.editTextTitle.text.toString(),
+                    genres = dataModel!!.filter { it.checked }
+                        .map { it.pier.first }
+                )
+            )
+            navController.navigate(R.id.storageRVFragment)
+        }
+
+        binding.buttonShowAll.setOnClickListener {
+            viewModel.getMoviesFromStorage()
+            navController.navigate(R.id.storageRVFragment)
+        }
+
+        binding.buttonFilterSearch.setOnClickListener {
+            showFilterContainer()
+        }
+    }
+
+    private fun showFilterContainer() {
+        binding.storageMenuContainer.visibility = View.GONE
+        binding.searchFilterContainer.visibility = View.VISIBLE
+    }
+
+    private fun showMenuContainer() {
+        binding.storageMenuContainer.visibility = View.VISIBLE
+        binding.searchFilterContainer.visibility = View.GONE
+    }
+
+    private fun setupObservers() {
+        viewModel.movieCountInDBModeData.observe(viewLifecycleOwner, Observer<Int> {
+            binding.textViewMovieCount.text = it.toString()
+        })
     }
 
     private fun setupListView() {
@@ -83,25 +127,5 @@ class StorageFragment : Fragment() {
             adapter.notifyDataSetChanged()
         }
         listView.adapter = adapter
-    }
-
-    private fun setupListeners() {
-        binding.buttonSearch.setOnClickListener {
-            viewModel.onStorageSearchEvent(
-                StorageSearchEvent(
-                    rating = binding.editTextRating.text.toString(),
-                    date = binding.editTextDate.text.toString(),
-                    title = binding.editTextTitle.text.toString(),
-                    genres = dataModel!!.filter { it.checked }
-                        .map { it.pier.first }
-                )
-            )
-        }
-    }
-
-    private fun setupObservers() {
-        viewModel.movieCountInDBModeData.observe(viewLifecycleOwner, Observer<Int> {
-            binding.textViewMovieCount.text = it.toString()
-        })
     }
 }

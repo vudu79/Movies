@@ -22,7 +22,7 @@ import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.UIStateHome
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
@@ -30,6 +30,7 @@ import java.util.Locale
 
 
 class FavoriteFragment : Fragment() {
+
     private lateinit var binding: FragmentFavoriteBinding
     private lateinit var favoriteAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
@@ -41,7 +42,6 @@ class FavoriteFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -126,17 +126,17 @@ class FavoriteFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.favoriteState.collect { uiState ->
                     when (uiState) {
-                        is UIState.Success -> {
+                        is UIStateHome.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setFavoriteViewsVisibility(uiState)
                             favoriteAdapter.setData(mutableMoviesList)
                         }
 
-                        is UIState.Error -> {
+                        is UIStateHome.Error -> {
                             setFavoriteViewsVisibility(uiState)
                         }
 
-                        is UIState.Loading -> {
+                        is UIStateHome.Loading -> {
                             setFavoriteViewsVisibility(uiState)
                         }
                     }
@@ -217,19 +217,19 @@ class FavoriteFragment : Fragment() {
     }
 
 
-    private fun setFavoriteViewsVisibility(state: UIState) {
+    private fun setFavoriteViewsVisibility(state: UIStateHome) {
         when (state) {
-            is UIState.Success -> {
+            is UIStateHome.Success -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            is UIState.Error -> {
+            is UIStateHome.Error -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            UIState.Loading -> {
+            UIStateHome.Loading -> {
                 binding.progressCircularFav.visibility = View.VISIBLE
                 binding.recyclerViewFav.visibility = View.GONE
             }

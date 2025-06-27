@@ -31,7 +31,7 @@ import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.UIStateHome
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
@@ -59,18 +59,13 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         viewModel = (activity as MainActivity).shareMoviesViewModel()
         return binding.root
     }
@@ -167,18 +162,18 @@ class HomeFragment : Fragment(), ContentAdapterController {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 (activity as MainActivity).viewModel.homeState.collect { uiState ->
                     when (uiState) {
-                        is UIState.Success -> {
+                        is UIStateHome.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setHomeViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }
 
-                        is UIState.Error -> {
+                        is UIStateHome.Error -> {
                             binding.errorTextView.text = uiState.message
                             setHomeViewsVisibility(uiState)
                         }
 
-                        is UIState.Loading -> {
+                        is UIStateHome.Loading -> {
                             setHomeViewsVisibility(uiState)
                         }
                     }
@@ -297,21 +292,21 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
 
-    private fun setHomeViewsVisibility(state: UIState) {
+    private fun setHomeViewsVisibility(state: UIStateHome) {
         when (state) {
-            is UIState.Success -> {
+            is UIStateHome.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
                 binding.errorTextView.visibility = View.GONE
             }
 
-            is UIState.Error -> {
+            is UIStateHome.Error -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.VISIBLE
             }
 
-            UIState.Loading -> {
+            UIStateHome.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.GONE

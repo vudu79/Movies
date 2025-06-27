@@ -19,7 +19,8 @@ import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.DataModel
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.UIStateHome
+import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import javax.inject.Inject
 
 
@@ -41,11 +42,14 @@ class MoviesViewModel @Inject constructor(
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
-    private val _homeState = MutableStateFlow<UIState>(UIState.Loading)
-    val homeState: StateFlow<UIState> = _homeState
+    private val _homeState = MutableStateFlow<UIStateHome>(UIStateHome.Loading)
+    val homeState: StateFlow<UIStateHome> = _homeState
 
-    private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
-    val favoriteState: StateFlow<UIState> = _favoriteState
+    private val _storageState = MutableStateFlow<UIStateStorage>(UIStateStorage.Loading)
+    val storageState: StateFlow<UIStateStorage> = _storageState
+
+    private val _favoriteState = MutableStateFlow<UIStateHome>(UIStateHome.Loading)
+    val favoriteState: StateFlow<UIStateHome> = _favoriteState
 
     var cachedMovieList: MutableList<Movie> = mutableListOf()
         private set
@@ -61,11 +65,10 @@ class MoviesViewModel @Inject constructor(
 
     init {
         setupSettings()
-        repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun setupSettings() {
-//        initListViewDataModel()
+        registerSPListener()
         getContentSource()
         getAllMovieSavingMode()
         getRatingMovieSavingMode()
@@ -74,24 +77,77 @@ class MoviesViewModel @Inject constructor(
         getRequestLanguage()
     }
 
-    fun getMoviesFromStorage(): List<Movie> {
+    fun getMoviesFromStorageOffLineCase(): List<Movie> {
         val moviesFromStorage = repository.getAllFromDB()
         cachedMovieList.clear()
         cachedMovieList.addAll(moviesFromStorage)
         return moviesFromStorage
     }
 
+
+    fun getMoviesFromStorage() {
+        _storageState.value = UIStateStorage.Loading
+        val moviesFromStorage = repository.getAllFromDB()
+        if (moviesFromStorage.isNotEmpty()) {
+            _storageState.value = UIStateStorage.Success(listMovie = moviesFromStorage)
+        } else {
+            _storageState.value = UIStateStorage.Error("Content not found!")
+        }
+    }
+
+
+    fun onStorageSearchEvent(events: StorageSearchEvent) {
+
+        _storageState.value = UIStateStorage.Loading
+
+        var result = emptyList<Movie>()
+
+        try {
+            val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
+            val date = if (events.date.equals("")) 0 else events.date.toInt()
+            val title = events.title
+            val genres = events.genres
+
+            if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
+                result = repository.getAllFromDB()
+                if (result.isEmpty()) {
+                    _storageState.value = UIStateStorage.Error("Content not found!")
+                } else {
+                    _storageState.value = UIStateStorage.Success(listMovie = result)
+                }
+
+            } else {
+                result = repository.getAllFromDBByFilter(
+                    rating = rating,
+                    date = date,
+                    title = title,
+                    genres = genres
+                )
+
+                if (result.isEmpty()) {
+                    _storageState.value = UIStateStorage.Error("Content not found!")
+                } else {
+                    _storageState.value = UIStateStorage.Success(listMovie = result)
+                }
+            }
+
+        } catch (e: Exception) {
+            _storageState.value = UIStateStorage.Error("Database read error - $e")
+        }
+    }
+
+
     fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _homeState.value = UIState.Loading
+                _homeState.value = UIStateHome.Loading
                 if (!loadedPages.contains(pageCount) || cachedMovieList.isEmpty()) {
                     repository.getMovieResponseFromTMDBApi(
                         page = pageCount,
                         callback = object : ApiCallback {
                             override fun onSuccess(films: MutableList<Movie>) {
                                 cachedMovieList.addAll(films)
-                                _homeState.value = UIState.Success(cachedMovieList)
+                                _homeState.value = UIStateHome.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
                                 films.forEach {
                                     repository.putMovieToDbWithSettings(it)
@@ -99,23 +155,23 @@ class MoviesViewModel @Inject constructor(
                             }
 
                             override fun onFailure(error: ErrorResponseDto) {
-                                if (getMoviesFromStorage().isEmpty()) {
+                                if (getMoviesFromStorageOffLineCase().isEmpty()) {
                                     _homeState.value =
-                                        UIState.Error(resourceProvider.getString(R.string.request_error))
+                                        UIStateHome.Error(resourceProvider.getString(R.string.request_error))
                                 } else {
-                                    _homeState.value = UIState.Success(cachedMovieList)
+                                    _homeState.value = UIStateHome.Success(cachedMovieList)
                                 }
                             }
                         })
                 } else {
-                    _homeState.value = UIState.Success(cachedMovieList)
+                    _homeState.value = UIStateHome.Success(cachedMovieList)
                 }
             } catch (e: Exception) {
-                if (getMoviesFromStorage().isEmpty()) {
+                if (getMoviesFromStorageOffLineCase().isEmpty()) {
                     _homeState.value =
-                        UIState.Error(resourceProvider.getString(R.string.request_error))
+                        UIStateHome.Error(resourceProvider.getString(R.string.request_error))
                 } else {
-                    _homeState.value = UIState.Success(cachedMovieList)
+                    _homeState.value = UIStateHome.Success(cachedMovieList)
                 }
             }
         }
@@ -125,23 +181,23 @@ class MoviesViewModel @Inject constructor(
     fun getFavoriteMovies() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _favoriteState.value = UIState.Loading
+                _favoriteState.value = UIStateHome.Loading
 
                 if (cachedFavoriteMovieList.isEmpty()) {
                     repository.getAllMoviesFromFavorites()?.let { movieWithGenreList ->
                         cachedFavoriteMovieList =
                             movieWithGenreList.map { it.convertToModel() }.toMutableList()
 
-                        _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+                        _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
                     } ?: let {
-                        _favoriteState.value = UIState.Error("В избранном пока ничего нет")
+                        _favoriteState.value = UIStateHome.Error("В избранном пока ничего нет")
                     }
                 } else {
-                    _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+                    _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
                 }
 
             } catch (e: Exception) {
-                _favoriteState.value = UIState.Error("Ошибка запроса в базу - $e")
+                _favoriteState.value = UIStateHome.Error("Ошибка запроса в базу - $e")
             }
         }
     }
@@ -160,14 +216,14 @@ class MoviesViewModel @Inject constructor(
                     cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                         .toMutableList()
 
-                _homeState.value = UIState.Success(cachedMovieList)
-                _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+                _homeState.value = UIStateHome.Success(cachedMovieList)
+                _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
             }
 
             cachedMovieList =
                 cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                     .toMutableList()
-            _homeState.value = UIState.Success(cachedMovieList)
+            _homeState.value = UIStateHome.Success(cachedMovieList)
         }
     }
 
@@ -198,51 +254,22 @@ class MoviesViewModel @Inject constructor(
                 val sortedList = cachedMovieList.sortedBy {
                     it.title
                 }
-                _homeState.value = UIState.Success(sortedList)
+                _homeState.value = UIStateHome.Success(sortedList)
             }
 
             SortEvents.DATE -> {
                 val sortedList = cachedMovieList.sortedBy {
                     it.releaseDateTimeStump
                 }
-                _homeState.value = UIState.Success(sortedList)
+                _homeState.value = UIStateHome.Success(sortedList)
             }
 
             SortEvents.RATING -> {
                 val sortedList = cachedMovieList.sortedBy {
                     it.rating
                 }.reversed()
-                _homeState.value = UIState.Success(sortedList)
+                _homeState.value = UIStateHome.Success(sortedList)
             }
-        }
-    }
-
-    fun onStorageSearchEvent(events: StorageSearchEvent) {
-        var result = emptyList<Movie>()
-        try {
-            val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
-            val date = if (events.date.equals("")) 0 else events.date.toInt()
-            val title = events.title
-            val genres = events.genres
-
-            if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
-                result = repository.getAllFromDB()
-            } else {
-                result = repository.getAllFromDBByFilter(
-                    rating = rating,
-                    date = date,
-                    title = title,
-                    genres = genres
-                )
-//                result.forEach {
-//                    Log.d(
-//                        "mytag",
-//                        "${it.title} --- ${it.rating}  --- ${it.releaseDateYear} -- genre - ${it.genreList[0]}"
-//                    )
-//                }
-            }
-        } catch (e: Exception) {
-            Log.d("mytag", "cast error $e")
         }
     }
 
@@ -333,6 +360,10 @@ class MoviesViewModel @Inject constructor(
     fun setDateMovieSavingMode(value: Int) {
         repository.saveDateMovieSavingMode(value)
         getDateMovieSavingMode()
+    }
+
+    private fun registerSPListener() {
+        repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
 //    private fun initListViewDataModel() {
