@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -201,7 +200,6 @@ class MainActivity : AppCompatActivity() {
             super.onOptionsItemSelected(item)
         }
     }
-
 }
 
 
