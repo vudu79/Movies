@@ -19,8 +19,8 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.entity.Movie
 import ru.vodolatskii.movies.databinding.FragmentDetailsBinding
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -69,7 +69,7 @@ class DetailsFragment : Fragment() {
         (activity as MainActivity).findViewById<AppBarLayout>(R.id.topAppBarLayout).visibility =
             View.GONE
 
-        binding.detailsToolbar.title = movie.name
+        binding.detailsToolbar.title = movie.title
         Glide.with(this)
             .load(movie.posterUrl)
             .centerCrop()
@@ -86,7 +86,7 @@ class DetailsFragment : Fragment() {
 
 
     private fun setTitleStyle(movie: Movie): SpannableStringBuilder {
-        val title = movie.name
+        val title = movie.title
         val description = "\n\n" + movie.description
         val boldStrUnderlineSpannable = SpannableStringBuilder(title)
         boldStrUnderlineSpannable.setSpan(
@@ -107,7 +107,7 @@ class DetailsFragment : Fragment() {
 
     private fun setListeners(movie: Movie) {
         binding.appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val title = movie.name
+            val title = movie.title
             if (verticalOffset == 0) {
                 binding.toolbarLayout.title = ""
                 (activity as MainActivity).window.decorView.systemUiVisibility =
@@ -127,7 +127,7 @@ class DetailsFragment : Fragment() {
                 R.id.button_after_details -> {
                     Snackbar.make(
                         binding.detailsDescription,
-                        "Оложен ${movie.name} ",
+                        "Оложен ${movie.title} ",
                         Snackbar.LENGTH_INDEFINITE
                     )
                         .setAction(
@@ -145,7 +145,7 @@ class DetailsFragment : Fragment() {
                         viewModel.deleteMovieFromFavorite(movie)
                         Snackbar.make(
                             binding.detailsDescription,
-                            "Удален из избранного ${movie.name} ",
+                            "Удален из избранного ${movie.title} ",
                             Snackbar.LENGTH_INDEFINITE
                         ).show()
                     } else {
@@ -155,7 +155,7 @@ class DetailsFragment : Fragment() {
                         viewModel.addMovieToFavorite(movie)
                         Snackbar.make(
                             binding.detailsDescription,
-                            "В избранном ${movie.name} ",
+                            "В избранном ${movie.title} ",
                             Snackbar.LENGTH_INDEFINITE
                         ).show()
                     }
@@ -169,7 +169,7 @@ class DetailsFragment : Fragment() {
             intent.action = Intent.ACTION_SEND
             intent.putExtra(
                 Intent.EXTRA_TEXT,
-                "Check out this film: ${movie.name} \n\n ${movie.description}"
+                "Check out this film: ${movie.title} \n\n ${movie.description}"
             )
             intent.putExtra(
                 Intent.EXTRA_TEXT,

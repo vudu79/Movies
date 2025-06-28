@@ -7,7 +7,6 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
-import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -56,7 +55,7 @@ class FavoriteItemTouchHelperCallback(
                 adapter.onItemDismiss(position)
                 Snackbar.make(
                     recyclerView,
-                    "Удалено ${swipedMovie.name} ",
+                    "Удалено ${swipedMovie.title} ",
                     Snackbar.LENGTH_LONG
                 ).show()
             }

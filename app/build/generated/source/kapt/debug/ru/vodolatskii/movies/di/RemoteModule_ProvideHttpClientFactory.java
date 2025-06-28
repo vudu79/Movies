@@ -6,7 +6,9 @@ import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
+import javax.inject.Provider;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -20,20 +22,26 @@ import okhttp3.OkHttpClient;
 public final class RemoteModule_ProvideHttpClientFactory implements Factory<OkHttpClient> {
   private final RemoteModule module;
 
-  public RemoteModule_ProvideHttpClientFactory(RemoteModule module) {
+  private final Provider<HttpLoggingInterceptor> interceptorProvider;
+
+  public RemoteModule_ProvideHttpClientFactory(RemoteModule module,
+      Provider<HttpLoggingInterceptor> interceptorProvider) {
     this.module = module;
+    this.interceptorProvider = interceptorProvider;
   }
 
   @Override
   public OkHttpClient get() {
-    return provideHttpClient(module);
+    return provideHttpClient(module, interceptorProvider.get());
   }
 
-  public static RemoteModule_ProvideHttpClientFactory create(RemoteModule module) {
-    return new RemoteModule_ProvideHttpClientFactory(module);
+  public static RemoteModule_ProvideHttpClientFactory create(RemoteModule module,
+      Provider<HttpLoggingInterceptor> interceptorProvider) {
+    return new RemoteModule_ProvideHttpClientFactory(module, interceptorProvider);
   }
 
-  public static OkHttpClient provideHttpClient(RemoteModule instance) {
-    return Preconditions.checkNotNullFromProvides(instance.provideHttpClient());
+  public static OkHttpClient provideHttpClient(RemoteModule instance,
+      HttpLoggingInterceptor interceptor) {
+    return Preconditions.checkNotNullFromProvides(instance.provideHttpClient(interceptor));
   }
 }

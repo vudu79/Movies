@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/sort_alph"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/alphabet"
+
+        />
+    <item
+        android:id="@+id/sort_date"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/date"
+
+        />
+    <item
+        android:id="@+id/sort_rating"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/rating"
+
+        />
+</menu>

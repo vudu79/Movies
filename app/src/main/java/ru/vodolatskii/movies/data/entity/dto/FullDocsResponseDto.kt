@@ -35,7 +35,7 @@ data class Docs(
     val backdrop: Backdrop,
     val rating: Rating,
     val votes: Votes,
-    val genres: List<Genre>,
+    val genres: List<Genre1>,
     val countries: List<Country>,
     val releaseYears: List<Any?>,
 )
@@ -84,7 +84,7 @@ data class Votes(
     val await: Long,
 )
 
-data class Genre(
+data class Genre1(
     val name: String,
 )
 

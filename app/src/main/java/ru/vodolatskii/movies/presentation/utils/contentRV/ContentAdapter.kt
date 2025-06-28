@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.data.entity.dto.toGenresString
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
 
@@ -45,8 +47,10 @@ class ContentAdapter(
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
-    fun setData(Movies: List<Movie>) {
-        val list = Movies.toMutableList()
+    fun setData(movies: List<Movie>) {
+        Log.d("mytag", "state --- $movies")
+
+        val list = movies.toMutableList()
         asyncListDiffer.submitList(list)
     }
 
@@ -57,7 +61,7 @@ class ContentAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
         return ContentViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.recyclerview_content_item, parent, false)
+                .inflate(R.layout.recyclerview_movie_item_layout, parent, false)
         )
     }
 
@@ -68,34 +72,36 @@ class ContentAdapter(
     override fun onBindViewHolder(holder: ContentViewHolder, position: Int) {
         when (holder) {
             is ContentViewHolder -> {
-                val Movie = asyncListDiffer.currentList[position]
+                val movie = asyncListDiffer.currentList[position]
 
                 Glide.with(holder.itemView.context)
-                    .load(Movie.posterUrl)
-//                    .placeholder(R.drawable.loading_img)
+                    .load(movie.posterUrl)
+                    .error(R.drawable.baseline_error_outline_24)
+                    .placeholder(R.drawable.baseline_arrow_circle_down_24)
                     .centerCrop()
                     .override(200, 200)
                     .into(holder.imageView)
 
-                holder.title.text = Movie.name
+                holder.title.text = movie.title
 
-                holder.description.text = Movie.description
+                holder.description.text = movie.description
 
-                holder.rating.setProgress((Movie.rating * 10).toInt())
+                holder.rating.setProgress((movie.rating * 10).toInt())
 
                 holder.card.setOnClickListener {
                     ViewCompat.setTransitionName(holder.description, "text_transition_name")
-                    onItemClick(Movie, holder.description)
+                    onItemClick(movie, holder.description)
                 }
+                holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
 
+                val genreString = movie.genreList.toGenresString()
+                holder.genres.text = "Жанры: $genreString"
 //                setAnimation(holder.shineView)
             }
-
             else -> {
             }
         }
     }
-
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         val tempList: MutableList<Movie> = asyncListDiffer.currentList.toMutableList()
@@ -132,8 +138,10 @@ class ContentAdapter(
             itemView.findViewById(R.id.poster_image)
         val title: TextView = itemView.findViewById(R.id.title)
         val description: TextView = itemView.findViewById(R.id.description)
+        val releaseDate: TextView = itemView.findViewById(R.id.release_date)
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
+        val genres: TextView = itemView.findViewById(R.id.genre_list)
 //        val shineView: View = itemView.findViewById(R.id.shine)
     }
 

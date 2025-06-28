@@ -2,7 +2,7 @@ package ru.vodolatskii.movies.data.entity.dto
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.domain.models.Movie
 
 
 data class ShortDocsResponseDto(
@@ -16,8 +16,13 @@ data class Doc(
     val description: String = "",
     val poster: Poster,
     val rating: Rating,
+    val genres: List<Genre>,
     ) : Parcelable
 
+@Parcelize
+data class Genre(
+    val name: String,
+) : Parcelable
 
 @Parcelize
 data class Poster(
@@ -37,12 +42,13 @@ data class Rating(
 fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
     val movieList: List<Movie> = this.docs.map {
         val movie = Movie(
-            movieId = it.id,
-            name = it.name,
+            apiId = it.id,
+            title = it.name,
             description = it.description,
             posterUrl = it.poster.url,
             isFavorite = false,
             rating = it.rating.kp
+
         )
         movie
     }

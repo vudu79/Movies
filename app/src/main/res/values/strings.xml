@@ -16,4 +16,44 @@
     <string name="search_title">Найти</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Search</string>
+
+    <string name="menu_settings_title_text">Настройки</string>
+    <string name="radio_button_popular">Популярные</string>
+    <string name="radio_button_top_rated">Топ</string>
+    <string name="radio_button_upcoming">Скоро</string>
+    <string name="radio_button_playing">В кинотеатрах</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_en">English</string>
+    <string name="radio_group_header">Подборка на главном экране:</string>
+    <string name="request_language_header">Язык текста в подборке:</string>
+    <string name="item_settings_drawer">Настройки</string>
+    <string name="storage">Хранилище</string>
+
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string name="alphabet">По алфавиту</string>
+    <string name="date">По дате</string>
+    <string name="rating">По рейтингу</string>
+    <string name="request_error">Ощибка запроса к API. В локальном хранилище отсутсвуют сохраненные фильны.</string>
+    <string name="internet_local_switch">Источник контента</string>
+    <string name="internet_source">Интернет</string>
+    <string name="storage_source">Память устройства</string>
+    <string name="storage_settings">Настройки хранилища</string>
+    <string name="delete_button">Удалить фильмы из памяти</string>
+    <string name="save_movie_mod">Сохранять все фильмы в в пямять телефона</string>
+    <string name="rating_mode">Сохранять с рейтингом выше</string>
+    <string name="date_save_mode">Сохранять по дате релиза и позже</string>
+    <string name="exit">Выйти</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="exit_app">Выйти из приложения?</string>
+    <string name="search_filter">Фильтр поиска</string>
+    <string name="media_count">количество медиа в базе -</string>
+    <string name="rating_media">Рейтинг и выше</string>
+    <string name="string_in_media">Строка в названии</string>
+    <string name="release_date">Дата релиза</string>
+    <string name="search">Найти</string>
+    <string name="movieP_genre">Жанры фильмов</string>
+    <string name="show_all">Загрузить весь контент</string>
+    <string name="go_to_filter">Поиск с фильтрами</string>
 </resources>

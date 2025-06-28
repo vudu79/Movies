@@ -1,11 +1,15 @@
 package ru.vodolatskii.movies.presentation.fragments
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -16,14 +20,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialView
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.entity.Movie
+import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.UIStateHome
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
@@ -38,7 +46,6 @@ private const val ARG_PARAM2 = "param2"
 internal interface ContentAdapterController {
     fun updateAdapterData(data: List<Movie>?)
 }
-
 
 class HomeFragment : Fragment(), ContentAdapterController {
 
@@ -58,11 +65,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         viewModel = (activity as MainActivity).shareMoviesViewModel()
         return binding.root
     }
@@ -81,7 +84,9 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupSearchViewListeners()
         checkToolBar()
-        viewModel.getPopularMovies()
+        viewModel.getMoviesFromApi()
+        initSpeedDial(savedInstanceState == null)
+
     }
 
     private fun checkToolBar() {
@@ -130,11 +135,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    contentAdapter.setData(viewModel.cachePopularMovieList)
+                    contentAdapter.setData(viewModel.cachedMovieList)
                     return true
                 }
-                val result = viewModel.cachePopularMovieList.filter {
-                    it.name.toLowerCase(Locale.getDefault())
+                val result = viewModel.cachedMovieList.filter {
+                    it.title.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
                 }
                 contentAdapter.setData(result)
@@ -144,22 +149,31 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
     private fun setupObservers() {
+
+        binding.pullToRefresh.setOnRefreshListener {
+            contentAdapter.setData(emptyList())
+            viewModel.clearLoadedPages()
+            viewModel.clearCachedMovieList()
+            viewModel.getMoviesFromApi()
+            binding.pullToRefresh.isRefreshing = false
+        }
+
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 (activity as MainActivity).viewModel.homeState.collect { uiState ->
                     when (uiState) {
-                        is UIState.Success -> {
+                        is UIStateHome.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setHomeViewsVisibility(uiState)
                             contentAdapter.setData(mutableMoviesList)
                         }
 
-                        is UIState.Error -> {
+                        is UIStateHome.Error -> {
                             binding.errorTextView.text = uiState.message
                             setHomeViewsVisibility(uiState)
                         }
 
-                        is UIState.Loading -> {
+                        is UIStateHome.Loading -> {
                             setHomeViewsVisibility(uiState)
                         }
                     }
@@ -174,7 +188,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
-//            var currentPosition = 0
+            //            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
 //                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -194,7 +208,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
                 if (!recyclerView.canScrollVertically(1)) {
                     viewModel.plusPageCount()
-                    viewModel.getPopularMovies()
+                    viewModel.getMoviesFromApi()
                 }
 
 
@@ -230,28 +244,23 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
 
         binding.recyclerviewContent.apply {
-
             addOnScrollListener(onScrollListener)
 
             contentAdapter = ContentAdapter(
                 context = requireContext(),
-
                 onItemClick = { movie, view ->
-
                     (activity as MainActivity).launchDetailsFragment(movie, view)
-
                     if (activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility == View.GONE) {
                         activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                             View.VISIBLE
                     }
-
                 },
                 onMoveToFavorite = { movie ->
                     viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-                    viewModel.deleteFromPopular(movie = movie)
+                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 
@@ -283,21 +292,21 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
 
-    private fun setHomeViewsVisibility(state: UIState) {
+    private fun setHomeViewsVisibility(state: UIStateHome) {
         when (state) {
-            is UIState.Success -> {
+            is UIStateHome.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
                 binding.errorTextView.visibility = View.GONE
             }
 
-            is UIState.Error -> {
+            is UIStateHome.Error -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.VISIBLE
             }
 
-            UIState.Loading -> {
+            UIStateHome.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.GONE
@@ -321,19 +330,85 @@ class HomeFragment : Fragment(), ContentAdapterController {
             contentAdapter.setData(data)
         }
     }
-//
-//    fun launchDetailsFragment(movie: Movie, view: View) {
-//        val bundle = Bundle()
-//        bundle.putParcelable("movie", movie)
-//
-//        val fr = DetailsFragment()
-//        fr.arguments = bundle
-//
-//        parentFragmentManager
-//            .beginTransaction()
-//            .addSharedElement(view, view.getTransitionName())
-//            .replace(R.id.my_nav_host_fragment, fr)
-//            .addToBackStack(null)
-//            .commit()
-//    }
+
+
+    private fun initSpeedDial(addActionItems: Boolean) {
+        val speedDialView: SpeedDialView = binding.speedDial
+        if (addActionItems) {
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_alph, R.drawable.baseline_sort_by_alpha_24,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.alphabet)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create(),
+            )
+
+            val drawable =
+                AppCompatResources.getDrawable(requireContext(), R.drawable.baseline_date_range_24)
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_date, drawable,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.date)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create()
+            )
+
+            speedDialView.addActionItem(
+                SpeedDialActionItem.Builder(
+                    R.id.sort_rating, R.drawable.baseline_auto_graph_24,
+                )
+                    .setFabImageTintColor(Color.WHITE)
+                    .setFabBackgroundColor(requireContext().getColor(R.color.gradient_end))
+                    .setFabSize(FloatingActionButton.SIZE_NORMAL)
+                    .setLabel(R.string.rating)
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(requireContext().getColor(R.color.gradient_end2))
+                    .create(),
+            )
+        }
+
+        speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
+            override fun onMainActionSelected(): Boolean {
+                Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
+                return false  // True to keep the Speed Dial open
+            }
+
+            override fun onToggleChanged(isOpen: Boolean) {
+                Log.d("mytag", "Speed dial toggle state changed. Open = $isOpen")
+            }
+        })
+
+        speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.sort_alph -> {
+                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true  // false will close it without animation
+                }
+
+                R.id.sort_date -> {
+                    viewModel.onSortRVEvents(SortEvents.DATE)
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true
+                }
+
+                R.id.sort_rating -> {
+                    viewModel.onSortRVEvents(SortEvents.RATING)
+                    speedDialView.close()  // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true
+                }
+            }
+            true  // To keep the Speed Dial open
+        })
+    }
 }

@@ -57,7 +57,7 @@ class ContentItemTouchHelperCallback(
                 adapter.onItemDismiss(position)
                 Snackbar.make(
                     recyclerView,
-                    "Удалено ${swipedMovie.name} ",
+                    "Удалено ${swipedMovie.title} ",
                     Snackbar.LENGTH_LONG
                 )
                     .setAction(
@@ -71,7 +71,7 @@ class ContentItemTouchHelperCallback(
                 adapter.onItemSwipedToRight(swipedMovie, position)  // заменить
                 Snackbar.make(
                     recyclerView,
-                    "В избранном ${swipedMovie.name} ",
+                    "В избранном ${swipedMovie.title} ",
                     Snackbar.LENGTH_LONG
                 )
                     .setAction(
