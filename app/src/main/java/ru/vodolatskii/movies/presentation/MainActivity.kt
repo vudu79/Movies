@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -8,6 +9,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -50,13 +52,47 @@ class MainActivity : AppCompatActivity() {
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val toolBar: Toolbar = binding.topAppBar
+
+        navController = findNavController(R.id.my_nav_host_fragment)
+
+        setSupportActionBar(toolBar);
+
         actionBarDrawerToggle =
             ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close)
-        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
+
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = false
+
+        actionBarDrawerToggle.toolbarNavigationClickListener = View.OnClickListener {
+            when (navController.currentDestination?.id) {
+                R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
+                    navController.navigateUp()
+                }
+                else -> {
+                    drawerLayout.openDrawer(GravityCompat.START)
+                }
+            }
+        }
+
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            when (destination.id) {
+                R.id.detailsFragment, R.id.favoriteFragment, R.id.afterFragment, R.id.homeFragment -> {
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
+                }
+
+                R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
+                }
+                else -> {}
+            }
+        }
+
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
+
+//        actionBarDrawerToggle.syncState()
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        navController = findNavController(R.id.my_nav_host_fragment)
+        supportActionBar?.setHomeButtonEnabled(true);
+
         navView.setupWithNavController(navController)
         binding.bottomNavigation.setupWithNavController(navController)
     }

@@ -8,7 +8,11 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_storageMenuFragment"
+            app:destination="@id/storageMenuFragment" />
+    </fragment>
     <fragment
         android:id="@+id/detailsFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.DetailsFragment"
@@ -35,10 +39,21 @@
     <fragment
         android:id="@+id/storageMenuFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.StorageMenuFragment"
-        android:label="StorageMenuFragment" />
+        android:label="StorageMenuFragment" >
+        <action
+            android:id="@+id/action_storageMenuFragment_to_storageRVFragment"
+            app:destination="@id/storageRVFragment" />
+        <action
+            android:id="@+id/action_storageMenuFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/storageRVFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.StorageRVFragment"
-        android:label="StorageRVFragment" />
+        android:label="StorageRVFragment" >
+        <action
+            android:id="@+id/action_storageRVFragment_to_storageMenuFragment"
+            app:destination="@id/storageMenuFragment" />
+    </fragment>
 
 </navigation>

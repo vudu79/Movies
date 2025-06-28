@@ -112,7 +112,7 @@ class StorageRVFragment : Fragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.storageState.collect { uiState ->
-                    Log.d("mytag", "state --- $uiState")
+//                    Log.d("mytag", "state --- $uiState")
                     when (uiState) {
                         is UIStateStorage.Success -> {
                             val mutableMoviesList = uiState.listMovie.toMutableList()
@@ -121,6 +121,7 @@ class StorageRVFragment : Fragment() {
                         }
 
                         is UIStateStorage.Error -> {
+                            binding.storageErrorTextView.text = uiState.message
                             setStorageViewsVisibility(uiState)
                         }
 

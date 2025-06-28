@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/storage/baseline_storage_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/arrow_back/baseline_arrow_back_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,8 +29,8 @@
                         <option name="values">
                           <map>
                             <entry key="autoMirrored" value="true" />
-                            <entry key="color" value="e80f08" />
-                            <entry key="outputName" value="baseline_storage_24" />
+                            <entry key="color" value="f8f6f6" />
+                            <entry key="outputName" value="baseline_arrow_back_24" />
                             <entry key="sourceFile" value="$USER_HOME$/Pictures/763025_2.svg" />
                           </map>
                         </option>

@@ -90,7 +90,6 @@ class MovieRepositoryImpl @Inject constructor(
             null
         )
         val result = mutableListOf<Movie>()
-        val resultList = mutableListOf<Movie>()
         if (cursor.moveToFirst()) {
             do {
                 val _title = cursor.getString(1)
@@ -117,11 +116,14 @@ class MovieRepositoryImpl @Inject constructor(
                 )
             } while (cursor.moveToNext())
         }
+        return flatJoinQueryResult(result)
+    }
 
+    private fun flatJoinQueryResult(result: List<Movie>): List<Movie> {
+        val resultList = mutableListOf<Movie>()
         val res = result.groupBy {
             it.title
         }
-
         for (entry in res) {
             val values = entry.value
             val l = values.flatMap {
@@ -175,22 +177,28 @@ class MovieRepositoryImpl @Inject constructor(
                 )
             } while (cursor.moveToNext())
         }
+
+        val flatResult = flatJoinQueryResult(result)
+
         if (genres.isNotEmpty()) {
-            val genreFilteredList = result.groupBy {
-                it.genreList[0]
-            }.filter { genres.contains(it.key) }.values.flatten()
+            val genreFilteredList = flatResult.filter {
+                val intersection = genres.intersect(it.genreList.toSet())
+                genres.containsAll(it.genreList) || intersection.isNotEmpty()
+            }
             if (title != "") {
                 val titleFilteredList = genreFilteredList.filter {
                     it.title.lowercase().contains(title.lowercase())
                 }
                 return titleFilteredList
             } else return genreFilteredList
+
         } else if (title != "") {
-            val titleFilteredList = result.filter {
+
+            val titleFilteredList = flatResult.filter {
                 it.title.lowercase().contains(title.lowercase())
             }
             return titleFilteredList
-        } else return result
+        } else return flatResult
     }
 
     override fun deleteAllFromDB() {
