@@ -62,16 +62,3 @@ interface MovieDao {
     fun getCountMovies(): Int
 }
 
-private fun convertModelToEntity(movie: Movie): MovieWithoutGenre {
-    return MovieWithoutGenre(
-        apiId = movie.apiId,
-        title = movie.title,
-        description = movie.description,
-        posterUrl = movie.posterUrl,
-        rating = movie.rating,
-        releaseDate = movie.releaseDate,
-        releaseDateTimeStump = movie.releaseDateTimeStump,
-        releaseDateYear = movie.releaseDateYear,
-        isFavorite = false
-    )
-}
