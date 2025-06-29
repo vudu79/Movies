@@ -51,7 +51,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `favorite_movie` (`id`,`apiId`,`title`,`description`,`posterUrl`,`rating`,`releaseDate`,`releaseDateTimeStump`,`isFavorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_times_tump`,`is_favorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -73,7 +73,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `Genre` (`idGenre`,`idGenreFK`,`genre`) VALUES (nullif(?, 0),?,?)";
+        return "INSERT OR ABORT INTO `Genre` (`idGenre`,`id_genre_fk`,`genre`) VALUES (nullif(?, 0),?,?)";
       }
 
       @Override
@@ -88,7 +88,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM favorite_movie WHERE title = ?";
+        final String _query = "DELETE FROM movies WHERE title = ?";
         return _query;
       }
     };
@@ -133,15 +133,21 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public Object insertMovieWithGenre(final Movie movie,
-      final Continuation<? super Unit> $completion) {
-    return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.insertMovieWithGenre(MovieDao_Impl.this, movie, __cont), $completion);
+  public Object insertMovie(final Movie movie,
+                            final Continuation<? super Unit> $completion) {
+    return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.insertMovie(MovieDao_Impl.this, movie, __cont), $completion);
   }
 
   @Override
-  public Object deleteFavoriteMovie(final Movie movie,
-      final Continuation<? super Unit> $completion) {
-    return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.deleteFavoriteMovie(MovieDao_Impl.this, movie, __cont), $completion);
+  public Object insertMovies(final List<Movie> movies,
+                             final Continuation<? super Unit> $completion) {
+    return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.insertMovies(MovieDao_Impl.this, movies, __cont), $completion);
+  }
+
+  @Override
+  public Object deleteMovie(final Movie movie,
+                            final Continuation<? super Unit> $completion) {
+    return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.deleteMovie(MovieDao_Impl.this, movie, __cont), $completion);
   }
 
   @Override
@@ -171,21 +177,21 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public List<MovieWithGenre> getAllMovieFromFavorite() {
-    final String _sql = "SELECT * FROM favorite_movie";
+  public List<MovieWithGenre> getFavoriteMovies() {
+    final String _sql = "SELECT * FROM movies";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     __db.assertNotSuspendingTransaction();
     final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
     try {
       final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-      final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "apiId");
+      final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
       final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
       final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-      final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "posterUrl");
+      final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
       final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
-      final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "releaseDate");
-      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "releaseDateTimeStump");
-      final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "isFavorite");
+      final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
+      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_times_tump");
+      final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
       final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
       while (_cursor.moveToNext()) {
         final long _tmpKey;
@@ -253,7 +259,7 @@ public final class MovieDao_Impl implements MovieDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `idGenre`,`idGenreFK`,`genre` FROM `Genre` WHERE `idGenre` IN (");
+    _stringBuilder.append("SELECT `idGenre`,`id_genre_fk`,`genre` FROM `Genre` WHERE `idGenre` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");

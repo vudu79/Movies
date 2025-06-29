@@ -10,6 +10,7 @@ interface MovieRepository {
 
     suspend fun getMovieResponseFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
+
     suspend fun insertMovieToFavorites(movie: Movie)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
@@ -26,9 +27,14 @@ interface MovieRepository {
 
     fun saveRequestLanguageToPreferences(language: String)
 
-    fun putMovieToDbWithSettings(movie: Movie)
 
-    fun getAllFromDB(): List<Movie>
+    suspend fun putMovieToDB(movie: Movie)
+
+    suspend fun putMoviesToDB(movies: List<Movie>)
+
+    suspend fun putMovieToDbWithSettings(movie: Movie)
+
+    suspend fun getAllMoviesFromDB(): List<Movie>
 
     fun getContentSourceFromPreferences(): String?
 
@@ -46,9 +52,14 @@ interface MovieRepository {
 
     fun saveDateMovieSavingMode(value: Int)
 
-    fun deleteAllFromDB()
+    suspend fun deleteAllFromDB()
 
-    fun getMovieCount():Int
+    fun getMovieCount(): Int
 
-    fun getAllFromDBByFilter(rating: Double, date: Int, title: String, genres: List<Int>): List<Movie>
+    suspend fun getMoviesByFilter(
+        rating: Double,
+        date: Int,
+        title: String,
+        genres: List<Int>
+    ): List<Movie>
 }

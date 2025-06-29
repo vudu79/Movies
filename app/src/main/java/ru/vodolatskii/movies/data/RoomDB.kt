@@ -9,7 +9,7 @@ import ru.vodolatskii.movies.data.entity.Genre
 import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
 
 
-@Database(entities = [MovieWithoutGenre::class, Genre::class], version = 2)
+@Database(entities = [MovieWithoutGenre::class, Genre::class], version = 1)
 abstract class RoomDB : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

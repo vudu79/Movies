@@ -3,12 +3,12 @@ package ru.vodolatskii.movies.data.repositiryImpl
 import android.content.ContentValues
 import android.content.SharedPreferences
 import android.database.Cursor
-import android.util.Log
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
+import ru.vodolatskii.movies.data.entity.convertToModel
 import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
 import ru.vodolatskii.movies.data.entity.dto.toMovieList
 import ru.vodolatskii.movies.data.service.KPApiService
@@ -34,15 +34,8 @@ class MovieRepositoryImpl @Inject constructor(
     private val sqlDb = sqlDatabaseHelper.readableDatabase
     private lateinit var cursor: Cursor
 
-    private fun getTimeStump(dateInt: Int): Long {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        val date = dateFormat.parse("$dateInt-01-01")
-        val calendar = Calendar.getInstance()
-        date?.let { calendar.setTime(it) }
-        return calendar.timeInMillis
-    }
 
-    override fun putMovieToDbWithSettings(movie: Movie) {
+    override suspend fun putMovieToDbWithSettings(movie: Movie) {
         if (getMovieSavingMode()) {
             putMovieToDB(movie)
         } else if (
@@ -53,135 +46,38 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun putMovieToDB(movie: Movie) {
-        var movieId = -1L
-        sqlDb.beginTransaction()
-        try {
-            val cv = ContentValues()
-            cv.apply {
-                put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
-                put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
-                put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
-                put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
-                put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
-                put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
-                put(SQLDatabaseHelper.COLUMN_YEAR, movie.releaseDateYear)
-            }
-            movieId = sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
-
-            val cvGenre = ContentValues()
-            movie.genreList.forEach {
-                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE_ID_FK, movieId)
-                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE, it)
-                sqlDb.insertOrThrow(SQLDatabaseHelper.TABLE_GENRE_NAME, null, cvGenre)
-            }
-
-            sqlDb.setTransactionSuccessful()
-        } catch (e: Exception) {
-
-        } finally {
-            sqlDb.endTransaction()
-        }
+    override suspend fun putMoviesToDB(movies: List<Movie>) {
+        movieDao.insertMovies(movies)
     }
 
-    override fun getAllFromDB(): List<Movie> {
-        cursor = sqlDb.rawQuery(
-            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON ${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id",
-            null
-        )
-        val result = mutableListOf<Movie>()
-        if (cursor.moveToFirst()) {
-            do {
-                val _title = cursor.getString(1)
-                val posterUrl = cursor.getString(2)
-                val description = cursor.getString(3)
-                val releaseDate = cursor.getString(4)
-                val timeStump = cursor.getLong(5)
-                val year = cursor.getInt(6)
-                val _rating = cursor.getDouble(7)
-                val genre = cursor.getInt(8)
-
-                result.add(
-                    Movie(
-                        posterUrl = posterUrl,
-                        rating = _rating,
-                        releaseDate = releaseDate,
-                        isFavorite = false,
-                        title = _title,
-                        description = description,
-                        releaseDateTimeStump = timeStump,
-                        releaseDateYear = year,
-                        genreList = listOf(genre)
-                    )
-                )
-            } while (cursor.moveToNext())
-        }
-        return flatJoinQueryResult(result)
+    override suspend fun putMovieToDB(movie: Movie) {
+        movieDao.insertMovie(movie)
     }
 
-    private fun flatJoinQueryResult(result: List<Movie>): List<Movie> {
-        val resultList = mutableListOf<Movie>()
-        val res = result.groupBy {
-            it.title
-        }
-        for (entry in res) {
-            val values = entry.value
-            val l = values.flatMap {
-                it.genreList
-            }
-            val movie = values[0]
-            movie.genreList = l
-            resultList.add(movie)
-        }
-        return resultList
+    override suspend fun getAllMoviesFromDB(): List<Movie> {
+        return movieDao.getAllMovies().map { it.convertToModel() }
     }
 
-    override fun getAllFromDBByFilter(
+    override suspend fun getMoviesByFilter(
         rating: Double,
         date: Int,
         title: String,
         genres: List<Int>
     ): List<Movie> {
-        cursor = sqlDb.rawQuery(
-            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
-                    " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
-                    "${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id WHERE ($rating = 0.0 OR " +
-                    "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
-                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
-        )
 
-        val result = mutableListOf<Movie>()
-        if (cursor.moveToFirst()) {
-            do {
-                val _title = cursor.getString(1)
-                val posterUrl = cursor.getString(2)
-                val description = cursor.getString(3)
-                val releaseDate = cursor.getString(4)
-                val timeStump = cursor.getLong(5)
-                val year = cursor.getInt(6)
-                val _rating = cursor.getDouble(7)
-                val genre = cursor.getInt(8)
-
-                result.add(
-                    Movie(
-                        posterUrl = posterUrl,
-                        rating = _rating,
-                        releaseDate = releaseDate,
-                        isFavorite = false,
-                        title = _title,
-                        description = description,
-                        releaseDateTimeStump = timeStump,
-                        releaseDateYear = year,
-                        genreList = listOf(genre),
-                    )
-                )
-            } while (cursor.moveToNext())
+//        cursor = sqlDb.rawQuery(
+//            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
+//                    " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
+//                    "${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id WHERE ($rating = 0.0 OR " +
+//                    "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
+//                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
+//        )
+        val result = movieDao.getMoviesByRatingByYear(rating, date).map {
+            it.convertToModel()
         }
 
-        val flatResult = flatJoinQueryResult(result)
-
         if (genres.isNotEmpty()) {
-            val genreFilteredList = flatResult.filter {
+            val genreFilteredList = result.filter {
                 val intersection = genres.intersect(it.genreList.toSet())
                 genres.containsAll(it.genreList) || intersection.isNotEmpty()
             }
@@ -193,29 +89,20 @@ class MovieRepositoryImpl @Inject constructor(
             } else return genreFilteredList
 
         } else if (title != "") {
-
-            val titleFilteredList = flatResult.filter {
+            val titleFilteredList = result.filter {
                 it.title.lowercase().contains(title.lowercase())
             }
             return titleFilteredList
-        } else return flatResult
+        } else return result
     }
 
-    override fun deleteAllFromDB() {
-        sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")
+    override suspend fun deleteAllFromDB() {
+        movieDao.getAllMovies()
     }
 
     override fun getMovieCount(): Int {
-        var count = 0
-        val cursor = sqlDb.rawQuery("SELECT COUNT(*) FROM ${SQLDatabaseHelper.TABLE_NAME}", null)
-        cursor.use {
-            if (it.moveToFirst()) {
-                count = it.getInt(0)
-            }
-        }
-        return count
+        return movieDao.getCountMovies()
     }
-
 
     override suspend fun getMovieResponseFromKPApi(
         page: Int,
@@ -264,15 +151,15 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertMovieToFavorites(movie: Movie) {
-        movieDao.insertMovieWithGenre(movie)
+        movieDao.insertMovie(movie)
     }
 
     override suspend fun deleteMovieFromFavorites(movie: Movie) {
-        movieDao.deleteFavoriteMovie(movie)
+        movieDao.deleteMovie(movie)
     }
 
     override suspend fun getAllMoviesFromFavorites(): List<MovieWithGenre>? {
-        return movieDao.getAllMovieFromFavorite()
+        return movieDao.getFavoriteMovies()
     }
 
 
@@ -313,5 +200,13 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getPreference(): SharedPreferences {
         return preferences.getInstance()
+    }
+
+    private fun getTimeStump(dateInt: Int): Long {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val date = dateFormat.parse("$dateInt-01-01")
+        val calendar = Calendar.getInstance()
+        date?.let { calendar.setTime(it) }
+        return calendar.timeInMillis
     }
 }

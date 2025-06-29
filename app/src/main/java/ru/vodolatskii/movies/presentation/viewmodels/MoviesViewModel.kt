@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -77,17 +76,17 @@ class MoviesViewModel @Inject constructor(
         getRequestLanguage()
     }
 
-    fun getMoviesFromStorageOffLineCase(): List<Movie> {
-        val moviesFromStorage = repository.getAllFromDB()
+   suspend fun getMoviesFromStorageOffLineCase(): List<Movie> {
+        val moviesFromStorage = repository.getAllMoviesFromDB()
         cachedMovieList.clear()
         cachedMovieList.addAll(moviesFromStorage)
         return moviesFromStorage
     }
 
 
-    fun getMoviesFromStorage() {
+    suspend fun getAllMoviesFromDB() {
         _storageState.value = UIStateStorage.Loading
-        val moviesFromStorage = repository.getAllFromDB()
+        val moviesFromStorage = repository.getAllMoviesFromDB()
         if (moviesFromStorage.isNotEmpty()) {
             _storageState.value = UIStateStorage.Success(listMovie = moviesFromStorage)
         } else {
@@ -96,7 +95,7 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-    fun onStorageSearchEvent(events: StorageSearchEvent) {
+    suspend  fun onStorageSearchEvent(events: StorageSearchEvent) {
 
         _storageState.value = UIStateStorage.Loading
 
@@ -109,7 +108,7 @@ class MoviesViewModel @Inject constructor(
             val genres = events.genres
 
             if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
-                result = repository.getAllFromDB()
+                result = repository.getAllMoviesFromDB()
                 if (result.isEmpty()) {
                     _storageState.value = UIStateStorage.Error("Content not found!")
                 } else {
@@ -117,7 +116,7 @@ class MoviesViewModel @Inject constructor(
                 }
 
             } else {
-                result = repository.getAllFromDBByFilter(
+                result = repository.getMoviesByFilter(
                     rating = rating,
                     date = date,
                     title = title,
@@ -130,7 +129,6 @@ class MoviesViewModel @Inject constructor(
                     _storageState.value = UIStateStorage.Success(listMovie = result)
                 }
             }
-
         } catch (e: Exception) {
             _storageState.value = UIStateStorage.Error("Database read error - $e")
         }
@@ -149,9 +147,7 @@ class MoviesViewModel @Inject constructor(
                                 cachedMovieList.addAll(films)
                                 _homeState.value = UIStateHome.Success(cachedMovieList)
                                 loadedPages.add(pageCount)
-                                films.forEach {
-                                    repository.putMovieToDbWithSettings(it)
-                                }
+                               repository.putMoviesToDB(films)
                             }
 
                             override fun onFailure(error: ErrorResponseDto) {
@@ -176,7 +172,6 @@ class MoviesViewModel @Inject constructor(
             }
         }
     }
-
 
     fun getFavoriteMovies() {
         viewModelScope.launch(Dispatchers.IO) {
