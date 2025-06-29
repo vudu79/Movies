@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.data.dao;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.collection.LongSparseArray;
 import androidx.room.CoroutinesRoom;
@@ -43,6 +44,8 @@ public final class MovieDao_Impl implements MovieDao {
 
   private final EntityInsertionAdapter<Genre> __insertionAdapterOfGenre;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpdateMovieToFavorite;
+
   private final SharedSQLiteStatement __preparedStmtOfDeleteMovieWithoutGenre;
 
   public MovieDao_Impl(@NonNull final RoomDatabase __db) {
@@ -51,7 +54,7 @@ public final class MovieDao_Impl implements MovieDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_times_tump`,`is_favorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -65,8 +68,9 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindDouble(6, entity.getRating());
         statement.bindString(7, entity.getReleaseDate());
         statement.bindLong(8, entity.getReleaseDateTimeStump());
+        statement.bindLong(9, entity.getReleaseDateYear());
         final int _tmp = entity.isFavorite() ? 1 : 0;
-        statement.bindLong(9, _tmp);
+        statement.bindLong(10, _tmp);
       }
     };
     this.__insertionAdapterOfGenre = new EntityInsertionAdapter<Genre>(__db) {
@@ -82,6 +86,14 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindLong(1, entity.getIdGenre());
         statement.bindLong(2, entity.getIdGenreFK());
         statement.bindLong(3, entity.getGenre());
+      }
+    };
+    this.__preparedStmtOfUpdateMovieToFavorite = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE movies SET is_favorite = ? WHERE title = ?";
+        return _query;
       }
     };
     this.__preparedStmtOfDeleteMovieWithoutGenre = new SharedSQLiteStatement(__db) {
@@ -133,21 +145,48 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public Object insertMovie(final Movie movie,
-                            final Continuation<? super Unit> $completion) {
+  public Object insertMovie(final Movie movie, final Continuation<? super Unit> $completion) {
     return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.insertMovie(MovieDao_Impl.this, movie, __cont), $completion);
   }
 
   @Override
   public Object insertMovies(final List<Movie> movies,
-                             final Continuation<? super Unit> $completion) {
+      final Continuation<? super Unit> $completion) {
     return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.insertMovies(MovieDao_Impl.this, movies, __cont), $completion);
   }
 
   @Override
-  public Object deleteMovie(final Movie movie,
-                            final Continuation<? super Unit> $completion) {
+  public Object deleteMovie(final Movie movie, final Continuation<? super Unit> $completion) {
     return RoomDatabaseKt.withTransaction(__db, (__cont) -> MovieDao.DefaultImpls.deleteMovie(MovieDao_Impl.this, movie, __cont), $completion);
+  }
+
+  @Override
+  public Object updateMovieToFavorite(final boolean isFavorite, final String title,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateMovieToFavorite.acquire();
+        int _argIndex = 1;
+        final int _tmp = isFavorite ? 1 : 0;
+        _stmt.bindLong(_argIndex, _tmp);
+        _argIndex = 2;
+        _stmt.bindString(_argIndex, title);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateMovieToFavorite.release(_stmt);
+        }
+      }
+    }, $completion);
   }
 
   @Override
@@ -177,7 +216,7 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public List<MovieWithGenre> getFavoriteMovies() {
+  public List<MovieWithGenre> getAllMovies() {
     final String _sql = "SELECT * FROM movies";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     __db.assertNotSuspendingTransaction();
@@ -190,7 +229,8 @@ public final class MovieDao_Impl implements MovieDao {
       final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
       final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
       final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
-      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_times_tump");
+      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
+      final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
       final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
       final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
       while (_cursor.moveToNext()) {
@@ -222,17 +262,190 @@ public final class MovieDao_Impl implements MovieDao {
         _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
         final long _tmpReleaseDateTimeStump;
         _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
+        final int _tmpReleaseDateYear;
+        _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
         final boolean _tmpIsFavorite;
         final int _tmp;
         _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
         _tmpIsFavorite = _tmp != 0;
-        _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpIsFavorite);
+        _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite);
         final ArrayList<Genre> _tmpGenreListCollection;
         final long _tmpKey_1;
         _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);
         _tmpGenreListCollection = _collectionGenreList.get(_tmpKey_1);
         _item = new MovieWithGenre(_tmpMovie,_tmpGenreListCollection);
         _result.add(_item);
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
+
+  @Override
+  public Object getMoviesByRatingByYear(final double rating, final int year,
+      final Continuation<? super List<MovieWithGenre>> $completion) {
+    final String _sql = "SELECT * FROM movies WHERE (? = 0.0 OR rating >= ?) AND (? = 0 OR release_date_year = ?)";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 4);
+    int _argIndex = 1;
+    _statement.bindDouble(_argIndex, rating);
+    _argIndex = 2;
+    _statement.bindDouble(_argIndex, rating);
+    _argIndex = 3;
+    _statement.bindLong(_argIndex, year);
+    _argIndex = 4;
+    _statement.bindLong(_argIndex, year);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<MovieWithGenre>>() {
+      @Override
+      @NonNull
+      public List<MovieWithGenre> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
+          final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
+          final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
+          final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
+          final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
+          final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
+          final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
+          final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
+          while (_cursor.moveToNext()) {
+            final long _tmpKey;
+            _tmpKey = _cursor.getLong(_cursorIndexOfId);
+            if (!_collectionGenreList.containsKey(_tmpKey)) {
+              _collectionGenreList.put(_tmpKey, new ArrayList<Genre>());
+            }
+          }
+          _cursor.moveToPosition(-1);
+          __fetchRelationshipGenreAsruVodolatskiiMoviesDataEntityGenre(_collectionGenreList);
+          final List<MovieWithGenre> _result = new ArrayList<MovieWithGenre>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final MovieWithGenre _item;
+            final MovieWithoutGenre _tmpMovie;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpApiId;
+            _tmpApiId = _cursor.getLong(_cursorIndexOfApiId);
+            final String _tmpTitle;
+            _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+            final String _tmpDescription;
+            _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            final String _tmpPosterUrl;
+            _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
+            final double _tmpRating;
+            _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
+            final String _tmpReleaseDate;
+            _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
+            final long _tmpReleaseDateTimeStump;
+            _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
+            final int _tmpReleaseDateYear;
+            _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
+            final boolean _tmpIsFavorite;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
+            _tmpIsFavorite = _tmp != 0;
+            _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite);
+            final ArrayList<Genre> _tmpGenreListCollection;
+            final long _tmpKey_1;
+            _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);
+            _tmpGenreListCollection = _collectionGenreList.get(_tmpKey_1);
+            _item = new MovieWithGenre(_tmpMovie,_tmpGenreListCollection);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public List<MovieWithGenre> getFavoriteMovies() {
+    final String _sql = "SELECT * FROM movies WHERE is_favorite = 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+    try {
+      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+      final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
+      final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+      final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+      final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
+      final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
+      final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
+      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
+      final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
+      final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
+      final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
+      while (_cursor.moveToNext()) {
+        final long _tmpKey;
+        _tmpKey = _cursor.getLong(_cursorIndexOfId);
+        if (!_collectionGenreList.containsKey(_tmpKey)) {
+          _collectionGenreList.put(_tmpKey, new ArrayList<Genre>());
+        }
+      }
+      _cursor.moveToPosition(-1);
+      __fetchRelationshipGenreAsruVodolatskiiMoviesDataEntityGenre(_collectionGenreList);
+      final List<MovieWithGenre> _result = new ArrayList<MovieWithGenre>(_cursor.getCount());
+      while (_cursor.moveToNext()) {
+        final MovieWithGenre _item;
+        final MovieWithoutGenre _tmpMovie;
+        final long _tmpId;
+        _tmpId = _cursor.getLong(_cursorIndexOfId);
+        final long _tmpApiId;
+        _tmpApiId = _cursor.getLong(_cursorIndexOfApiId);
+        final String _tmpTitle;
+        _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+        final String _tmpDescription;
+        _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+        final String _tmpPosterUrl;
+        _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
+        final double _tmpRating;
+        _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
+        final String _tmpReleaseDate;
+        _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
+        final long _tmpReleaseDateTimeStump;
+        _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
+        final int _tmpReleaseDateYear;
+        _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
+        final boolean _tmpIsFavorite;
+        final int _tmp;
+        _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
+        _tmpIsFavorite = _tmp != 0;
+        _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite);
+        final ArrayList<Genre> _tmpGenreListCollection;
+        final long _tmpKey_1;
+        _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);
+        _tmpGenreListCollection = _collectionGenreList.get(_tmpKey_1);
+        _item = new MovieWithGenre(_tmpMovie,_tmpGenreListCollection);
+        _result.add(_item);
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
+
+  @Override
+  public int getCountMovies() {
+    final String _sql = "SELECT COUNT(*) FROM movies";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final int _result;
+      if (_cursor.moveToFirst()) {
+        _result = _cursor.getInt(0);
+      } else {
+        _result = 0;
       }
       return _result;
     } finally {

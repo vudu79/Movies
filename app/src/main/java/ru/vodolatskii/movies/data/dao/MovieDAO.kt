@@ -35,14 +35,16 @@ interface MovieDao {
     }
 
     @Query("SELECT * FROM movies")
-    suspend fun getAllMovies(): List<MovieWithGenre>
+    fun getAllMovies(): List<MovieWithGenre>
 
-    @Query("SELECT * FROM movies WHERE (:rating = 0.0 OR " +
-            "rating >= :rating) AND (:year = 0 OR release_date_year = :year)")
+    @Query(
+        "SELECT * FROM movies WHERE (:rating = 0.0 OR " +
+                "rating >= :rating) AND (:year = 0 OR release_date_year = :year)"
+    )
     suspend fun getMoviesByRatingByYear(rating: Double, year: Int): List<MovieWithGenre>
 
     @Query("UPDATE movies SET is_favorite = :isFavorite WHERE title = :title")
-    suspend fun updateMovieToFavorite(isFavorite: Boolean, title : String)
+    suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     @Query("DELETE FROM movies WHERE title = :title")
     suspend fun deleteMovieWithoutGenre(title: String)

@@ -92,7 +92,7 @@ class StorageMenuFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.movieCountInDBModeData.observe(viewLifecycleOwner, Observer<Int> {
+        viewModel.movieCountInDBLiveData.observe(viewLifecycleOwner, Observer<Int> {
             binding.textViewMovieCount.text = it.toString()
         })
     }

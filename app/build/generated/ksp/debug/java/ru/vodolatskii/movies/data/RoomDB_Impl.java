@@ -37,11 +37,11 @@ public final class RoomDB_Impl extends RoomDB {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_times_tump` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_title` ON `movies` (`title`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id_genre_fk` INTEGER NOT NULL, `genre` INTEGER NOT NULL, FOREIGN KEY(`id_genre_fk`) REFERENCES `movies`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a57f513d0895081f09e103b8629596bf')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '327b15e87823d2288281b9808084ce0c')");
       }
 
       @Override
@@ -92,7 +92,7 @@ public final class RoomDB_Impl extends RoomDB {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(9);
+        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(10);
         _columnsMovies.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("api_id", new TableInfo.Column("api_id", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -100,7 +100,8 @@ public final class RoomDB_Impl extends RoomDB {
         _columnsMovies.put("poster_url", new TableInfo.Column("poster_url", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("rating", new TableInfo.Column("rating", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("release_date", new TableInfo.Column("release_date", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsMovies.put("release_date_times_tump", new TableInfo.Column("release_date_times_tump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("release_date_time_stump", new TableInfo.Column("release_date_time_stump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("release_date_year", new TableInfo.Column("release_date_year", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("is_favorite", new TableInfo.Column("is_favorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysMovies = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesMovies = new HashSet<TableInfo.Index>(1);
@@ -128,7 +129,7 @@ public final class RoomDB_Impl extends RoomDB {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "a57f513d0895081f09e103b8629596bf", "35fc1d0bcedaa063b69d72f585f4bd2e");
+    }, "327b15e87823d2288281b9808084ce0c", "dc9d84be980b5c319c0c6548bedbf85a");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

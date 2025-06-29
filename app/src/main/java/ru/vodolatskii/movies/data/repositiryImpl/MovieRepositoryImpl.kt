@@ -1,6 +1,5 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
-import android.content.ContentValues
 import android.content.SharedPreferences
 import android.database.Cursor
 import com.google.gson.Gson
@@ -9,8 +8,9 @@ import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.convertToModel
-import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
-import ru.vodolatskii.movies.data.entity.dto.toMovieList
+import ru.vodolatskii.movies.data.service.BaseError
+import ru.vodolatskii.movies.data.dto.toMovieList
+import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
@@ -96,11 +96,11 @@ class MovieRepositoryImpl @Inject constructor(
         } else return result
     }
 
-    override suspend fun deleteAllFromDB() {
+    override  fun deleteAllFromDB() {
         movieDao.getAllMovies()
     }
 
-    override fun getMovieCount(): Int {
+    override suspend fun getMovieCount(): Int {
         return movieDao.getCountMovies()
     }
 
@@ -120,9 +120,9 @@ class MovieRepositoryImpl @Inject constructor(
             callback.onSuccess(body.toMovieList())
         } else {
 
-            val errorResp: ErrorResponseDto = Gson().fromJson(
+            val errorResp: BaseError = Gson().fromJson(
                 resp.errorBody()?.charStream(),
-                ErrorResponseDto::class.java
+                BaseError::class.java
             )
             callback.onFailure(errorResp)
         }
@@ -130,8 +130,7 @@ class MovieRepositoryImpl @Inject constructor(
 
     override suspend fun getMovieResponseFromTMDBApi(
         page: Int,
-        callback: MoviesViewModel.ApiCallback
-    ) {
+    ) :BaseResponse<List<Movie>, BaseError> {
         val response = tmdbApiService.getSearchResponse(
             category = getDefaultCategoryFromPreferences(),
             page = page,
@@ -140,13 +139,13 @@ class MovieRepositoryImpl @Inject constructor(
         val body = response.body()
 
         if (response.code() == 200 && body != null) {
-            callback.onSuccess(body.toMovieList())
+            return BaseResponse.Success(body.toMovieList())
         } else {
-            val errorResp: ErrorResponseDto = Gson().fromJson(
+            val errorResp: BaseError = Gson().fromJson(
                 response.errorBody()?.charStream(),
-                ErrorResponseDto::class.java
+                BaseError::class.java
             )
-            callback.onFailure(errorResp)
+            return BaseResponse.Error(errorResp)
         }
     }
 

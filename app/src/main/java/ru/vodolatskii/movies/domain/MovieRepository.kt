@@ -1,15 +1,17 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
+import ru.vodolatskii.movies.data.dto.TMDBPopularMoviesRespDto
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
+import ru.vodolatskii.movies.data.service.BaseError
+import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 interface MovieRepository {
     suspend fun getMovieResponseFromKPApi(page: Int, callback: MoviesViewModel.ApiCallback)
 
-    suspend fun getMovieResponseFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
-
+    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
     suspend fun insertMovieToFavorites(movie: Movie)
 
@@ -52,9 +54,9 @@ interface MovieRepository {
 
     fun saveDateMovieSavingMode(value: Int)
 
-    suspend fun deleteAllFromDB()
+    fun deleteAllFromDB()
 
-    fun getMovieCount(): Int
+    suspend fun getMovieCount(): Int
 
     suspend fun getMoviesByFilter(
         rating: Double,
