@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.presentation.utils.SortEvents
-import ru.vodolatskii.movies.data.entity.convertToModel
+import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.MovieRepository
@@ -154,6 +154,7 @@ class MoviesViewModel @Inject constructor(
                             cachedMovieList.addAll(response.body)
                             _homeState.value = UIStateHome.Success(cachedMovieList)
                             loadedPages.add(pageCount)
+
                             repository.putMoviesToDB(response.body)
                         }
 
@@ -192,7 +193,7 @@ class MoviesViewModel @Inject constructor(
                 if (cachedFavoriteMovieList.isEmpty()) {
                     repository.getAllMoviesFromFavorites()?.let { movieWithGenreList ->
                         cachedFavoriteMovieList =
-                            movieWithGenreList.map { it.convertToModel() }.toMutableList()
+                            movieWithGenreList.map { it.convertEntityToModel() }.toMutableList()
 
                         _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
                     } ?: let {

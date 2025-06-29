@@ -9,6 +9,7 @@ import ru.vodolatskii.movies.data.entity.Genre
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
 import ru.vodolatskii.movies.domain.models.Movie
+import ru.vodolatskii.movies.domain.models.convertModelToEntity
 
 @Dao
 interface MovieDao {
@@ -20,7 +21,7 @@ interface MovieDao {
 
     @Transaction
     suspend fun insertMovie(movie: Movie) {
-        val movieId = insertMovieWithoutGenre(convertModelToEntity(movie))
+        val movieId = insertMovieWithoutGenre(movie.convertModelToEntity())
         val genres = movie.genreList.map { Genre(idGenreFK = movieId, genre = it) }
         insertGenres(genres)
     }
@@ -28,7 +29,7 @@ interface MovieDao {
     @Transaction
     suspend fun insertMovies(movies: List<Movie>) {
         movies.forEach {
-            val movieId = insertMovieWithoutGenre(convertModelToEntity(it))
+            val movieId = insertMovieWithoutGenre(it.convertModelToEntity())
             val genres = it.genreList.map { Genre(idGenreFK = movieId, genre = it) }
             insertGenres(genres)
         }
@@ -70,6 +71,7 @@ private fun convertModelToEntity(movie: Movie): MovieWithoutGenre {
         rating = movie.rating,
         releaseDate = movie.releaseDate,
         releaseDateTimeStump = movie.releaseDateTimeStump,
+        releaseDateYear = movie.releaseDateYear,
         isFavorite = false
     )
 }

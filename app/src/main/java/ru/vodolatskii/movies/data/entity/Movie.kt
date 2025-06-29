@@ -50,7 +50,7 @@ data class Genre(
     @ColumnInfo(name = "genre") val genre: Int
 )
 
-fun MovieWithGenre.convertToModel(): Movie {
+fun MovieWithGenre.convertEntityToModel(): Movie {
     return Movie(
         apiId = this.movie.apiId,
         title = this.movie.title,

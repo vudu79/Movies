@@ -7,7 +7,7 @@ import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
-import ru.vodolatskii.movies.data.entity.convertToModel
+import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.service.BaseResponse
@@ -55,7 +55,7 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAllMoviesFromDB(): List<Movie> {
-        return movieDao.getAllMovies().map { it.convertToModel() }
+        return movieDao.getAllMovies().map { it.convertEntityToModel() }
     }
 
     override suspend fun getMoviesByFilter(
@@ -73,7 +73,7 @@ class MovieRepositoryImpl @Inject constructor(
 //                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
 //        )
         val result = movieDao.getMoviesByRatingByYear(rating, date).map {
-            it.convertToModel()
+            it.convertEntityToModel()
         }
 
         if (genres.isNotEmpty()) {
