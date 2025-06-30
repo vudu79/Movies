@@ -14,7 +14,7 @@ interface TmdbApiService {
         "accept: application/json"
     )
     @GET("3/movie/{category}")
-    suspend fun getSearchResponse(
+    suspend fun getMovie(
         @Path("category") category: String,
         @Query("page") page: Int,
         @Query("language") language: String,

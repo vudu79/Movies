@@ -53,7 +53,7 @@ class StorageMenuFragment : Fragment() {
         setupObservers()
         setupListeners()
         setupListView()
-        viewModel.getMovieCountFromDB()
+        viewModel.getMovieCountInDB()
     }
 
 

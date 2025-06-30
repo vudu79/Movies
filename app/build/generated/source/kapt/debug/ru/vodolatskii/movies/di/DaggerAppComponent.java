@@ -12,7 +12,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import ru.vodolatskii.movies.data.RoomDB;
-import ru.vodolatskii.movies.data.SQLDatabaseHelper;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl_Factory;
@@ -75,8 +74,6 @@ public final class DaggerAppComponent {
 
     private Provider<PreferenceProvider> provideSharedPreferenceProvider;
 
-    private Provider<SQLDatabaseHelper> provideSqlDatabaseHelperProvider;
-
     private Provider<MovieRepositoryImpl> movieRepositoryImplProvider;
 
     private Provider<MovieRepository> provideRepositoryProvider;
@@ -106,8 +103,7 @@ public final class DaggerAppComponent {
       this.provideRetrofitTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitTMDBFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
       this.provideKPServiceTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceTMDBFactory.create(remoteModuleParam, provideRetrofitTMDBProvider));
       this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
-      this.provideSqlDatabaseHelperProvider = DoubleCheck.provider(DatabaseModule_ProvideSqlDatabaseHelperFactory.create(databaseModuleParam, contextProvider));
-      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider, provideSharedPreferenceProvider, provideSqlDatabaseHelperProvider);
+      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
       this.provideResourceProvider = DoubleCheck.provider(DatabaseModule_ProvideResourceProviderFactory.create(databaseModuleParam, contextProvider));
       this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider, provideResourceProvider);

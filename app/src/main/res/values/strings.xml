@@ -34,7 +34,7 @@
     <string name="alphabet">По алфавиту</string>
     <string name="date">По дате</string>
     <string name="rating">По рейтингу</string>
-    <string name="request_error">Ощибка запроса к API. В локальном хранилище отсутсвуют сохраненные фильны.</string>
+    <string name="request_error">Ощибка запроса к API.\nВ локальном хранилище отсутсвуют сохраненные фильны.</string>
     <string name="internet_local_switch">Источник контента</string>
     <string name="internet_source">Интернет</string>
     <string name="storage_source">Память устройства</string>

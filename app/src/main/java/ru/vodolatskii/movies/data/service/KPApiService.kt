@@ -12,11 +12,14 @@ interface KPApiService {
         "X-API-KEY:${Constant.API_KEY_KP}",
         "Accept:application/json",
     )
-    @GET("search")
+    @GET("v1.4/movie")
     suspend fun getSearchResponse(
         @Query("page") page: Int,
         @Query("limit") limit: Int,
+        @Query("rating.kp") ratingKp: String,
+        @Query("rating.imdb") ratingImdb: String,
         @Query("selectFields") selectFields: List<String>,
         @Query("notNullFields") notNullFields: List<String>
     ): Response<ShortDocsResponseDto>
 }
+

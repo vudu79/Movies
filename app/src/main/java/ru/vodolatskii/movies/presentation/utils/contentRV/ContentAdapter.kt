@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,7 +47,7 @@ class ContentAdapter(
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
     fun setData(movies: List<Movie>) {
-        Log.d("mytag", "state --- $movies")
+//        Log.d("mytag", "state --- $movies")
 
         val list = movies.toMutableList()
         asyncListDiffer.submitList(list)

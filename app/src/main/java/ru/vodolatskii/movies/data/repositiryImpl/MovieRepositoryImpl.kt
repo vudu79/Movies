@@ -1,22 +1,19 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
-import android.database.Cursor
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.BaseError
-import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,11 +25,75 @@ class MovieRepositoryImpl @Inject constructor(
     private val kpApiService: KPApiService,
     private val tmdbApiService: TmdbApiService,
     private val preferences: PreferenceProvider,
-    private val sqlDatabaseHelper: SQLDatabaseHelper
 
-) : MovieRepository {
-    private val sqlDb = sqlDatabaseHelper.readableDatabase
-    private lateinit var cursor: Cursor
+    ) : MovieRepository {
+
+
+    override suspend fun getMovieResponseFromKPApi(
+        page: Int,
+    ): BaseResponse<List<Movie>, BaseError> {
+        val response = kpApiService.getSearchResponse(
+            page = page,
+            limit = App.instance.loadPopularMoviesLimit,
+            ratingKp = "1-10",
+            ratingImdb = "1-10",
+            selectFields = listOf(
+                "id",
+                "name",
+                "description",
+                "poster",
+                "premiere",
+                "genres",
+                "year",
+                "rating"
+            ),
+            notNullFields = listOf(
+                "id",
+                "name",
+                "description",
+                "poster.url",
+                "premiere.world",
+                "genres.name",
+                "year",
+                "rating.imdb",
+                "rating.imdb"
+            )
+        )
+
+        val body = response.body()
+
+        if (response.code() == 200 && body != null) {
+            return BaseResponse.Success(body.toMovieList())
+        } else {
+            val errorResp: BaseError = Gson().fromJson(
+                response.errorBody()?.charStream(),
+                BaseError::class.java
+            )
+            return BaseResponse.Error(errorResp)
+        }
+    }
+
+
+    override suspend fun getMovieResponseFromTMDBApi(
+        page: Int,
+    ): BaseResponse<List<Movie>, BaseError> {
+        val response = tmdbApiService.getMovie(
+            category = getDefaultCategoryFromPreferences(),
+            page = page,
+            language = getRequestLanguageFromPreferences(),
+        )
+        val body = response.body()
+
+        if (response.code() == 200 && body != null) {
+            return BaseResponse.Success(body.toMovieList())
+        } else {
+            val errorResp: BaseError = Gson().fromJson(
+                response.errorBody()?.charStream(),
+                BaseError::class.java
+            )
+            return BaseResponse.Error(errorResp)
+        }
+    }
 
 
     override suspend fun putMovieToDbWithSettings(movie: Movie) {
@@ -96,57 +157,12 @@ class MovieRepositoryImpl @Inject constructor(
         } else return result
     }
 
-    override  fun deleteAllFromDB() {
+    override fun deleteAllFromDB() {
         movieDao.getAllMovies()
     }
 
-    override suspend fun getMovieCount(): Int {
+    override  fun getMovieCount(): Int {
         return movieDao.getCountMovies()
-    }
-
-    override suspend fun getMovieResponseFromKPApi(
-        page: Int,
-        callback: MoviesViewModel.ApiCallback
-    ) {
-        val resp = kpApiService.getSearchResponse(
-            page = page,
-            limit = App.instance.loadPopularMoviesLimit,
-            selectFields = listOf("id", "name", "description", "poster"),
-            notNullFields = listOf("name", "poster.url")
-        )
-        val body = resp.body()
-
-        if (resp.code() == 200 && body != null) {
-            callback.onSuccess(body.toMovieList())
-        } else {
-
-            val errorResp: BaseError = Gson().fromJson(
-                resp.errorBody()?.charStream(),
-                BaseError::class.java
-            )
-            callback.onFailure(errorResp)
-        }
-    }
-
-    override suspend fun getMovieResponseFromTMDBApi(
-        page: Int,
-    ) :BaseResponse<List<Movie>, BaseError> {
-        val response = tmdbApiService.getSearchResponse(
-            category = getDefaultCategoryFromPreferences(),
-            page = page,
-            language = getRequestLanguageFromPreferences(),
-        )
-        val body = response.body()
-
-        if (response.code() == 200 && body != null) {
-            return BaseResponse.Success(body.toMovieList())
-        } else {
-            val errorResp: BaseError = Gson().fromJson(
-                response.errorBody()?.charStream(),
-                BaseError::class.java
-            )
-            return BaseResponse.Error(errorResp)
-        }
     }
 
     override suspend fun insertMovieToFavorites(movie: Movie) {
@@ -209,3 +225,8 @@ class MovieRepositoryImpl @Inject constructor(
         return calendar.timeInMillis
     }
 }
+
+
+//https://api.kinopoisk.dev/v1.4/movie?page=1&limit=5&selectFields=premiere&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&selectFields=enName&notNullFields=premiere.world&notNullFields=name&notNullFields=enName&notNullFields=description&notNullFields=year&notNullFields=rating.kp&notNullFields=poster.url&notNullFields=id&notNullFields=premiere.world
+//
+//https://api.kinopoisk.dev/v1.4/movie/?page=1&limit=30&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=premiere&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&notNullFields=id&notNullFields=name&notNullFields=description&notNullFields=premiere.world&notNullFields=genres&notNullFields=year&notNullFields=rating.kp&notNullFields=persons&notNullFields=poster.url

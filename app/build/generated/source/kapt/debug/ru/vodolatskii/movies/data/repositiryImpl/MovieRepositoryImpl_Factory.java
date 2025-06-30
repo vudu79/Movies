@@ -6,7 +6,6 @@ import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.inject.Provider;
-import ru.vodolatskii.movies.data.SQLDatabaseHelper;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.service.KPApiService;
 import ru.vodolatskii.movies.data.service.TmdbApiService;
@@ -30,34 +29,28 @@ public final class MovieRepositoryImpl_Factory implements Factory<MovieRepositor
 
   private final Provider<PreferenceProvider> preferencesProvider;
 
-  private final Provider<SQLDatabaseHelper> sqlDatabaseHelperProvider;
-
   public MovieRepositoryImpl_Factory(Provider<MovieDao> movieDaoProvider,
       Provider<KPApiService> kpApiServiceProvider, Provider<TmdbApiService> tmdbApiServiceProvider,
-      Provider<PreferenceProvider> preferencesProvider,
-      Provider<SQLDatabaseHelper> sqlDatabaseHelperProvider) {
+      Provider<PreferenceProvider> preferencesProvider) {
     this.movieDaoProvider = movieDaoProvider;
     this.kpApiServiceProvider = kpApiServiceProvider;
     this.tmdbApiServiceProvider = tmdbApiServiceProvider;
     this.preferencesProvider = preferencesProvider;
-    this.sqlDatabaseHelperProvider = sqlDatabaseHelperProvider;
   }
 
   @Override
   public MovieRepositoryImpl get() {
-    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), tmdbApiServiceProvider.get(), preferencesProvider.get(), sqlDatabaseHelperProvider.get());
+    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), tmdbApiServiceProvider.get(), preferencesProvider.get());
   }
 
   public static MovieRepositoryImpl_Factory create(Provider<MovieDao> movieDaoProvider,
       Provider<KPApiService> kpApiServiceProvider, Provider<TmdbApiService> tmdbApiServiceProvider,
-      Provider<PreferenceProvider> preferencesProvider,
-      Provider<SQLDatabaseHelper> sqlDatabaseHelperProvider) {
-    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, tmdbApiServiceProvider, preferencesProvider, sqlDatabaseHelperProvider);
+      Provider<PreferenceProvider> preferencesProvider) {
+    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, tmdbApiServiceProvider, preferencesProvider);
   }
 
   public static MovieRepositoryImpl newInstance(MovieDao movieDao, KPApiService kpApiService,
-      TmdbApiService tmdbApiService, PreferenceProvider preferences,
-      SQLDatabaseHelper sqlDatabaseHelper) {
-    return new MovieRepositoryImpl(movieDao, kpApiService, tmdbApiService, preferences, sqlDatabaseHelper);
+      TmdbApiService tmdbApiService, PreferenceProvider preferences) {
+    return new MovieRepositoryImpl(movieDao, kpApiService, tmdbApiService, preferences);
   }
 }

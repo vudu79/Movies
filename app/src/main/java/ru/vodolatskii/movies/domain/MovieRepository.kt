@@ -1,15 +1,13 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
-import ru.vodolatskii.movies.data.dto.TMDBPopularMoviesRespDto
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 interface MovieRepository {
-    suspend fun getMovieResponseFromKPApi(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponseFromKPApi(page: Int):BaseResponse<List<Movie>, BaseError>
 
     suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
@@ -28,7 +26,6 @@ interface MovieRepository {
     fun getRequestLanguageFromPreferences(): String
 
     fun saveRequestLanguageToPreferences(language: String)
-
 
     suspend fun putMovieToDB(movie: Movie)
 
@@ -56,7 +53,7 @@ interface MovieRepository {
 
     fun deleteAllFromDB()
 
-    suspend fun getMovieCount(): Int
+     fun getMovieCount(): Int
 
     suspend fun getMoviesByFilter(
         rating: Double,
