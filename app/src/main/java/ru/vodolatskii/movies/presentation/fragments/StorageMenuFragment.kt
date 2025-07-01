@@ -72,7 +72,7 @@ class StorageMenuFragment : Fragment() {
         }
 
         binding.buttonShowAll.setOnClickListener {
-            viewModel.getAllMoviesFromDB()
+//            viewModel.getAllMoviesFromDB()
             navController.navigate(R.id.storageRVFragment)
         }
 

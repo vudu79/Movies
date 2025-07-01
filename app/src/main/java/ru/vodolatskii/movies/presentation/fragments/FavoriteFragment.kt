@@ -129,7 +129,7 @@ class FavoriteFragment : Fragment() {
                         is UIStateHome.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setFavoriteViewsVisibility(uiState)
-                            favoriteAdapter.setData(mutableMoviesList)
+                            favoriteAdapter.setData(mutableMoviesList ?: emptyList())
                         }
 
                         is UIStateHome.Error -> {

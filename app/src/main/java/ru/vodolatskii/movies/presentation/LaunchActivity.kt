@@ -79,7 +79,7 @@ class LaunchActivity : AppCompatActivity() {
             InternetType.NONE -> {
                 Toast.makeText(this, "Off Line", Toast.LENGTH_LONG).show()
                 viewModel.putContentSource(SOURCE_STORAGE)
-                viewModel.loadMoviesFromStorageInOffLine()
+//                viewModel.loadMoviesFromStorageInOffLine()
             }
         }
     }

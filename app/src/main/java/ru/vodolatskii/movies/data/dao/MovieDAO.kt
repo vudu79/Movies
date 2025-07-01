@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -36,7 +37,7 @@ interface MovieDao {
     }
 
     @Query("SELECT * FROM movies")
-    fun getAllMovies(): List<MovieWithGenre>
+    fun getAllMovies(): LiveData<List<MovieWithGenre>>
 
     @Query(
         "SELECT * FROM movies WHERE (:rating = 0.0 OR " +

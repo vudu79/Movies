@@ -135,13 +135,13 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    contentAdapter.setData(viewModel.cachedMovieList)
+                    contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
                     return true
                 }
-                val result = viewModel.cachedMovieList.filter {
+                val result = viewModel.cachedMovieList.value?.filter {
                     it.title.toLowerCase(Locale.getDefault())
                         .contains(newText.toLowerCase(Locale.getDefault()))
-                }
+                } ?: emptyList()
                 contentAdapter.setData(result)
                 return true
             }
@@ -153,7 +153,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
             viewModel.clearLoadedPages()
-            viewModel.clearCachedMovieList()
+//            viewModel.clearCachedMovieList()
             viewModel.getMoviesFromApi()
             binding.pullToRefresh.isRefreshing = false
         }
@@ -165,7 +165,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                         is UIStateHome.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setHomeViewsVisibility(uiState)
-                            contentAdapter.setData(mutableMoviesList)
+                            contentAdapter.setData(mutableMoviesList ?: emptyList())
                         }
 
                         is UIStateHome.Error -> {
@@ -257,7 +257,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-                    viewModel.deleteFromCachedList(movie = movie)
+//                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 
