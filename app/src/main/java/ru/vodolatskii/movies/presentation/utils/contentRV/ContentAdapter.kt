@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.entity.dto.toGenresString
+import ru.vodolatskii.movies.data.dto.toGenresString
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
@@ -48,8 +47,6 @@ class ContentAdapter(
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
     fun setData(movies: List<Movie>) {
-        Log.d("mytag", "state --- $movies")
-
         val list = movies.toMutableList()
         asyncListDiffer.submitList(list)
     }

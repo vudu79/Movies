@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.entity.dto
+package ru.vodolatskii.movies.data.dto
 
 import com.squareup.moshi.Json
 import ru.vodolatskii.movies.common.Constant

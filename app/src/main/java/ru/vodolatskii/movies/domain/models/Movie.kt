@@ -1,9 +1,8 @@
 package ru.vodolatskii.movies.domain.models
 
 import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
+import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
 
 @Parcelize
 data class Movie(
@@ -17,5 +16,20 @@ data class Movie(
     val releaseDateTimeStump: Long = 0L,
     val releaseDateYear: Int = -1,
     var isFavorite: Boolean = false,
-    var genreList: List<Int> = emptyList()
+    var genreList: List<Int> = emptyList(),
+    var genreListString: List<String> = emptyList()
 ) : Parcelable
+
+fun Movie.convertModelToEntity(): MovieWithoutGenre {
+    return MovieWithoutGenre(
+        apiId = this.apiId,
+        title = this.title,
+        description = this.description,
+        posterUrl = this.posterUrl,
+        rating = this.rating,
+        releaseDate = this.releaseDate,
+        releaseDateTimeStump = this.releaseDateTimeStump,
+        releaseDateYear = this.releaseDateYear,
+        isFavorite = this.isFavorite
+    )
+}

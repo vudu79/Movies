@@ -34,18 +34,19 @@ public final class RoomDB_Impl extends RoomDB {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `favorite_movie` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `apiId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `posterUrl` TEXT NOT NULL, `rating` REAL NOT NULL, `releaseDate` TEXT NOT NULL, `releaseDateTimeStump` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idGenreFK` INTEGER NOT NULL, `genre` INTEGER NOT NULL, FOREIGN KEY(`idGenreFK`) REFERENCES `favorite_movie`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL)");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_title` ON `movies` (`title`)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id_genre_fk` INTEGER NOT NULL, `genre` INTEGER NOT NULL, FOREIGN KEY(`id_genre_fk`) REFERENCES `movies`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '45f9c2d37de73af1f7220ed136d670d2')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '327b15e87823d2288281b9808084ce0c')");
       }
 
       @Override
       public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS `favorite_movie`");
+        db.execSQL("DROP TABLE IF EXISTS `movies`");
         db.execSQL("DROP TABLE IF EXISTS `Genre`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
@@ -91,31 +92,33 @@ public final class RoomDB_Impl extends RoomDB {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsFavoriteMovie = new HashMap<String, TableInfo.Column>(9);
-        _columnsFavoriteMovie.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("apiId", new TableInfo.Column("apiId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("description", new TableInfo.Column("description", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("posterUrl", new TableInfo.Column("posterUrl", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("rating", new TableInfo.Column("rating", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("releaseDate", new TableInfo.Column("releaseDate", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("releaseDateTimeStump", new TableInfo.Column("releaseDateTimeStump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFavoriteMovie.put("isFavorite", new TableInfo.Column("isFavorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysFavoriteMovie = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesFavoriteMovie = new HashSet<TableInfo.Index>(0);
-        final TableInfo _infoFavoriteMovie = new TableInfo("favorite_movie", _columnsFavoriteMovie, _foreignKeysFavoriteMovie, _indicesFavoriteMovie);
-        final TableInfo _existingFavoriteMovie = TableInfo.read(db, "favorite_movie");
-        if (!_infoFavoriteMovie.equals(_existingFavoriteMovie)) {
-          return new RoomOpenHelper.ValidationResult(false, "favorite_movie(ru.vodolatskii.movies.data.entity.MovieWithoutGenre).\n"
-                  + " Expected:\n" + _infoFavoriteMovie + "\n"
-                  + " Found:\n" + _existingFavoriteMovie);
+        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(10);
+        _columnsMovies.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("api_id", new TableInfo.Column("api_id", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("description", new TableInfo.Column("description", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("poster_url", new TableInfo.Column("poster_url", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("rating", new TableInfo.Column("rating", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("release_date", new TableInfo.Column("release_date", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("release_date_time_stump", new TableInfo.Column("release_date_time_stump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("release_date_year", new TableInfo.Column("release_date_year", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("is_favorite", new TableInfo.Column("is_favorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysMovies = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesMovies = new HashSet<TableInfo.Index>(1);
+        _indicesMovies.add(new TableInfo.Index("index_movies_title", true, Arrays.asList("title"), Arrays.asList("ASC")));
+        final TableInfo _infoMovies = new TableInfo("movies", _columnsMovies, _foreignKeysMovies, _indicesMovies);
+        final TableInfo _existingMovies = TableInfo.read(db, "movies");
+        if (!_infoMovies.equals(_existingMovies)) {
+          return new RoomOpenHelper.ValidationResult(false, "movies(ru.vodolatskii.movies.data.entity.MovieWithoutGenre).\n"
+                  + " Expected:\n" + _infoMovies + "\n"
+                  + " Found:\n" + _existingMovies);
         }
         final HashMap<String, TableInfo.Column> _columnsGenre = new HashMap<String, TableInfo.Column>(3);
         _columnsGenre.put("idGenre", new TableInfo.Column("idGenre", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsGenre.put("idGenreFK", new TableInfo.Column("idGenreFK", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsGenre.put("id_genre_fk", new TableInfo.Column("id_genre_fk", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsGenre.put("genre", new TableInfo.Column("genre", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysGenre = new HashSet<TableInfo.ForeignKey>(1);
-        _foreignKeysGenre.add(new TableInfo.ForeignKey("favorite_movie", "CASCADE", "NO ACTION", Arrays.asList("idGenreFK"), Arrays.asList("id")));
+        _foreignKeysGenre.add(new TableInfo.ForeignKey("movies", "CASCADE", "NO ACTION", Arrays.asList("id_genre_fk"), Arrays.asList("id")));
         final HashSet<TableInfo.Index> _indicesGenre = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoGenre = new TableInfo("Genre", _columnsGenre, _foreignKeysGenre, _indicesGenre);
         final TableInfo _existingGenre = TableInfo.read(db, "Genre");
@@ -126,7 +129,7 @@ public final class RoomDB_Impl extends RoomDB {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "45f9c2d37de73af1f7220ed136d670d2", "5fe2181bb236bb1243d22208ac583925");
+    }, "327b15e87823d2288281b9808084ce0c", "dc9d84be980b5c319c0c6548bedbf85a");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -137,7 +140,7 @@ public final class RoomDB_Impl extends RoomDB {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "favorite_movie","Genre");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "movies","Genre");
   }
 
   @Override
@@ -153,7 +156,7 @@ public final class RoomDB_Impl extends RoomDB {
       if (_supportsDeferForeignKeys) {
         _db.execSQL("PRAGMA defer_foreign_keys = TRUE");
       }
-      _db.execSQL("DELETE FROM `favorite_movie`");
+      _db.execSQL("DELETE FROM `movies`");
       _db.execSQL("DELETE FROM `Genre`");
       super.setTransactionSuccessful();
     } finally {

@@ -82,7 +82,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         setupContentRV()
         setupObservers()
-        setupSearchViewListeners()
+        setupListeners()
         checkToolBar()
         viewModel.getMoviesFromApi()
         initSpeedDial(savedInstanceState == null)
@@ -107,7 +107,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
         }
     }
 
-    private fun setupSearchViewListeners() {
+    private fun setupListeners() {
 
         val icon =
             binding.homeSearchView.findViewById<ImageView>(androidx.appcompat.R.id.search_button)
@@ -211,8 +211,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     viewModel.getMoviesFromApi()
                 }
 
-
-
                 viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
                     if (state) {
                         if (dy > 0) {
@@ -241,7 +239,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
             }
         }
-
 
         binding.recyclerviewContent.apply {
             addOnScrollListener(onScrollListener)
@@ -379,12 +376,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
             override fun onMainActionSelected(): Boolean {
-                Toast.makeText(requireContext(), "sdfsdfs", Toast.LENGTH_SHORT).show()
                 return false  // True to keep the Speed Dial open
             }
 
             override fun onToggleChanged(isOpen: Boolean) {
-                Log.d("mytag", "Speed dial toggle state changed. Open = $isOpen")
             }
         })
 

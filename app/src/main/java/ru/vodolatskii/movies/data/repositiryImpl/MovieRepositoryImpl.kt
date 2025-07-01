@@ -1,22 +1,19 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
-import android.content.ContentValues
 import android.content.SharedPreferences
-import android.database.Cursor
-import android.util.Log
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.data.SQLDatabaseHelper
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
-import ru.vodolatskii.movies.data.entity.dto.ErrorResponseDto
-import ru.vodolatskii.movies.data.entity.dto.toMovieList
+import ru.vodolatskii.movies.data.entity.convertEntityToModel
+import ru.vodolatskii.movies.data.service.BaseError
+import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,21 +25,66 @@ class MovieRepositoryImpl @Inject constructor(
     private val kpApiService: KPApiService,
     private val tmdbApiService: TmdbApiService,
     private val preferences: PreferenceProvider,
-    private val sqlDatabaseHelper: SQLDatabaseHelper
 
-) : MovieRepository {
-    private val sqlDb = sqlDatabaseHelper.readableDatabase
-    private lateinit var cursor: Cursor
+    ) : MovieRepository {
 
-    private fun getTimeStump(dateInt: Int): Long {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        val date = dateFormat.parse("$dateInt-01-01")
-        val calendar = Calendar.getInstance()
-        date?.let { calendar.setTime(it) }
-        return calendar.timeInMillis
+
+    override suspend fun getMovieResponseFromKPApi(
+        page: Int,
+    ): BaseResponse<List<Movie>, BaseError> {
+        val response = kpApiService.getSearchResponse(
+            page = page,
+            limit = App.instance.loadPopularMoviesLimit,
+            ratingKp = "1-10",
+            notNullFields = listOf(
+                "id",
+                "name",
+                "description",
+                "poster.url",
+                "premiere.world",
+                "genres.name",
+                "year",
+                "rating.imdb",
+            )
+        )
+
+        val body = response.body()
+
+        if (response.code() == 200 && body != null) {
+            return BaseResponse.Success(body.toMovieList())
+        } else {
+            val errorResp: BaseError = Gson().fromJson(
+                response.errorBody()?.charStream(),
+                BaseError::class.java
+            )
+            return BaseResponse.Error(errorResp)
+        }
     }
 
-    override fun putMovieToDbWithSettings(movie: Movie) {
+
+    override suspend fun getMovieResponseFromTMDBApi(
+        page: Int,
+    ): BaseResponse<List<Movie>, BaseError> {
+        val response = tmdbApiService.getMovie(
+            category = getDefaultCategoryFromPreferences(),
+            page = page,
+            language = getRequestLanguageFromPreferences(),
+        )
+        val body = response.body()
+
+        if (response.code() == 200 && body != null) {
+            return BaseResponse.Success(body.toMovieList())
+        } else {
+            val errorResp: BaseError = Gson().fromJson(
+                response.errorBody()?.charStream(),
+                BaseError::class.java
+            )
+            return BaseResponse.Error(errorResp)
+        }
+    }
+
+
+    override suspend fun putMovieToDbWithSettings(movie: Movie) {
         if (getMovieSavingMode()) {
             putMovieToDB(movie)
         } else if (
@@ -53,135 +95,30 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun putMovieToDB(movie: Movie) {
-        var movieId = -1L
-        sqlDb.beginTransaction()
-        try {
-            val cv = ContentValues()
-            cv.apply {
-                put(SQLDatabaseHelper.COLUMN_TITLE, movie.title)
-                put(SQLDatabaseHelper.COLUMN_POSTER, movie.posterUrl)
-                put(SQLDatabaseHelper.COLUMN_DESCRIPTION, movie.description)
-                put(SQLDatabaseHelper.COLUMN_RATING, movie.rating)
-                put(SQLDatabaseHelper.COLUMN_RELEASE_DATE, movie.releaseDate)
-                put(SQLDatabaseHelper.COLUMN_TIME_STUMP, movie.releaseDateTimeStump)
-                put(SQLDatabaseHelper.COLUMN_YEAR, movie.releaseDateYear)
-            }
-            movieId = sqlDb.insert(SQLDatabaseHelper.TABLE_NAME, null, cv)
-
-            val cvGenre = ContentValues()
-            movie.genreList.forEach {
-                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE_ID_FK, movieId)
-                cvGenre.put(SQLDatabaseHelper.COLUMN_GENRE, it)
-                sqlDb.insertOrThrow(SQLDatabaseHelper.TABLE_GENRE_NAME, null, cvGenre)
-            }
-
-            sqlDb.setTransactionSuccessful()
-        } catch (e: Exception) {
-
-        } finally {
-            sqlDb.endTransaction()
-        }
+    override suspend fun putMoviesToDB(movies: List<Movie>) {
+        movieDao.insertMovies(movies)
     }
 
-    override fun getAllFromDB(): List<Movie> {
-        cursor = sqlDb.rawQuery(
-            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON ${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id",
-            null
-        )
-        val result = mutableListOf<Movie>()
-        if (cursor.moveToFirst()) {
-            do {
-                val _title = cursor.getString(1)
-                val posterUrl = cursor.getString(2)
-                val description = cursor.getString(3)
-                val releaseDate = cursor.getString(4)
-                val timeStump = cursor.getLong(5)
-                val year = cursor.getInt(6)
-                val _rating = cursor.getDouble(7)
-                val genre = cursor.getInt(8)
-
-                result.add(
-                    Movie(
-                        posterUrl = posterUrl,
-                        rating = _rating,
-                        releaseDate = releaseDate,
-                        isFavorite = false,
-                        title = _title,
-                        description = description,
-                        releaseDateTimeStump = timeStump,
-                        releaseDateYear = year,
-                        genreList = listOf(genre)
-                    )
-                )
-            } while (cursor.moveToNext())
-        }
-        return flatJoinQueryResult(result)
+    override suspend fun putMovieToDB(movie: Movie) {
+        movieDao.insertMovie(movie)
     }
 
-    private fun flatJoinQueryResult(result: List<Movie>): List<Movie> {
-        val resultList = mutableListOf<Movie>()
-        val res = result.groupBy {
-            it.title
-        }
-        for (entry in res) {
-            val values = entry.value
-            val l = values.flatMap {
-                it.genreList
-            }
-            val movie = values[0]
-            movie.genreList = l
-            resultList.add(movie)
-        }
-        return resultList
+    override suspend fun getAllMoviesFromDB(): List<Movie> {
+        return movieDao.getAllMovies().map { it.convertEntityToModel() }
     }
 
-    override fun getAllFromDBByFilter(
+    override suspend fun getMoviesByFilter(
         rating: Double,
         date: Int,
         title: String,
         genres: List<Int>
     ): List<Movie> {
-        cursor = sqlDb.rawQuery(
-            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
-                    " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
-                    "${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id WHERE ($rating = 0.0 OR " +
-                    "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
-                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
-        )
-
-        val result = mutableListOf<Movie>()
-        if (cursor.moveToFirst()) {
-            do {
-                val _title = cursor.getString(1)
-                val posterUrl = cursor.getString(2)
-                val description = cursor.getString(3)
-                val releaseDate = cursor.getString(4)
-                val timeStump = cursor.getLong(5)
-                val year = cursor.getInt(6)
-                val _rating = cursor.getDouble(7)
-                val genre = cursor.getInt(8)
-
-                result.add(
-                    Movie(
-                        posterUrl = posterUrl,
-                        rating = _rating,
-                        releaseDate = releaseDate,
-                        isFavorite = false,
-                        title = _title,
-                        description = description,
-                        releaseDateTimeStump = timeStump,
-                        releaseDateYear = year,
-                        genreList = listOf(genre),
-                    )
-                )
-            } while (cursor.moveToNext())
+        val result = movieDao.getMoviesByRatingByYear(rating, date).map {
+            it.convertEntityToModel()
         }
 
-        val flatResult = flatJoinQueryResult(result)
-
         if (genres.isNotEmpty()) {
-            val genreFilteredList = flatResult.filter {
+            val genreFilteredList = result.filter {
                 val intersection = genres.intersect(it.genreList.toSet())
                 genres.containsAll(it.genreList) || intersection.isNotEmpty()
             }
@@ -193,86 +130,31 @@ class MovieRepositoryImpl @Inject constructor(
             } else return genreFilteredList
 
         } else if (title != "") {
-
-            val titleFilteredList = flatResult.filter {
+            val titleFilteredList = result.filter {
                 it.title.lowercase().contains(title.lowercase())
             }
             return titleFilteredList
-        } else return flatResult
+        } else return result
     }
 
     override fun deleteAllFromDB() {
-        sqlDb.execSQL("DELETE FROM ${SQLDatabaseHelper.TABLE_NAME}")
+        movieDao.getAllMovies()
     }
 
-    override fun getMovieCount(): Int {
-        var count = 0
-        val cursor = sqlDb.rawQuery("SELECT COUNT(*) FROM ${SQLDatabaseHelper.TABLE_NAME}", null)
-        cursor.use {
-            if (it.moveToFirst()) {
-                count = it.getInt(0)
-            }
-        }
-        return count
+    override  fun getMovieCount(): Int {
+        return movieDao.getCountMovies()
     }
 
-
-    override suspend fun getMovieResponseFromKPApi(
-        page: Int,
-        callback: MoviesViewModel.ApiCallback
-    ) {
-        val resp = kpApiService.getSearchResponse(
-            page = page,
-            limit = App.instance.loadPopularMoviesLimit,
-            selectFields = listOf("id", "name", "description", "poster"),
-            notNullFields = listOf("name", "poster.url")
-        )
-        val body = resp.body()
-
-        if (resp.code() == 200 && body != null) {
-            callback.onSuccess(body.toMovieList())
-        } else {
-
-            val errorResp: ErrorResponseDto = Gson().fromJson(
-                resp.errorBody()?.charStream(),
-                ErrorResponseDto::class.java
-            )
-            callback.onFailure(errorResp)
-        }
-    }
-
-    override suspend fun getMovieResponseFromTMDBApi(
-        page: Int,
-        callback: MoviesViewModel.ApiCallback
-    ) {
-        val response = tmdbApiService.getSearchResponse(
-            category = getDefaultCategoryFromPreferences(),
-            page = page,
-            language = getRequestLanguageFromPreferences(),
-        )
-        val body = response.body()
-
-        if (response.code() == 200 && body != null) {
-            callback.onSuccess(body.toMovieList())
-        } else {
-            val errorResp: ErrorResponseDto = Gson().fromJson(
-                response.errorBody()?.charStream(),
-                ErrorResponseDto::class.java
-            )
-            callback.onFailure(errorResp)
-        }
-    }
-
-    override suspend fun insertMovieToFavorites(movie: Movie) {
-        movieDao.insertMovieWithGenre(movie)
+    override suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String){
+        movieDao.updateMovieToFavorite(isFavorite, title)
     }
 
     override suspend fun deleteMovieFromFavorites(movie: Movie) {
-        movieDao.deleteFavoriteMovie(movie)
+        movieDao.deleteMovie(movie)
     }
 
     override suspend fun getAllMoviesFromFavorites(): List<MovieWithGenre>? {
-        return movieDao.getAllMovieFromFavorite()
+        return movieDao.getFavoriteMovies()
     }
 
 
@@ -314,4 +196,17 @@ class MovieRepositoryImpl @Inject constructor(
     override fun getPreference(): SharedPreferences {
         return preferences.getInstance()
     }
+
+    private fun getTimeStump(dateInt: Int): Long {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val date = dateFormat.parse("$dateInt-01-01")
+        val calendar = Calendar.getInstance()
+        date?.let { calendar.setTime(it) }
+        return calendar.timeInMillis
+    }
 }
+
+
+//https://api.kinopoisk.dev/v1.4/movie?page=1&limit=5&selectFields=premiere&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&selectFields=enName&notNullFields=premiere.world&notNullFields=name&notNullFields=enName&notNullFields=description&notNullFields=year&notNullFields=rating.kp&notNullFields=poster.url&notNullFields=id&notNullFields=premiere.world
+//
+//https://api.kinopoisk.dev/v1.4/movie/?page=1&limit=30&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=premiere&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&notNullFields=id&notNullFields=name&notNullFields=description&notNullFields=premiere.world&notNullFields=genres&notNullFields=year&notNullFields=rating.kp&notNullFields=persons&notNullFields=poster.url

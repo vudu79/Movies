@@ -8,7 +8,6 @@ import android.widget.ListView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentStorageMenuBinding
 import ru.vodolatskii.movies.presentation.MainActivity
@@ -54,7 +53,7 @@ class StorageMenuFragment : Fragment() {
         setupObservers()
         setupListeners()
         setupListView()
-        viewModel.getMovieCountFromDB()
+        viewModel.getMovieCountInDB()
     }
 
 
@@ -73,7 +72,7 @@ class StorageMenuFragment : Fragment() {
         }
 
         binding.buttonShowAll.setOnClickListener {
-            viewModel.getMoviesFromStorage()
+            viewModel.getAllMoviesFromDB()
             navController.navigate(R.id.storageRVFragment)
         }
 
@@ -93,7 +92,7 @@ class StorageMenuFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.movieCountInDBModeData.observe(viewLifecycleOwner, Observer<Int> {
+        viewModel.movieCountInDBLiveData.observe(viewLifecycleOwner, Observer<Int> {
             binding.textViewMovieCount.text = it.toString()
         })
     }

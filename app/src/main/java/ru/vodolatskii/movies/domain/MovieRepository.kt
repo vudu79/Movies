@@ -2,15 +2,16 @@ package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
+import ru.vodolatskii.movies.data.service.BaseError
+import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 interface MovieRepository {
-    suspend fun getMovieResponseFromKPApi(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponseFromKPApi(page: Int):BaseResponse<List<Movie>, BaseError>
 
-    suspend fun getMovieResponseFromTMDBApi(page: Int, callback: MoviesViewModel.ApiCallback)
+    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
-    suspend fun insertMovieToFavorites(movie: Movie)
+    suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 
@@ -26,9 +27,13 @@ interface MovieRepository {
 
     fun saveRequestLanguageToPreferences(language: String)
 
-    fun putMovieToDbWithSettings(movie: Movie)
+    suspend fun putMovieToDB(movie: Movie)
 
-    fun getAllFromDB(): List<Movie>
+    suspend fun putMoviesToDB(movies: List<Movie>)
+
+    suspend fun putMovieToDbWithSettings(movie: Movie)
+
+    suspend fun getAllMoviesFromDB(): List<Movie>
 
     fun getContentSourceFromPreferences(): String?
 
@@ -48,7 +53,12 @@ interface MovieRepository {
 
     fun deleteAllFromDB()
 
-    fun getMovieCount():Int
+     fun getMovieCount(): Int
 
-    fun getAllFromDBByFilter(rating: Double, date: Int, title: String, genres: List<Int>): List<Movie>
+    suspend fun getMoviesByFilter(
+        rating: Double,
+        date: Int,
+        title: String,
+        genres: List<Int>
+    ): List<Movie>
 }

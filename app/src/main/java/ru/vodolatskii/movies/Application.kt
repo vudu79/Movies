@@ -10,7 +10,7 @@ import timber.log.Timber
 class App : Application() {
 
     lateinit var dagger: AppComponent
-    var loadPopularMoviesLimit: Int = 30
+    var loadPopularMoviesLimit: Int = 50
     var isFirstLaunch = true
 
     override fun onCreate() {

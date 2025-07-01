@@ -6,7 +6,7 @@ import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.vodolatskii.movies.common.Constant
-import ru.vodolatskii.movies.data.entity.dto.TMDBPopularMoviesRespDto
+import ru.vodolatskii.movies.data.dto.TMDBPopularMoviesRespDto
 
 interface TmdbApiService {
     @Headers(
@@ -14,7 +14,7 @@ interface TmdbApiService {
         "accept: application/json"
     )
     @GET("3/movie/{category}")
-    suspend fun getSearchResponse(
+    suspend fun getMovie(
         @Path("category") category: String,
         @Query("page") page: Int,
         @Query("language") language: String,
