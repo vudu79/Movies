@@ -47,8 +47,6 @@ class ContentAdapter(
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
     fun setData(movies: List<Movie>) {
-//        Log.d("mytag", "state --- $movies")
-
         val list = movies.toMutableList()
         asyncListDiffer.submitList(list)
     }

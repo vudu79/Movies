@@ -205,7 +205,7 @@ class MoviesViewModel @Inject constructor(
             val fav = repository.getAllMoviesFromFavorites()
 
             if (fav.isNullOrEmpty() || !fav.any { movie.apiId == it.movie.apiId && movie.title == it.movie.title }) {
-                repository.insertMovieToFavorites(movie)
+                repository.updateMovieToFavorite(true, movie.title)
                 cachedFavoriteMovieList.add(movie)
 
                 cachedMovieList =
@@ -226,7 +226,7 @@ class MoviesViewModel @Inject constructor(
 
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteMovieFromFavorites(movie)
+            repository.updateMovieToFavorite(false,movie.title)
             cachedFavoriteMovieList =
                 cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                     .toMutableList()
@@ -250,6 +250,7 @@ class MoviesViewModel @Inject constructor(
                 val sortedList = cachedMovieList.sortedBy {
                     it.title
                 }
+                _homeState.value = UIStateHome.Success(emptyList())
                 _homeState.value = UIStateHome.Success(sortedList)
             }
 
@@ -257,6 +258,7 @@ class MoviesViewModel @Inject constructor(
                 val sortedList = cachedMovieList.sortedBy {
                     it.releaseDateTimeStump
                 }
+                _homeState.value = UIStateHome.Success(emptyList())
                 _homeState.value = UIStateHome.Success(sortedList)
             }
 
@@ -264,6 +266,7 @@ class MoviesViewModel @Inject constructor(
                 val sortedList = cachedMovieList.sortedBy {
                     it.rating
                 }.reversed()
+                _homeState.value = UIStateHome.Success(emptyList())
                 _homeState.value = UIStateHome.Success(sortedList)
             }
         }

@@ -36,17 +36,6 @@ class MovieRepositoryImpl @Inject constructor(
             page = page,
             limit = App.instance.loadPopularMoviesLimit,
             ratingKp = "1-10",
-            ratingImdb = "1-10",
-            selectFields = listOf(
-                "id",
-                "name",
-                "description",
-                "poster",
-                "premiere",
-                "genres",
-                "year",
-                "rating"
-            ),
             notNullFields = listOf(
                 "id",
                 "name",
@@ -56,7 +45,6 @@ class MovieRepositoryImpl @Inject constructor(
                 "genres.name",
                 "year",
                 "rating.imdb",
-                "rating.imdb"
             )
         )
 
@@ -125,14 +113,6 @@ class MovieRepositoryImpl @Inject constructor(
         title: String,
         genres: List<Int>
     ): List<Movie> {
-
-//        cursor = sqlDb.rawQuery(
-//            "SELECT ${SQLDatabaseHelper.TABLE_NAME}.*, ${SQLDatabaseHelper.TABLE_GENRE_NAME}.genre FROM" +
-//                    " ${SQLDatabaseHelper.TABLE_NAME} JOIN ${SQLDatabaseHelper.TABLE_GENRE_NAME} ON " +
-//                    "${SQLDatabaseHelper.TABLE_GENRE_NAME}.id_genre_fk = ${SQLDatabaseHelper.TABLE_NAME}.id WHERE ($rating = 0.0 OR " +
-//                    "${SQLDatabaseHelper.COLUMN_RATING} >= $rating) AND " +
-//                    "($date = 0 OR ${SQLDatabaseHelper.COLUMN_YEAR} = $date)", null
-//        )
         val result = movieDao.getMoviesByRatingByYear(rating, date).map {
             it.convertEntityToModel()
         }
@@ -165,8 +145,8 @@ class MovieRepositoryImpl @Inject constructor(
         return movieDao.getCountMovies()
     }
 
-    override suspend fun insertMovieToFavorites(movie: Movie) {
-        movieDao.insertMovie(movie)
+    override suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String){
+        movieDao.updateMovieToFavorite(isFavorite, title)
     }
 
     override suspend fun deleteMovieFromFavorites(movie: Movie) {

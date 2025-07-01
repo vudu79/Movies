@@ -11,7 +11,7 @@ interface MovieRepository {
 
     suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
-    suspend fun insertMovieToFavorites(movie: Movie)
+    suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 

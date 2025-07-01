@@ -17,8 +17,8 @@ interface KPApiService {
         @Query("page") page: Int,
         @Query("limit") limit: Int,
         @Query("rating.kp") ratingKp: String,
-        @Query("rating.imdb") ratingImdb: String,
-        @Query("selectFields") selectFields: List<String>,
+//        @Query("rating.imdb") ratingImdb: String,
+//        @Query("selectFields") selectFields: List<String>,
         @Query("notNullFields") notNullFields: List<String>
     ): Response<ShortDocsResponseDto>
 }
