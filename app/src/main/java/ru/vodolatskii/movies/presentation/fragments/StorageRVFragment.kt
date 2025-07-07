@@ -32,6 +32,7 @@ class StorageRVFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,7 +47,6 @@ class StorageRVFragment : Fragment() {
 //        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
         setupStorageRV()
         setupObservers()
-//        viewModel.getFavoriteMovies()
     }
 
 //    private fun checkToolBar(){
@@ -112,7 +112,6 @@ class StorageRVFragment : Fragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.storageState.collect { uiState ->
-//                    Log.d("mytag", "state --- $uiState")
                     when (uiState) {
                         is UIStateStorage.Success -> {
                             val mutableMoviesList = uiState.listMovie.toMutableList()
@@ -138,7 +137,12 @@ class StorageRVFragment : Fragment() {
     private fun setupStorageRV() {
         binding.recyclerViewStorage.apply {
             storageAdapter = ContentAdapter(
-                onItemClick = { movie, view -> (activity as MainActivity).launchDetailsFragment(movie, view) },
+                onItemClick = { movie, view ->
+                    (activity as MainActivity).launchDetailsFragment(
+                        movie,
+                        view
+                    )
+                },
                 onMoveToFavorite = {},
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = {},

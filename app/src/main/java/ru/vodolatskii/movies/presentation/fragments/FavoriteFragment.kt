@@ -22,7 +22,7 @@ import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIStateHome
+import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
@@ -126,17 +126,17 @@ class FavoriteFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.favoriteState.collect { uiState ->
                     when (uiState) {
-                        is UIStateHome.Success -> {
+                        is UIState.Success -> {
                             val mutableMoviesList = uiState.listMovie
                             setFavoriteViewsVisibility(uiState)
-                            favoriteAdapter.setData(mutableMoviesList ?: emptyList())
+//                            favoriteAdapter.setData(mutableMoviesList ?: emptyList())
                         }
 
-                        is UIStateHome.Error -> {
+                        is UIState.Error -> {
                             setFavoriteViewsVisibility(uiState)
                         }
 
-                        is UIStateHome.Loading -> {
+                        is UIState.Loading -> {
                             setFavoriteViewsVisibility(uiState)
                         }
                     }
@@ -217,19 +217,19 @@ class FavoriteFragment : Fragment() {
     }
 
 
-    private fun setFavoriteViewsVisibility(state: UIStateHome) {
+    private fun setFavoriteViewsVisibility(state: UIState) {
         when (state) {
-            is UIStateHome.Success -> {
+            is UIState.Success -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            is UIStateHome.Error -> {
+            is UIState.Error -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            UIStateHome.Loading -> {
+            UIState.Loading -> {
                 binding.progressCircularFav.visibility = View.VISIBLE
                 binding.recyclerViewFav.visibility = View.GONE
             }

@@ -3,6 +3,7 @@ package ru.vodolatskii.movies.presentation.viewmodels
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,17 +11,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.presentation.utils.SortEvents
-import ru.vodolatskii.movies.data.entity.convertEntityToModel
-import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.DataModel
+import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
+import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
-import ru.vodolatskii.movies.presentation.utils.UIStateHome
+import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import javax.inject.Inject
 
@@ -43,16 +42,17 @@ class MoviesViewModel @Inject constructor(
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
-    private val _homeState = MutableStateFlow<UIStateHome>(UIStateHome.Loading)
-    val homeState: StateFlow<UIStateHome> = _homeState
+//    private val _homeState = MutableStateFlow<UIState>(UIState.Loading)
+//    val homeState: StateFlow<UIState> = _homeState
 
     private val _storageState = MutableStateFlow<UIStateStorage>(UIStateStorage.Loading)
     val storageState: StateFlow<UIStateStorage> = _storageState
 
-    private val _favoriteState = MutableStateFlow<UIStateHome>(UIStateHome.Loading)
-    val favoriteState: StateFlow<UIStateHome> = _favoriteState
+    private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
+    val favoriteState: StateFlow<UIState> = _favoriteState
 
-    var cachedMovieList: LiveData<List<Movie>> = MutableLiveData()
+//    var cachedMovieList: LiveData<List<Movie>> = MutableLiveData()
+//    val cachedMovieList1: LiveData<List<MovieWithGenre>>
 
     var cachedFavoriteMovieList: MutableList<Movie> = mutableListOf()
         private set
@@ -63,57 +63,77 @@ class MoviesViewModel @Inject constructor(
     var pageCount = 1
         private set
 
+    private val _isContentSourceApi = MutableLiveData<Boolean>(true)
+    val isContentSourceApi: LiveData<Boolean> = _isContentSourceApi
+
+    var cachedMovieList: LiveData<List<Movie>>
+        private set
+
+    private val _apiMovieList = MutableLiveData<List<Movie>>()
+    val apiMovieList: LiveData<List<Movie>> = _apiMovieList
+
+    private val _computedUIState = MediatorLiveData<UIState>()
+    val computedUIState: LiveData<UIState> = _computedUIState
+
+    var messageSingleLiveEvent = SingleLiveEvent<String>()
+        private set
+
     init {
         setupSettings()
+        cachedMovieList = repository.getAllMoviesFromDB()
 
-        viewModelScope.launch(Dispatchers.IO) {
-            cachedMovieList = repository.getAllMoviesFromDB()
+        _computedUIState.addSource(cachedMovieList) { cache ->
+            val pair = Pair(cache ?: emptyList(), apiMovieList.value ?: emptyList())
+            _computedUIState.value = setupUIState(pair, isContentSourceApi.value!!)
         }
+
+        _computedUIState.addSource(apiMovieList) { api ->
+            val pair = Pair(cachedMovieList.value ?: emptyList(), api ?: emptyList())
+            _computedUIState.value = setupUIState(pair, isContentSourceApi.value!!)
+        }
+
+        _computedUIState.addSource(isContentSourceApi) { trigger ->
+            val pair = Pair(cachedMovieList.value ?: emptyList(), apiMovieList.value ?: emptyList())
+            _computedUIState.value = setupUIState(pair, trigger)
+        }
+//        _computedUIState.postValue(UIState.Loading)
     }
 
+    private fun setupUIState(pair: Pair<List<Movie>, List<Movie>>, isSourceApi: Boolean): UIState {
+        if (isSourceApi && pair.second.isEmpty()) return UIState.Loading
+        return UIState.Success(pair, isSourceApi)
+    }
+
+    fun switchContentSource(value: Boolean) {
+        _isContentSourceApi.postValue(value)
+    }
 
     fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("mytag", " llll --- ${ cachedMovieList.value}")
+            _isContentSourceApi.postValue(true)
             try {
-                _homeState.value = UIStateHome.Loading
-
-                if (!loadedPages.contains(pageCount) || cachedMovieList.value.isNullOrEmpty()) {
+                if (!loadedPages.contains(pageCount) || apiMovieList.value.isNullOrEmpty()) {
+                    _computedUIState.postValue(UIState.Loading)
 
                     when (val response = repository.getMovieResponseFromKPApi(page = pageCount)) {
                         is BaseResponse.Success -> {
-                            Log.d("mytag", " llll --- ${ response.body}")
-
+                            _apiMovieList.postValue(response.body)
                             repository.putMoviesToDB(response.body)
-//                            cachedMovieList.addAll(response.body)
-                            _homeState.value = UIStateHome.Success(response.body)
                             loadedPages.add(pageCount)
+                            messageSingleLiveEvent.postValue("Success loading data!")
                         }
 
                         is BaseResponse.Error -> {
-                            if (getMovieCountInDB() == 0) {
-                                _homeState.value =
-                                    UIStateHome.Error(resourceProvider.getString(R.string.request_error))
-                            } else {
-                                _homeState.value = UIStateHome.Loading
-//                                loadMoviesFromStorageInOffLine()
-                            }
+                            _isContentSourceApi.postValue(false)
+                            messageSingleLiveEvent.postValue("Server error - ${response.massage}")
+//                            messageSingleLiveEvent.postValue("Data loaded from memory card")
                         }
                     }
-                } else if (!cachedMovieList.value.isNullOrEmpty()) {
-                    _homeState.value = UIStateHome.Success(cachedMovieList.value)
                 }
-
             } catch (e: Exception) {
-                Log.d("mytag", "exrrr -- $e")
-                e.printStackTrace()
-                if (getMovieCountInDB() == 0) {
-                    _homeState.value =
-                        UIStateHome.Error(resourceProvider.getString(R.string.request_error))
-                } else {
-                    _homeState.value = UIStateHome.Loading
-//                    loadMoviesFromStorageInOffLine()
-                }
+                _isContentSourceApi.postValue(false)
+                messageSingleLiveEvent.postValue("Server error - ${e}")
+//                messageSingleLiveEvent.postValue("Data loaded from memory card")
             }
         }
     }
@@ -128,17 +148,17 @@ class MoviesViewModel @Inject constructor(
 //    }
 
 
-//    fun getAllMoviesFromDB() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            _storageState.value = UIStateStorage.Loading
-//            val moviesFromStorage = repository.getAllMoviesFromDB()
-//            if (moviesFromStorage.isNotEmpty()) {
-//                _storageState.value = UIStateStorage.Success(listMovie = moviesFromStorage)
-//            } else {
-//                _storageState.value = UIStateStorage.Error("Content not found!")
-//            }
-//        }
-//    }
+    fun getAllMoviesForStorageFragment() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _storageState.value = UIStateStorage.Loading
+            if (!cachedMovieList.value.isNullOrEmpty()) {
+                _storageState.value =
+                    UIStateStorage.Success(listMovie = cachedMovieList.value ?: emptyList())
+            } else {
+                _storageState.value = UIStateStorage.Error("Content not found!")
+            }
+        }
+    }
 
 
     fun onStorageSearchEvent(events: StorageSearchEvent) {
@@ -153,7 +173,7 @@ class MoviesViewModel @Inject constructor(
                 val genres = events.genres
 
                 if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
-                    result = repository.getAllMoviesFromDB().value
+                    result = cachedMovieList.value
                     if (result.isNullOrEmpty()) {
                         _storageState.value = UIStateStorage.Error("Content not found!")
                     } else {
@@ -183,58 +203,58 @@ class MoviesViewModel @Inject constructor(
 
 
     fun getFavoriteMovies() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _favoriteState.value = UIStateHome.Loading
-
-                if (cachedFavoriteMovieList.isEmpty()) {
-                    repository.getAllMoviesFromFavorites()?.let { movieWithGenreList ->
-                        cachedFavoriteMovieList =
-                            movieWithGenreList.map { it.convertEntityToModel() }.toMutableList()
-
-                        _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
-                    } ?: let {
-                        _favoriteState.value = UIStateHome.Error("В избранном пока ничего нет")
-                    }
-                } else {
-                    _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
-                }
-
-            } catch (e: Exception) {
-                _favoriteState.value = UIStateHome.Error("Ошибка запроса в базу - $e")
-            }
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                _favoriteState.value = UIState.Loading
+//
+//                if (cachedFavoriteMovieList.isEmpty()) {
+//                    repository.getAllMoviesFromFavorites()?.let { movieWithGenreList ->
+//                        cachedFavoriteMovieList =
+//                            movieWithGenreList.map { it.convertEntityToModel() }.toMutableList()
+//
+//                        _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+//                    } ?: let {
+//                        _favoriteState.value = UIState.Error("В избранном пока ничего нет")
+//                    }
+//                } else {
+//                    _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+//                }
+//
+//            } catch (e: Exception) {
+//                _favoriteState.value = UIState.Error("Ошибка запроса в базу - $e")
+//            }
+//        }
     }
 
 
     fun addMovieToFavorite(movie: Movie) {
-        viewModelScope.launch(Dispatchers.IO) {
-
-            val fav = repository.getAllMoviesFromFavorites()
-
-            if (fav.isNullOrEmpty() || !fav.any { movie.apiId == it.movie.apiId && movie.title == it.movie.title }) {
-                repository.updateMovieToFavorite(true, movie.title)
-                cachedFavoriteMovieList.add(movie)
-
-//                cachedMovieList =
-//                    cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-//                        .toMutableList()
-
-//                _homeState.value = UIStateHome.Success(cachedMovieList)
-                _favoriteState.value = UIStateHome.Success(cachedFavoriteMovieList)
-            }
-
-//            cachedMovieList =
-//                cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-//                    .toMutableList()
-//            _homeState.value = UIStateHome.Success(cachedMovieList)
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//
+//            val fav = repository.getAllMoviesFromFavorites()
+//
+//            if (fav.isNullOrEmpty() || !fav.any { movie.apiId == it.movie.apiId && movie.title == it.movie.title }) {
+//                repository.updateMovieToFavorite(true, movie.title)
+//                cachedFavoriteMovieList.add(movie)
+//
+////                cachedMovieList =
+////                    cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
+////                        .toMutableList()
+//
+////                _homeState.value = UIStateHome.Success(cachedMovieList)
+//                _favoriteState.value = UIState.Success(cachedFavoriteMovieList)
+//            }
+//
+////            cachedMovieList =
+////                cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
+////                    .toMutableList()
+////            _homeState.value = UIStateHome.Success(cachedMovieList)
+//        }
     }
 
 
     fun deleteMovieFromFavorite(movie: Movie) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateMovieToFavorite(false,movie.title)
+            repository.updateMovieToFavorite(false, movie.title)
 //            cachedFavoriteMovieList =
 //                cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
 //                    .toMutableList()
@@ -253,29 +273,28 @@ class MoviesViewModel @Inject constructor(
 //    }
 
     fun onSortRVEvents(event: SortEvents) {
-        when (event) {
-            SortEvents.ALPHABET -> {
-                val sortedList = cachedMovieList.value?.sortedBy {
-                    it.title
-                } ?: emptyList()
-                _homeState.value = UIStateHome.Success(sortedList)
-            }
-
-            SortEvents.DATE -> {
-                val sortedList = cachedMovieList.value?.sortedBy {
-                    it.releaseDateTimeStump
-                } ?: emptyList()
-                _homeState.value = UIStateHome.Success(sortedList)
-            }
-
-            SortEvents.RATING -> {
-                val sortedList = cachedMovieList.value?.sortedBy {
-                    it.rating
-                }?.reversed() ?: emptyList()
-                _homeState.value = UIStateHome.Success(emptyList())
-                _homeState.value = UIStateHome.Success(sortedList)
-            }
-        }
+//        when (event) {
+//            SortEvents.ALPHABET -> {
+//                val sortedList = cachedMovieList.value?.sortedBy {
+//                    it.title
+//                } ?: emptyList()
+//                _computedUIState.value = UIState.Success(sortedList)
+//            }
+//
+//            SortEvents.DATE -> {
+//                val sortedList = cachedMovieList.value?.sortedBy {
+//                    it.releaseDateTimeStump
+//                } ?: emptyList()
+//                _computedUIState.value = UIState.Success(sortedList)
+//            }
+//
+//            SortEvents.RATING -> {
+//                val sortedList = cachedMovieList.value?.sortedBy {
+//                    it.rating
+//                }?.reversed() ?: emptyList()
+//                _computedUIState.value = UIState.Success(sortedList)
+//            }
+//        }
     }
 
 

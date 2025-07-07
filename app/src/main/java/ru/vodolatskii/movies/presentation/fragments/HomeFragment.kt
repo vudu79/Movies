@@ -31,7 +31,7 @@ import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIStateHome
+import ru.vodolatskii.movies.presentation.utils.UIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
@@ -51,6 +51,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     private lateinit var binding: FragmentHomeBinding
     lateinit var contentAdapter: ContentAdapter
+    private var isContentSourceApi: Boolean = true
     private lateinit var viewModel: MoviesViewModel
 
 //    init {
@@ -84,9 +85,9 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupListeners()
         checkToolBar()
+        viewModel.switchContentSource(true)
         viewModel.getMoviesFromApi()
         initSpeedDial(savedInstanceState == null)
-
     }
 
     private fun checkToolBar() {
@@ -134,52 +135,78 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (newText.isEmpty()) {
-                    contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
-                    return true
+
+                when (val list = viewModel.computedUIState.value) {
+                    is UIState.Success -> {
+//                       if (newText.isEmpty()) {
+//                           contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
+//                           return true
+//                       }
+//                      val res = list.listMovie.filter {
+//                           it.title.toLowerCase(Locale.getDefault())
+//                               .contains(newText.toLowerCase(Locale.getDefault()))
+//                       } ?: emptyList()
+//                       contentAdapter.setData(res)
+                        return true
+                    }
+
+                    is UIState.Error -> TODO()
+                    UIState.Loading -> TODO()
+                    null -> TODO()
                 }
-                val result = viewModel.cachedMovieList.value?.filter {
-                    it.title.toLowerCase(Locale.getDefault())
-                        .contains(newText.toLowerCase(Locale.getDefault()))
-                } ?: emptyList()
-                contentAdapter.setData(result)
-                return true
+
             }
         })
-    }
-
-    private fun setupObservers() {
 
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
             viewModel.clearLoadedPages()
-//            viewModel.clearCachedMovieList()
             viewModel.getMoviesFromApi()
             binding.pullToRefresh.isRefreshing = false
         }
+    }
+
+    private fun setupObservers() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.homeState.collect { uiState ->
+                (activity as MainActivity).viewModel.computedUIState.observe(viewLifecycleOwner) { uiState ->
+
                     when (uiState) {
-                        is UIStateHome.Success -> {
-                            val mutableMoviesList = uiState.listMovie
+                        is UIState.Success -> {
+                            if (uiState.isSourceApe) {
+                                val mutableMoviesList = uiState.listMovie.second
+                                contentAdapter.updateData(mutableMoviesList)
+                            } else {
+                                val mutableMoviesList = uiState.listMovie.first
+                                contentAdapter.setData(mutableMoviesList)
+                            }
                             setHomeViewsVisibility(uiState)
-                            contentAdapter.setData(mutableMoviesList ?: emptyList())
                         }
 
-                        is UIStateHome.Error -> {
+                        is UIState.Error -> {
                             binding.errorTextView.text = uiState.message
                             setHomeViewsVisibility(uiState)
                         }
 
-                        is UIStateHome.Loading -> {
+                        is UIState.Loading -> {
                             setHomeViewsVisibility(uiState)
                         }
                     }
                 }
             }
         }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                (activity as MainActivity).viewModel.messageSingleLiveEvent.observe(
+                    viewLifecycleOwner
+                ) { message ->
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
             binding.homeSearchView.visibility = if (state) View.VISIBLE else View.GONE
         }
@@ -289,21 +316,21 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
 
-    private fun setHomeViewsVisibility(state: UIStateHome) {
+    private fun setHomeViewsVisibility(state: UIState) {
         when (state) {
-            is UIStateHome.Success -> {
+            is UIState.Success -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.VISIBLE
                 binding.errorTextView.visibility = View.GONE
             }
 
-            is UIStateHome.Error -> {
+            is UIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.VISIBLE
             }
 
-            UIStateHome.Loading -> {
+            UIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.GONE

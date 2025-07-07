@@ -53,7 +53,6 @@ class StorageMenuFragment : Fragment() {
         setupObservers()
         setupListeners()
         setupListView()
-        viewModel.getMovieCountInDB()
     }
 
 
@@ -72,7 +71,7 @@ class StorageMenuFragment : Fragment() {
         }
 
         binding.buttonShowAll.setOnClickListener {
-//            viewModel.getAllMoviesFromDB()
+            viewModel.getAllMoviesForStorageFragment()
             navController.navigate(R.id.storageRVFragment)
         }
 
