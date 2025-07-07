@@ -67,19 +67,19 @@ class LaunchActivity : AppCompatActivity() {
             InternetType.WIFI -> {
                 viewModel.putContentSource(SOURCE_INTERNET)
                 Toast.makeText(this, "On Line", Toast.LENGTH_LONG).show()
-                viewModel.getMoviesFromApi()
+//                viewModel.getMoviesFromApi()
             }
 
             InternetType.MOBILE -> {
                 viewModel.putContentSource(SOURCE_INTERNET)
                 Toast.makeText(this, "On Line", Toast.LENGTH_LONG).show()
-                viewModel.getMoviesFromApi()
+//                viewModel.getMoviesFromApi()
             }
 
             InternetType.NONE -> {
                 Toast.makeText(this, "Off Line", Toast.LENGTH_LONG).show()
                 viewModel.putContentSource(SOURCE_STORAGE)
-                viewModel.loadMoviesFromStorageInOffLine()
+//                viewModel.loadMoviesFromStorageInOffLine()
             }
         }
     }

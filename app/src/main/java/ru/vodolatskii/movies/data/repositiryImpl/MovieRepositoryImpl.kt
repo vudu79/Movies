@@ -1,6 +1,10 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.google.gson.Gson
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -28,7 +32,6 @@ class MovieRepositoryImpl @Inject constructor(
 
     ) : MovieRepository {
 
-
     override suspend fun getMovieResponseFromKPApi(
         page: Int,
     ): BaseResponse<List<Movie>, BaseError> {
@@ -36,6 +39,17 @@ class MovieRepositoryImpl @Inject constructor(
             page = page,
             limit = App.instance.loadPopularMoviesLimit,
             ratingKp = "1-10",
+            selectFields = listOf(
+                "id",
+                "name",
+                "description",
+                "poster",
+                "premiere",
+                "genres",
+                "year",
+                "rating"
+            ),
+
             notNullFields = listOf(
                 "id",
                 "name",
@@ -60,7 +74,6 @@ class MovieRepositoryImpl @Inject constructor(
             return BaseResponse.Error(errorResp)
         }
     }
-
 
     override suspend fun getMovieResponseFromTMDBApi(
         page: Int,
@@ -103,8 +116,13 @@ class MovieRepositoryImpl @Inject constructor(
         movieDao.insertMovie(movie)
     }
 
-    override suspend fun getAllMoviesFromDB(): List<Movie> {
-        return movieDao.getAllMovies().map { it.convertEntityToModel() }
+    override fun getAllMoviesFromDB() : LiveData<List<Movie>>{
+        return movieDao.getAllMovies().map {
+            val list = it.map { movie ->
+                movie.convertEntityToModel()
+            }
+            list
+        }
     }
 
     override suspend fun getMoviesByFilter(
@@ -141,11 +159,11 @@ class MovieRepositoryImpl @Inject constructor(
         movieDao.getAllMovies()
     }
 
-    override  fun getMovieCount(): Int {
+    override fun getMovieCount(): Int {
         return movieDao.getCountMovies()
     }
 
-    override suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String){
+    override suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String) {
         movieDao.updateMovieToFavorite(isFavorite, title)
     }
 
