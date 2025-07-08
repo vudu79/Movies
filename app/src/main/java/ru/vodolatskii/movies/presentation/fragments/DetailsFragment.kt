@@ -209,6 +209,8 @@ class DetailsFragment : Fragment() {
     }
 
     private fun requestPermission() {
+        Log.d("mytag", "eee -- $${checkPermission()}")
+
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -264,17 +266,16 @@ class DetailsFragment : Fragment() {
     }
 
     private fun performAsyncLoadOfPoster() {
-        Log.d("mytag", "gggg -- $${checkPermission()}")
-
         //Проверяем есть ли разрешение
-        if (!checkPermission()) {
-
-            //Если нет, то запрашиваем и выходим из метода
-            requestPermission()
-            return
-        }
+//        if (!checkPermission()) {
+//            //Если нет, то запрашиваем и выходим из метода
+//            requestPermission()
+//            return
+//        }
         //Создаем родительский скоуп с диспатчером Main потока, так как будем взаимодействовать с UI
         MainScope().launch {
+            Log.d("mytag", "int -- $${checkPermission()}")
+
             //Включаем Прогресс-бар
             binding.progressBar.isVisible = true
             //Создаем через async, так как нам нужен результат от работы, то есть Bitmap
