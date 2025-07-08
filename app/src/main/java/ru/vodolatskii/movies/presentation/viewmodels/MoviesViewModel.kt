@@ -30,6 +30,7 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+        §
     val listViewDataModelModeData: MutableLiveData<List<DataModel>> = MutableLiveData()
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
