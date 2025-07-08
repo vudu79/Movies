@@ -13,6 +13,12 @@
     <style name="FAB" parent="Widget.Design.FloatingActionButton">
         <item name="android:foreground">@drawable/fab_gradient</item>
         <item name="android:background">@drawable/button_ripple</item>
+        <item name="shapeAppearance">@drawable/rect_fab_twin</item>
+    </style>
+
+    <style name="FABCircle" parent="Widget.Design.FloatingActionButton">
+        <item name="android:foreground">@drawable/fab_gradient</item>
+        <item name="android:background">@drawable/button_ripple</item>
         <item name="shapeAppearance">@drawable/circle_fab_twin</item>
     </style>
 
