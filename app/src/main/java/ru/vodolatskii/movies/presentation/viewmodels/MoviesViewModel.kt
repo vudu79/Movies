@@ -1,6 +1,9 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,7 +24,10 @@ import ru.vodolatskii.movies.presentation.utils.DataModel
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIStateHome
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
+import java.net.URL
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class MoviesViewModel @Inject constructor(
@@ -362,6 +368,15 @@ class MoviesViewModel @Inject constructor(
 
     private fun registerSPListener() {
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
+    }
+
+    suspend fun loadWallpaper(url: String): Bitmap {
+        return suspendCoroutine {
+            Log.d("mytag", "gggg -- $$url")
+            val urL = URL(url)
+            val bitmap = BitmapFactory.decodeStream(urL.openConnection().getInputStream())
+            it.resume(bitmap)
+        }
     }
 
 //    private fun initListViewDataModel() {
