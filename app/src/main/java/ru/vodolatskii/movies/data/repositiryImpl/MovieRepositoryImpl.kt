@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.dto.toMovieList
@@ -116,14 +118,15 @@ class MovieRepositoryImpl @Inject constructor(
         movieDao.insertMovie(movie)
     }
 
-    override fun getAllMoviesFromDB() : LiveData<List<Movie>>{
-        return movieDao.getAllMovies().map {
-            val list = it.map { movie ->
+    override fun getAllMoviesFromDB(): Flow<List<Movie>> {
+        return movieDao.getAllMovies().map { list ->
+            val result = list.map { movie ->
                 movie.convertEntityToModel()
             }
-            list
+            result
         }
     }
+
 
     override suspend fun getMoviesByFilter(
         rating: Double,

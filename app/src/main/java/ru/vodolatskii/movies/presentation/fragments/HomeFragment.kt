@@ -10,7 +10,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -26,17 +25,15 @@ import com.leinardi.android.speeddial.SpeedDialView
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import java.util.Locale
 
 
 private const val ARG_PARAM1 = "param1"
@@ -85,7 +82,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupListeners()
         checkToolBar()
-        viewModel.switchContentSource(true)
         viewModel.getMoviesFromApi()
         initSpeedDial(savedInstanceState == null)
     }
@@ -129,15 +125,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
             false
         }
 
-        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-
-                when (val list = viewModel.computedUIState.value) {
-                    is UIState.Success -> {
+//        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String): Boolean {
+//
+//                when (val list = viewModel.computedUIState.value) {
+//                    is UIState.Success -> {
 //                       if (newText.isEmpty()) {
 //                           contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
 //                           return true
@@ -147,16 +143,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                               .contains(newText.toLowerCase(Locale.getDefault()))
 //                       } ?: emptyList()
 //                       contentAdapter.setData(res)
-                        return true
-                    }
-
-                    is UIState.Error -> TODO()
-                    UIState.Loading -> TODO()
-                    null -> TODO()
-                }
-
-            }
-        })
+//                        return true
+//                    }
+//
+//                    is UIState.Error -> TODO()
+//                    UIState.Loading -> TODO()
+//                }
+//                return true
+//            }
+//        })
 
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
@@ -170,28 +165,22 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.computedUIState.observe(viewLifecycleOwner) { uiState ->
+                (activity as MainActivity).viewModel.homeUIState.collect { uiState ->
 
-                    when (uiState) {
-                        is UIState.Success -> {
-                            if (uiState.isSourceApe) {
-                                val mutableMoviesList = uiState.listMovie.second
-                                contentAdapter.updateData(mutableMoviesList)
-                            } else {
-                                val mutableMoviesList = uiState.listMovie.first
-                                contentAdapter.setData(mutableMoviesList)
-                            }
-                            setHomeViewsVisibility(uiState)
+                    if (!uiState.isLoading && uiState.error == "") {
+                        if (uiState.isSourceApe) {
+                            val mutableMoviesList = uiState.movies.second
+                            contentAdapter.setData(mutableMoviesList)
+                        } else {
+                            val mutableMoviesList = uiState.movies.first
+                            contentAdapter.setData(mutableMoviesList)
                         }
-
-                        is UIState.Error -> {
-                            binding.errorTextView.text = uiState.message
-                            setHomeViewsVisibility(uiState)
-                        }
-
-                        is UIState.Loading -> {
-                            setHomeViewsVisibility(uiState)
-                        }
+                        setHomeViewsVisibility(uiState)
+                    } else if (uiState.isLoading && uiState.error == "") {
+                        setHomeViewsVisibility(uiState)
+                    } else if (uiState.error.isNotBlank()) {
+                        binding.errorTextView.text = uiState.error
+                        setHomeViewsVisibility(uiState)
                     }
                 }
             }
@@ -215,7 +204,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
-            //            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
 //                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -234,7 +222,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                }
 
                 if (!recyclerView.canScrollVertically(1)) {
+                    Log.d("mytag", "scroll")
+
                     viewModel.plusPageCount()
+
                     viewModel.getMoviesFromApi()
                 }
 
@@ -250,8 +241,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 }
             }
-
-
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
                     RecyclerView.SCROLL_STATE_IDLE -> {
@@ -261,7 +250,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
 
                     RecyclerView.SCROLL_STATE_SETTLING -> {
-                        // Прокрутка завершается
+
                     }
                 }
             }
@@ -280,7 +269,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 },
                 onMoveToFavorite = { movie ->
-                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
+//                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
@@ -316,27 +305,22 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
 
-    private fun setHomeViewsVisibility(state: UIState) {
-        when (state) {
-            is UIState.Success -> {
-                binding.progressCircular.visibility = View.GONE
-                binding.recyclerviewContent.visibility = View.VISIBLE
-                binding.errorTextView.visibility = View.GONE
-            }
-
-            is UIState.Error -> {
-                binding.progressCircular.visibility = View.GONE
-                binding.recyclerviewContent.visibility = View.GONE
-                binding.errorTextView.visibility = View.VISIBLE
-            }
-
-            UIState.Loading -> {
-                binding.progressCircular.visibility = View.VISIBLE
-                binding.recyclerviewContent.visibility = View.GONE
-                binding.errorTextView.visibility = View.GONE
-            }
+    private fun setHomeViewsVisibility(state: HomeUIState) {
+        if (state.error == "" && !state.isLoading) {
+            binding.progressCircular.visibility = View.GONE
+            binding.recyclerviewContent.visibility = View.VISIBLE
+            binding.errorTextView.visibility = View.GONE
+        } else if (state.error.isNotBlank()) {
+            binding.progressCircular.visibility = View.GONE
+            binding.recyclerviewContent.visibility = View.GONE
+            binding.errorTextView.visibility = View.VISIBLE
+        } else if (state.isLoading) {
+            binding.progressCircular.visibility = View.VISIBLE
+            binding.recyclerviewContent.visibility = View.GONE
+            binding.errorTextView.visibility = View.GONE
         }
     }
+
 
     companion object {
         @JvmStatic
@@ -413,19 +397,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
         speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.sort_alph -> {
-                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
+//                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true  // false will close it without animation
                 }
 
                 R.id.sort_date -> {
-                    viewModel.onSortRVEvents(SortEvents.DATE)
+//                    viewModel.onSortRVEvents(SortEvents.DATE)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }
 
                 R.id.sort_rating -> {
-                    viewModel.onSortRVEvents(SortEvents.RATING)
+//                    viewModel.onSortRVEvents(SortEvents.RATING)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }

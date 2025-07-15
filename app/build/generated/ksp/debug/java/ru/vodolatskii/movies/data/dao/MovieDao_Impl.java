@@ -3,9 +3,7 @@ package ru.vodolatskii.movies.data.dao;
 import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
-import androidx.lifecycle.LiveData;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
@@ -32,6 +30,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
+import kotlinx.coroutines.flow.Flow;
 import ru.vodolatskii.movies.data.entity.Genre;
 import ru.vodolatskii.movies.data.entity.MovieWithGenre;
 import ru.vodolatskii.movies.data.entity.MovieWithoutGenre;
@@ -218,13 +217,13 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public LiveData<List<MovieWithGenre>> getAllMovies() {
+  public Flow<List<MovieWithGenre>> getAllMovies() {
     final String _sql = "SELECT * FROM movies";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    return __db.getInvalidationTracker().createLiveData(new String[] {"Genre",
-        "movies"}, false, new Callable<List<MovieWithGenre>>() {
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"Genre",
+        "movies"}, new Callable<List<MovieWithGenre>>() {
       @Override
-      @Nullable
+      @NonNull
       public List<MovieWithGenre> call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
         try {

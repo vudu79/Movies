@@ -3,6 +3,7 @@ package ru.vodolatskii.movies.domain
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.Flow
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.service.BaseResponse
@@ -35,7 +36,7 @@ interface MovieRepository {
 
     suspend fun putMovieToDbWithSettings(movie: Movie)
 
-     fun getAllMoviesFromDB(): LiveData<List<Movie>>
+     fun getAllMoviesFromDB(): Flow<List<Movie>>
 
     fun getContentSourceFromPreferences(): String?
 

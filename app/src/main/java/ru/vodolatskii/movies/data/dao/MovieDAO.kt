@@ -1,12 +1,11 @@
 package ru.vodolatskii.movies.data.dao
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import ru.vodolatskii.movies.data.entity.Genre
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
@@ -38,7 +37,7 @@ interface MovieDao {
     }
 
     @Query("SELECT * FROM movies")
-    fun getAllMovies(): LiveData<List<MovieWithGenre>>
+    fun getAllMovies(): Flow<List<MovieWithGenre>>
 
     @Query(
         "SELECT * FROM movies WHERE (:rating = 0.0 OR " +

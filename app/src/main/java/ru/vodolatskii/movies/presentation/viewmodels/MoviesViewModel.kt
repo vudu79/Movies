@@ -5,23 +5,29 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.DataModel
+import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
 import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
 import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import java.net.URL
 import javax.inject.Inject
@@ -35,7 +41,6 @@ class MoviesViewModel @Inject constructor(
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    val listViewDataModelModeData: MutableLiveData<List<DataModel>> = MutableLiveData()
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -44,20 +49,17 @@ class MoviesViewModel @Inject constructor(
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
     val requestLanguageLifeData: MutableLiveData<String> = MutableLiveData()
 
+    var messageSingleLiveEvent = SingleLiveEvent<String>()
+        private set
+
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
-
-//    private val _homeState = MutableStateFlow<UIState>(UIState.Loading)
-//    val homeState: StateFlow<UIState> = _homeState
 
     private val _storageState = MutableStateFlow<UIStateStorage>(UIStateStorage.Loading)
     val storageState: StateFlow<UIStateStorage> = _storageState
 
-    private val _favoriteState = MutableStateFlow<UIState>(UIState.Loading)
-    val favoriteState: StateFlow<UIState> = _favoriteState
-
-//    var cachedMovieList: LiveData<List<Movie>> = MutableLiveData()
-//    val cachedMovieList1: LiveData<List<MovieWithGenre>>
+    private val _favoriteState = MutableStateFlow<FavoriteUIState>(FavoriteUIState.Loading)
+    val favoriteState: StateFlow<FavoriteUIState> = _favoriteState
 
     var cachedFavoriteMovieList: MutableList<Movie> = mutableListOf()
         private set
@@ -68,77 +70,64 @@ class MoviesViewModel @Inject constructor(
     var pageCount = 1
         private set
 
-    private val _isContentSourceApi = MutableLiveData<Boolean>(true)
-    val isContentSourceApi: LiveData<Boolean> = _isContentSourceApi
+    private var _cachedMovieList: MutableStateFlow<List<Movie>> = MutableStateFlow(emptyList())
 
-    var cachedMovieList: LiveData<List<Movie>>
-        private set
+    private val _apiMovieList: MutableStateFlow<List<Movie>> = MutableStateFlow(emptyList())
 
-    private val _apiMovieList = MutableLiveData<List<Movie>>()
-    val apiMovieList: LiveData<List<Movie>> = _apiMovieList
+    private val _homeUIState = MutableStateFlow(HomeUIState())
+    val homeUIState = combine(
+        _homeUIState,
+        _cachedMovieList,
+        _apiMovieList
+    ) { state, cached, api ->
+        state.copy(
+            movies = Pair(cached, api),
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUIState())
 
-    private val _computedUIState = MediatorLiveData<UIState>()
-    val computedUIState: LiveData<UIState> = _computedUIState
-
-    var messageSingleLiveEvent = SingleLiveEvent<String>()
-        private set
 
     init {
         setupSettings()
-        cachedMovieList = repository.getAllMoviesFromDB()
-
-        _computedUIState.addSource(cachedMovieList) { cache ->
-            val pair = Pair(cache ?: emptyList(), apiMovieList.value ?: emptyList())
-            _computedUIState.value = setupUIState(pair, isContentSourceApi.value!!)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAllMoviesFromDB().collect {
+                _cachedMovieList.value = it
+            }
         }
-
-        _computedUIState.addSource(apiMovieList) { api ->
-            val pair = Pair(cachedMovieList.value ?: emptyList(), api ?: emptyList())
-            _computedUIState.value = setupUIState(pair, isContentSourceApi.value!!)
-        }
-
-        _computedUIState.addSource(isContentSourceApi) { trigger ->
-            val pair = Pair(cachedMovieList.value ?: emptyList(), apiMovieList.value ?: emptyList())
-            _computedUIState.value = setupUIState(pair, trigger)
-        }
-//        _computedUIState.postValue(UIState.Loading)
     }
 
-    private fun setupUIState(pair: Pair<List<Movie>, List<Movie>>, isSourceApi: Boolean): UIState {
-        if (isSourceApi && pair.second.isEmpty()) return UIState.Loading
-        return UIState.Success(pair, isSourceApi)
-    }
-
-    fun switchContentSource(value: Boolean) {
-        _isContentSourceApi.postValue(value)
-    }
 
     fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
-            _isContentSourceApi.postValue(true)
-            try {
-                if (!loadedPages.contains(pageCount) || apiMovieList.value.isNullOrEmpty()) {
-                    _computedUIState.postValue(UIState.Loading)
 
+            try {
+                if (!loadedPages.contains(pageCount) || _apiMovieList.value.isEmpty()) {
+                    _homeUIState.update {
+                        it.copy(isLoading = true, isSourceApe = true)
+                    }
                     when (val response = repository.getMovieResponseFromKPApi(page = pageCount)) {
                         is BaseResponse.Success -> {
-                            _apiMovieList.postValue(response.body)
+                            _apiMovieList.value = response.body
                             repository.putMoviesToDB(response.body)
                             loadedPages.add(pageCount)
+                            _homeUIState.update {
+                                it.copy(isLoading = false)
+                            }
                             messageSingleLiveEvent.postValue("Success loading data!")
                         }
 
                         is BaseResponse.Error -> {
-                            _isContentSourceApi.postValue(false)
+                            _homeUIState.update {
+                                it.copy(isLoading = false, isSourceApe = false)
+                            }
                             messageSingleLiveEvent.postValue("Server error - ${response.massage}")
-//                            messageSingleLiveEvent.postValue("Data loaded from memory card")
                         }
                     }
                 }
             } catch (e: Exception) {
-                _isContentSourceApi.postValue(false)
+                _homeUIState.update {
+                    it.copy(isLoading = false, isSourceApe = false)
+                }
                 messageSingleLiveEvent.postValue("Server error - ${e}")
-//                messageSingleLiveEvent.postValue("Data loaded from memory card")
             }
         }
     }
@@ -156,54 +145,55 @@ class MoviesViewModel @Inject constructor(
     fun getAllMoviesForStorageFragment() {
         viewModelScope.launch(Dispatchers.IO) {
             _storageState.value = UIStateStorage.Loading
-            if (!cachedMovieList.value.isNullOrEmpty()) {
-                _storageState.value =
-                    UIStateStorage.Success(listMovie = cachedMovieList.value ?: emptyList())
-            } else {
-                _storageState.value = UIStateStorage.Error("Content not found!")
+            _cachedMovieList.collect {
+                if (it.isNotEmpty()) {
+                    _storageState.value =
+                        UIStateStorage.Success(listMovie = it)
+                } else {
+                    _storageState.value = UIStateStorage.Error("Content not found!")
+                }
             }
         }
     }
 
-
     fun onStorageSearchEvent(events: StorageSearchEvent) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _storageState.value = UIStateStorage.Loading
-
-            val result: List<Movie>?
-            try {
-                val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
-                val date = if (events.date.equals("")) 0 else events.date.toInt()
-                val title = events.title
-                val genres = events.genres
-
-                if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
-                    result = cachedMovieList.value
-                    if (result.isNullOrEmpty()) {
-                        _storageState.value = UIStateStorage.Error("Content not found!")
-                    } else {
-                        _storageState.value = UIStateStorage.Success(listMovie = result)
-                    }
-
-                } else {
-                    result = repository.getMoviesByFilter(
-                        rating = rating,
-                        date = date,
-                        title = title,
-                        genres = genres
-                    )
-
-                    if (result.isEmpty()) {
-                        _storageState.value = UIStateStorage.Error("Content not found!")
-                    } else {
-                        _storageState.value = UIStateStorage.Success(listMovie = result)
-                    }
-                }
-
-            } catch (e: Exception) {
-                _storageState.value = UIStateStorage.Error("Database read error - $e")
-            }
-        }
+//            viewModelScope.launch(Dispatchers.IO) {
+//                _storageState.value = UIStateStorage.Loading
+//
+//                val result: List<Movie>?
+//                try {
+//                    val rating = if (events.rating.equals("")) 0.0 else events.rating.toDouble()
+//                    val date = if (events.date.equals("")) 0 else events.date.toInt()
+//                    val title = events.title
+//                    val genres = events.genres
+//
+//                    if (rating == 0.0 && date == 0 && title == "" && genres.isEmpty()) {
+//                        result = cachedMovieList.value
+//                        if (result.isNullOrEmpty()) {
+//                            _storageState.value = UIStateStorage.Error("Content not found!")
+//                        } else {
+//                            _storageState.value = UIStateStorage.Success(listMovie = result)
+//                        }
+//
+//                    } else {
+//                        result = repository.getMoviesByFilter(
+//                            rating = rating,
+//                            date = date,
+//                            title = title,
+//                            genres = genres
+//                        )
+//
+//                        if (result.isEmpty()) {
+//                            _storageState.value = UIStateStorage.Error("Content not found!")
+//                        } else {
+//                            _storageState.value = UIStateStorage.Success(listMovie = result)
+//                        }
+//                    }
+//
+//                } catch (e: Exception) {
+//                    _storageState.value = UIStateStorage.Error("Database read error - $e")
+//                }
+//            }
     }
 
 
@@ -258,8 +248,8 @@ class MoviesViewModel @Inject constructor(
 
 
     fun deleteMovieFromFavorite(movie: Movie) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateMovieToFavorite(false, movie.title)
+//            viewModelScope.launch(Dispatchers.IO) {
+//                repository.updateMovieToFavorite(false, movie.title)
 //            cachedFavoriteMovieList =
 //                cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
 //                    .toMutableList()
@@ -267,7 +257,7 @@ class MoviesViewModel @Inject constructor(
 //                cachedMovieList.add(movie)
 ////                _homeState.value = UIState.Success(cachePopularMovieList)
 //            }
-        }
+//            }
     }
 
 
@@ -299,7 +289,7 @@ class MoviesViewModel @Inject constructor(
 //                }?.reversed() ?: emptyList()
 //                _computedUIState.value = UIState.Success(sortedList)
 //            }
-//        }
+
     }
 
     suspend fun loadWallpaper(url: String): Bitmap {
@@ -311,7 +301,10 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+    override fun onSharedPreferenceChanged(
+        sharedPreferences: SharedPreferences?,
+        key: String?
+    ) {
         when (key) {
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
                 clearLoadedPages()
