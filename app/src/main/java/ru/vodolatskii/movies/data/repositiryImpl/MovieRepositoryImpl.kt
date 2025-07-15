@@ -2,11 +2,11 @@ package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -31,50 +31,60 @@ class MovieRepositoryImpl @Inject constructor(
     private val kpApiService: KPApiService,
     private val tmdbApiService: TmdbApiService,
     private val preferences: PreferenceProvider,
-
     ) : MovieRepository {
 
-    override suspend fun getMovieResponseFromKPApi(
-        page: Int,
-    ): BaseResponse<List<Movie>, BaseError> {
-        val response = kpApiService.getSearchResponse(
-            page = page,
-            limit = App.instance.loadPopularMoviesLimit,
-            ratingKp = "1-10",
-            selectFields = listOf(
-                "id",
-                "name",
-                "description",
-                "poster",
-                "premiere",
-                "genres",
-                "year",
-                "rating"
-            ),
-
-            notNullFields = listOf(
-                "id",
-                "name",
-                "description",
-                "poster.url",
-                "premiere.world",
-                "genres.name",
-                "year",
-                "rating.imdb",
-            )
-        )
-
-        val body = response.body()
-
-        if (response.code() == 200 && body != null) {
-            return BaseResponse.Success(body.toMovieList())
-        } else {
-            val errorResp: BaseError = Gson().fromJson(
-                response.errorBody()?.charStream(),
-                BaseError::class.java
-            )
-            return BaseResponse.Error(errorResp)
-        }
+    override fun getMovieResponseFromKPApi(page: Int): Flow<BaseResponse<List<Movie>, BaseError>> {
+        return flow {
+            emit(BaseResponse.Loading)
+            try {
+                val response = kpApiService.getSearchResponse(
+                    page = page,
+                    limit = App.instance.loadPopularMoviesLimit,
+                    ratingKp = "1-10",
+                    selectFields = listOf(
+                        "id",
+                        "name",
+                        "description",
+                        "poster",
+                        "premiere",
+                        "genres",
+                        "year",
+                        "rating"
+                    ),
+                    notNullFields = listOf(
+                        "id",
+                        "name",
+                        "description",
+                        "poster.url",
+                        "premiere.world",
+                        "genres.name",
+                        "year",
+                        "rating.imdb",
+                    )
+                )
+                val body = response.body()
+                Log.d("mytag" , "oooo --- ${body.toString()}")
+                if (response.code() == 200 && body != null) {
+                    emit(BaseResponse.Success(body.toMovieList()))
+                } else {
+                    val errorResp: BaseError = Gson().fromJson(
+                        response.errorBody()?.charStream(),
+                        BaseError::class.java
+                    )
+                    emit(BaseResponse.Error(errorResp))
+                }
+            } catch (e: Exception) {
+                emit(
+                    BaseResponse.Error(
+                        BaseError(
+                            message = e.message ?: "",
+                            error = e.stackTraceToString(),
+                            statusCode = 0
+                        )
+                    )
+                )
+            }
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun getMovieResponseFromTMDBApi(

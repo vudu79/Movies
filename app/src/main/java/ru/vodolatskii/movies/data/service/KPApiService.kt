@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
 import ru.vodolatskii.movies.common.Constant
-import ru.vodolatskii.movies.data.dto.ShortDocsResponseDto
+import ru.vodolatskii.movies.data.dto.KPResponseDto
 
 interface KPApiService {
     @Headers(
@@ -20,6 +20,6 @@ interface KPApiService {
 //        @Query("rating.imdb") ratingImdb: String,
         @Query("selectFields") selectFields: List<String>,
         @Query("notNullFields") notNullFields: List<String>
-    ): Response<ShortDocsResponseDto>
+    ): Response<KPResponseDto>
 }
 

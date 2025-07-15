@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -98,36 +99,34 @@ class MoviesViewModel @Inject constructor(
 
     fun getMoviesFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
-
-            try {
-                if (!loadedPages.contains(pageCount) || _apiMovieList.value.isEmpty()) {
-                    _homeUIState.update {
-                        it.copy(isLoading = true, isSourceApe = true)
-                    }
-                    when (val response = repository.getMovieResponseFromKPApi(page = pageCount)) {
-                        is BaseResponse.Success -> {
-                            _apiMovieList.value = response.body
-                            repository.putMoviesToDB(response.body)
-                            loadedPages.add(pageCount)
-                            _homeUIState.update {
-                                it.copy(isLoading = false)
+            if (!loadedPages.contains(pageCount) || _apiMovieList.value.isEmpty()) {
+                repository.getMovieResponseFromKPApi(page = pageCount)
+                    .collect {
+                        when (it) {
+                            is BaseResponse.Success -> {
+                                _apiMovieList.value = it.body
+                                repository.putMoviesToDB(it.body)
+                                loadedPages.add(pageCount)
+                                _homeUIState.update {state ->
+                                    state.copy(isLoading = false)
+                                }
+                                messageSingleLiveEvent.postValue("Success loading data!")
                             }
-                            messageSingleLiveEvent.postValue("Success loading data!")
-                        }
 
-                        is BaseResponse.Error -> {
-                            _homeUIState.update {
-                                it.copy(isLoading = false, isSourceApe = false)
+                            is BaseResponse.Error -> {
+                                _homeUIState.update {state ->
+                                    state.copy(isLoading = false, isSourceApe = false)
+                                }
+                                messageSingleLiveEvent.postValue("Server error - ${it.massage}")
                             }
-                            messageSingleLiveEvent.postValue("Server error - ${response.massage}")
+
+                            BaseResponse.Loading -> {
+                                _homeUIState.update {state ->
+                                    state.copy(isLoading = true, isSourceApe = true)
+                                }
+                            }
                         }
                     }
-                }
-            } catch (e: Exception) {
-                _homeUIState.update {
-                    it.copy(isLoading = false, isSourceApe = false)
-                }
-                messageSingleLiveEvent.postValue("Server error - ${e}")
             }
         }
     }

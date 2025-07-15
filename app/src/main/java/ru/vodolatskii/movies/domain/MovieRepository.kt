@@ -10,7 +10,7 @@ import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.models.Movie
 
 interface MovieRepository {
-    suspend fun getMovieResponseFromKPApi(page: Int):BaseResponse<List<Movie>, BaseError>
+     fun getMovieResponseFromKPApi(page: Int):Flow<BaseResponse<List<Movie>, BaseError>>
 
     suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
