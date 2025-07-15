@@ -1,13 +1,14 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.flow.Flow
 import ru.vodolatskii.movies.data.entity.MovieWithGenre
 import ru.vodolatskii.movies.data.service.BaseError
 import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.models.Movie
 
 interface MovieRepository {
-    suspend fun getMovieResponseFromKPApi(page: Int):BaseResponse<List<Movie>, BaseError>
+     fun getMovieResponseFromKPApi(page: Int):Flow<BaseResponse<List<Movie>, BaseError>>
 
     suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
@@ -33,7 +34,7 @@ interface MovieRepository {
 
     suspend fun putMovieToDbWithSettings(movie: Movie)
 
-    suspend fun getAllMoviesFromDB(): List<Movie>
+     fun getAllMoviesFromDB(): Flow<List<Movie>>
 
     fun getContentSourceFromPreferences(): String?
 

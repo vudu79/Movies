@@ -8,7 +8,7 @@ import java.util.Calendar
 import java.util.Locale
 
 
-data class ShortDocsResponseDto(
+data class KPResponseDto(
     val docs: List<Doc> = emptyList(),
     val total: Long,
     val limit: Long,
@@ -55,7 +55,7 @@ data class Rating(
 ) : Parcelable
 
 
-fun ShortDocsResponseDto.toMovieList(): MutableList<Movie> {
+fun KPResponseDto.toMovieList(): List<Movie> {
     val notNullList = this.docs.filter {
         it.id != null && it.description != null && it.premiere.world != null && it.rating.imdb != null && it.poster.url != null && it.genres != null
     }

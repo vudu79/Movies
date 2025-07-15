@@ -30,6 +30,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
+import kotlinx.coroutines.flow.Flow;
 import ru.vodolatskii.movies.data.entity.Genre;
 import ru.vodolatskii.movies.data.entity.MovieWithGenre;
 import ru.vodolatskii.movies.data.entity.MovieWithoutGenre;
@@ -216,71 +217,81 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
-  public List<MovieWithGenre> getAllMovies() {
+  public Flow<List<MovieWithGenre>> getAllMovies() {
     final String _sql = "SELECT * FROM movies";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-    try {
-      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-      final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
-      final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
-      final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-      final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
-      final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
-      final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
-      final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
-      final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
-      final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
-      final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
-      while (_cursor.moveToNext()) {
-        final long _tmpKey;
-        _tmpKey = _cursor.getLong(_cursorIndexOfId);
-        if (!_collectionGenreList.containsKey(_tmpKey)) {
-          _collectionGenreList.put(_tmpKey, new ArrayList<Genre>());
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"Genre",
+        "movies"}, new Callable<List<MovieWithGenre>>() {
+      @Override
+      @NonNull
+      public List<MovieWithGenre> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
+          final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
+          final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
+          final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
+          final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
+          final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
+          final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
+          final LongSparseArray<ArrayList<Genre>> _collectionGenreList = new LongSparseArray<ArrayList<Genre>>();
+          while (_cursor.moveToNext()) {
+            final long _tmpKey;
+            _tmpKey = _cursor.getLong(_cursorIndexOfId);
+            if (!_collectionGenreList.containsKey(_tmpKey)) {
+              _collectionGenreList.put(_tmpKey, new ArrayList<Genre>());
+            }
+          }
+          _cursor.moveToPosition(-1);
+          __fetchRelationshipGenreAsruVodolatskiiMoviesDataEntityGenre(_collectionGenreList);
+          final List<MovieWithGenre> _result = new ArrayList<MovieWithGenre>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final MovieWithGenre _item;
+            final MovieWithoutGenre _tmpMovie;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpApiId;
+            _tmpApiId = _cursor.getLong(_cursorIndexOfApiId);
+            final String _tmpTitle;
+            _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+            final String _tmpDescription;
+            _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            final String _tmpPosterUrl;
+            _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
+            final double _tmpRating;
+            _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
+            final String _tmpReleaseDate;
+            _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
+            final long _tmpReleaseDateTimeStump;
+            _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
+            final int _tmpReleaseDateYear;
+            _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
+            final boolean _tmpIsFavorite;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
+            _tmpIsFavorite = _tmp != 0;
+            _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite);
+            final ArrayList<Genre> _tmpGenreListCollection;
+            final long _tmpKey_1;
+            _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);
+            _tmpGenreListCollection = _collectionGenreList.get(_tmpKey_1);
+            _item = new MovieWithGenre(_tmpMovie,_tmpGenreListCollection);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
         }
       }
-      _cursor.moveToPosition(-1);
-      __fetchRelationshipGenreAsruVodolatskiiMoviesDataEntityGenre(_collectionGenreList);
-      final List<MovieWithGenre> _result = new ArrayList<MovieWithGenre>(_cursor.getCount());
-      while (_cursor.moveToNext()) {
-        final MovieWithGenre _item;
-        final MovieWithoutGenre _tmpMovie;
-        final long _tmpId;
-        _tmpId = _cursor.getLong(_cursorIndexOfId);
-        final long _tmpApiId;
-        _tmpApiId = _cursor.getLong(_cursorIndexOfApiId);
-        final String _tmpTitle;
-        _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
-        final String _tmpDescription;
-        _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-        final String _tmpPosterUrl;
-        _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
-        final double _tmpRating;
-        _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
-        final String _tmpReleaseDate;
-        _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
-        final long _tmpReleaseDateTimeStump;
-        _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
-        final int _tmpReleaseDateYear;
-        _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
-        final boolean _tmpIsFavorite;
-        final int _tmp;
-        _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
-        _tmpIsFavorite = _tmp != 0;
-        _tmpMovie = new MovieWithoutGenre(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite);
-        final ArrayList<Genre> _tmpGenreListCollection;
-        final long _tmpKey_1;
-        _tmpKey_1 = _cursor.getLong(_cursorIndexOfId);
-        _tmpGenreListCollection = _collectionGenreList.get(_tmpKey_1);
-        _item = new MovieWithGenre(_tmpMovie,_tmpGenreListCollection);
-        _result.add(_item);
+
+      @Override
+      protected void finalize() {
+        _statement.release();
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    });
   }
 
   @Override
