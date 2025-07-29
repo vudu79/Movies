@@ -5,11 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import ru.vodolatskii.movies.data.dao.MovieDao
-import ru.vodolatskii.movies.data.entity.Genre
-import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
+import ru.vodolatskii.movies.data.entity.MovieEntity
 
 
-@Database(entities = [MovieWithoutGenre::class, Genre::class], version = 1)
+@Database(entities = [MovieEntity::class], version = 3)
 abstract class RoomDB : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

@@ -7,15 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.vodolatskii.movies.data.service.BaseResponse
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
@@ -70,60 +69,47 @@ class MoviesViewModel @Inject constructor(
 
     private val _apiMovieList: MutableStateFlow<List<Movie>> = MutableStateFlow(emptyList())
 
-    private val _homeUIState = MutableStateFlow(HomeUIState())
-    val homeUIState = combine(
-        _homeUIState,
-        _cachedMovieList,
-        _apiMovieList
-    ) { state, cached, api ->
-        state.copy(
-            movies = Pair(cached, api),
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUIState())
+    val homeUIState: BehaviorSubject<HomeUIState> = BehaviorSubject.create()
+    private val disposable = CompositeDisposable()
 
 
     init {
         setupSettings()
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllMoviesFromDB().collect {
-                _cachedMovieList.value = it
-            }
-        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 
 
     fun getMoviesFromApi() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (!loadedPages.contains(pageCount) || _apiMovieList.value.isEmpty()) {
-                repository.getMovieResponseFromKPApi(page = pageCount)
-                    .collect {
-                        when (it) {
-                            is BaseResponse.Success -> {
-                                _apiMovieList.value = it.body
-                                repository.putMoviesToDB(it.body)
-                                loadedPages.add(pageCount)
-                                _homeUIState.update {state ->
-                                    state.copy(isLoading = false)
-                                }
-                                messageSingleLiveEvent.postValue("Success loading data!")
-                            }
+        homeUIState.onNext(HomeUIState.Loading)
+        disposable.add(
+            repository.getMovieResponseFromKPApi(page = pageCount)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess {
+                    loadedPages.add(pageCount)
+                    messageSingleLiveEvent.postValue("Success loading data!")
+                }
+                .doOnError { error ->
+                    messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                }
+                .subscribe(
+                    { movies ->
+                        homeUIState.onNext(HomeUIState.Success(movies))
 
-                            is BaseResponse.Error -> {
-                                _homeUIState.update {state ->
-                                    state.copy(isLoading = false, isSourceApe = false)
-                                }
-                                messageSingleLiveEvent.postValue("Server error - ${it.massage}")
-                            }
-
-                            BaseResponse.Loading -> {
-                                _homeUIState.update {state ->
-                                    state.copy(isLoading = true, isSourceApe = true)
-                                }
-                            }
-                        }
+                    },
+                    { error ->
+                        homeUIState.onNext(
+                            HomeUIState.Error(
+                                error.message ?: "Unknown error"
+                            )
+                        )
                     }
-            }
-        }
+                )
+        )
     }
 
 //    fun loadMoviesFromStorageInOffLine() {
@@ -328,7 +314,9 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun plusPageCount() {
-        pageCount += 1
+//        if (!loadedPages.contains(pageCount)) {
+            pageCount += 1
+//        }
     }
 
     private fun getRequestLanguage() {

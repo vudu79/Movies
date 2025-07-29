@@ -92,6 +92,8 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
+    implementation (libs.adapter.rxjava3)
+
     implementation(libs.converter.scalars)
     implementation (libs.okhttp.v492)
     implementation (libs.logging.interceptor.v492)
@@ -139,6 +141,18 @@ dependencies {
      annotationProcessor (libs.google.dagger.android.processor)
 
     implementation (libs.speed.dial)
+//
+//    implementation (libs.rxandroid)
+//    implementation (libs.rxjava)
+
+    val room_version = "2.3.0-beta02"
+    implementation (libs.androidx.room.runtime.v230beta02)
+    implementation (libs.androidx.room.rxjava3)
+//    kapt (libs.androidx.room.compiler.v230beta02)
+
+//RxJava
+    implementation (libs.rxandroid)
+    implementation (libs.rxjava.v3010)
 
 
 }

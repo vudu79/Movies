@@ -18,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.data.dto.toGenresString
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
@@ -53,9 +52,9 @@ class ContentAdapter(
 
     fun updateData(movies: List<Movie>) {
         val list = movies.toMutableList()
-        val currentList = asyncListDiffer.currentList
-        list.addAll(currentList)
-        asyncListDiffer.submitList(list)
+        val currentList = asyncListDiffer.currentList.toMutableSet()
+        currentList.addAll(list)
+        asyncListDiffer.submitList(currentList.toList())
     }
 
     fun getData(): List<Movie> {
@@ -98,7 +97,8 @@ class ContentAdapter(
                 }
                 holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
 
-                val genreString = movie.genreList.toGenresString()
+//                val genreString = movie.genreList.toGenresString()
+                val genreString = movie.genreList.toString()
                 holder.genres.text = "Жанры: $genreString"
 //                setAnimation(holder.shineView)
             }

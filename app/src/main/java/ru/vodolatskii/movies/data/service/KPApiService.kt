@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.data.service
 
+import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -13,13 +14,13 @@ interface KPApiService {
         "Accept:application/json",
     )
     @GET("v1.4/movie")
-    suspend fun getSearchResponse(
+    fun getSearchResponse(
         @Query("page") page: Int,
         @Query("limit") limit: Int,
         @Query("rating.kp") ratingKp: String,
 //        @Query("rating.imdb") ratingImdb: String,
         @Query("selectFields") selectFields: List<String>,
         @Query("notNullFields") notNullFields: List<String>
-    ): Response<KPResponseDto>
+    ): Single<Response<KPResponseDto>>
 }
 

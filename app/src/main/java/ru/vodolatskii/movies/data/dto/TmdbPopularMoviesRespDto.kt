@@ -1,8 +1,6 @@
 package ru.vodolatskii.movies.data.dto
 
 import com.squareup.moshi.Json
-import ru.vodolatskii.movies.common.Constant
-import ru.vodolatskii.movies.domain.models.Movie
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -66,34 +64,34 @@ private fun getYear(dateString: String): Int {
     date?.let { calendar.setTime(it) }
     return calendar.get(Calendar.YEAR)
 }
-
-fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
-    val notNullList = this.tmdbFilms.filter {
-        it.title != null &&
-                it.id != null &&
-                it.releaseDate != null &&
-                it.voteAverage != null &&
-                it.posterPath != null &&
-                it.originalTitle != null &&
-                it.genreIds != null
-    }
-    val movieList: List<Movie> = notNullList.map {
-        val movie = Movie(
-            apiId = it.id!!.toLong(),
-            title = it.title!!,
-            description = it.overview!!,
-            posterUrl = Constant.IMAGES_URL + "original" + it.posterPath,
-            isFavorite = false,
-            rating = it.voteAverage!!,
-            releaseDate = it.releaseDate!!,
-            genreList = it.genreIds!!,
-            releaseDateTimeStump = getTimeStump(it.releaseDate),
-            releaseDateYear = getYear(it.releaseDate)
-        )
-        movie
-    }
-    return movieList.toMutableList()
-}
+//
+//fun TMDBPopularMoviesRespDto.toMovieList(): MutableList<Movie> {
+//    val notNullList = this.tmdbFilms.filter {
+//        it.title != null &&
+//                it.id != null &&
+//                it.releaseDate != null &&
+//                it.voteAverage != null &&
+//                it.posterPath != null &&
+//                it.originalTitle != null &&
+//                it.genreIds != null
+//    }
+//    val movieList: List<Movie> = notNullList.map {
+//        val movie = Movie(
+//            apiId = it.id!!.toLong(),
+//            title = it.title!!,
+//            description = it.overview!!,
+//            posterUrl = Constant.IMAGES_URL + "original" + it.posterPath,
+//            isFavorite = false,
+//            rating = it.voteAverage!!,
+//            releaseDate = it.releaseDate!!,
+//            genreList = it.genreIds!!,
+//            releaseDateTimeStump = getTimeStump(it.releaseDate),
+//            releaseDateYear = getYear(it.releaseDate)
+//        )
+//        movie
+//    }
+//    return movieList.toMutableList()
+//}
 
 fun List<Int>.toGenresString(): String {
     var result = ""
