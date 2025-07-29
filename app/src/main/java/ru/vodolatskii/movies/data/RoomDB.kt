@@ -8,7 +8,7 @@ import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.MovieEntity
 
 
-@Database(entities = [MovieEntity::class], version = 3)
+@Database(entities = [MovieEntity::class], version = 1)
 abstract class RoomDB : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

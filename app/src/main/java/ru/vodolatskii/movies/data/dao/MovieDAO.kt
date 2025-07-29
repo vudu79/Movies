@@ -26,7 +26,7 @@ interface MovieDao {
     suspend fun getMoviesByRatingByYear(rating: Double, year: Int): List<MovieEntity>
 
     @Query("UPDATE movies SET is_favorite = :isFavorite WHERE title = :title")
-    suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String)
+     fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     @Query("DELETE FROM movies WHERE title = :title")
     suspend fun deleteMovie(title: String)
@@ -36,7 +36,7 @@ interface MovieDao {
     }
 
     @Query("SELECT * FROM movies WHERE is_favorite = 1")
-    fun getFavoriteMovies(): List<MovieEntity>?
+    fun getFavoriteMovies(): Single<List<MovieEntity>>
 
     @Query("SELECT COUNT(*) FROM movies")
     fun getCountMovies(): Int

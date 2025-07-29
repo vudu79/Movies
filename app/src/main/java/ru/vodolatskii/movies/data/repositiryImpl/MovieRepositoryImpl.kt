@@ -5,7 +5,6 @@ import io.reactivex.rxjava3.core.Single
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.dto.toMovieList
-import ru.vodolatskii.movies.data.entity.MovieEntity
 import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
@@ -67,7 +66,7 @@ class MovieRepositoryImpl @Inject constructor(
                         if (usersFromDb.isNotEmpty()) {
                             Single.just(usersFromDb)
                         } else {
-                            Single.error(Exception("No data available"))
+                            Single.error(Exception("Network error. No data available from storage"))
                         }
                     }
             }
@@ -162,7 +161,7 @@ class MovieRepositoryImpl @Inject constructor(
         return movieDao.getCountMovies()
     }
 
-    override suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String) {
+    override fun updateMovieToFavorite(isFavorite: Boolean, title: String) {
         movieDao.updateMovieToFavorite(isFavorite, title)
     }
 
@@ -170,8 +169,13 @@ class MovieRepositoryImpl @Inject constructor(
         movieDao.deleteMovie(movie)
     }
 
-    override suspend fun getAllMoviesFromFavorites(): List<MovieEntity>? {
-        return movieDao.getFavoriteMovies()
+    override fun getAllMoviesFromFavorites(): Single<List<Movie>> {
+        return movieDao.getFavoriteMovies().map { list ->
+            val result = list.map { movie ->
+                movie.convertEntityToModel()
+            }
+            result
+        }
     }
 
 
