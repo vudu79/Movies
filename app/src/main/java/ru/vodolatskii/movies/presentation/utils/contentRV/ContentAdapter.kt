@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -118,12 +119,12 @@ class ContentAdapter(
         val tempList: MutableList<Movie> = asyncListDiffer.currentList.toMutableList()
         val movie = tempList.removeAt(position)
         setData(tempList)
-
-        onDeleteFromPopular(movie)
-
         if (movie.isFavorite) {
             onDeleteFromFavorite(movie)
         }
+        onDeleteFromPopular(movie)
+
+
     }
 
     override fun onItemAdd(movie: Movie, position: Int) {

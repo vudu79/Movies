@@ -176,7 +176,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     is HomeUIState.Loading -> setHomeViewsVisibility(state)
 
                     is HomeUIState.Success -> {
-                        contentAdapter.updateData(state.movie)
+                        contentAdapter.setData(state.movie)
                         setHomeViewsVisibility(state)
                     }
 
@@ -225,8 +225,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                }
 
                 if (!recyclerView.canScrollVertically(1)) {
-                    Log.d("mytag", "scroll")
-
                     viewModel.plusPageCount()
 
                     viewModel.getMoviesFromApi()
@@ -273,11 +271,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 },
                 onMoveToFavorite = { movie ->
-//                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
+                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-//                    viewModel.deleteFromCachedList(movie = movie)
+                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 

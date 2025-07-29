@@ -74,7 +74,7 @@ fun MovieEntity.convertEntityToModel(): Movie {
         releaseDate = this.releaseDate,
         releaseDateTimeStump = this.releaseDateTimeStump,
         releaseDateYear = this.releaseDateYear,
-        isFavorite = false,
+        isFavorite = this.isFavorite,
         genreList = this.genres
     )
 }

@@ -3,18 +3,15 @@ package ru.vodolatskii.movies.presentation.viewmodels
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
@@ -32,7 +29,6 @@ import kotlin.coroutines.suspendCoroutine
 
 class MoviesViewModel @Inject constructor(
     private val repository: MovieRepository,
-    private val resourceProvider: AndroidResourceProvider,
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -55,7 +51,7 @@ class MoviesViewModel @Inject constructor(
     var loadedPages: MutableSet<Int> = mutableSetOf()
         private set
 
-    var pageCount = 1
+    var pageNumber = 1
         private set
 
     private var _cachedMovieList: MutableSet<Movie> = mutableSetOf()
@@ -78,31 +74,35 @@ class MoviesViewModel @Inject constructor(
 
     fun getMoviesFromApi() {
         homeUIState.onNext(HomeUIState.Loading)
-        disposable.add(
-            repository.getMovieResponseFromKPApi(page = pageCount)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess {
-                    loadedPages.add(pageCount)
-                    messageSingleLiveEvent.postValue("Success loading data!")
-                }
-                .doOnError { error ->
-                    messageSingleLiveEvent.postValue("Server error - ${error.message}")
-                }
-                .subscribe(
-                    { movies ->
-                        _cachedMovieList.addAll(movies)
-                        homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
-                    },
-                    { error ->
-                        homeUIState.onNext(
-                            HomeUIState.Error(
-                                error.message ?: "Unknown error"
-                            )
-                        )
+        if (!loadedPages.contains(pageNumber) || _cachedMovieList.isEmpty()){
+            disposable.add(
+                repository.getMovieResponseFromKPApi(page = pageNumber)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess {
+                        loadedPages.add(pageNumber)
+                        messageSingleLiveEvent.postValue("Success loading data!")
                     }
-                )
-        )
+                    .doOnError { error ->
+                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                    }
+                    .subscribe(
+                        { movies ->
+                            _cachedMovieList.addAll(movies)
+                            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+                        },
+                        { error ->
+                            homeUIState.onNext(
+                                HomeUIState.Error(
+                                    error.message ?: "Unknown error"
+                                )
+                            )
+                        }
+                    )
+            )
+        }else{
+            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+        }
     }
 
 //    fun loadMoviesFromStorageInOffLine() {
@@ -215,16 +215,13 @@ class MoviesViewModel @Inject constructor(
                                 .subscribeOn(Schedulers.io())
                                 .subscribe()
 
-                            _cachedFavoriteMovieList.add(movie)
-                            favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
-
-                            val filtered =
-                                _cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-                            homeUIState.onNext(HomeUIState.Success(filtered))
+//                            val m = movie.copy(isFavorite = true)
+//
+//                            _cachedFavoriteMovieList.add(m)
+//                            favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
+                            deleteFromCachedList(movie)
                         }
-                        val filtered =
-                            _cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-                        homeUIState.onNext(HomeUIState.Success(filtered))
+                        deleteFromCachedList(movie)
                     },
                     { error ->
                         favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
@@ -241,22 +238,22 @@ class MoviesViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .subscribe()
 
-        val filtered =
-            _cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-        favoriteUIState.onNext(FavoriteUIState.Success(filtered))
+        _cachedFavoriteMovieList =
+            _cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }.toMutableSet()
+        favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
 
         if (!_cachedMovieList.any { movie.apiId == it.apiId && movie.title == it.title }) {
             _cachedMovieList.add(movie)
-            homeUIState.onNext(HomeUIState.Success(filtered))
+            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
         }
     }
 
 
-//    fun deleteFromCachedList(movie: Movie) {
-//        cachedMovieList =
-//            cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
-//                .toMutableList()
-//    }
+    fun deleteFromCachedList(movie: Movie) {
+         _cachedMovieList =
+            _cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }.toMutableSet()
+        homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+    }
 
     fun onSortRVEvents(event: SortEvents) {
 //        when (event) {
@@ -326,7 +323,7 @@ class MoviesViewModel @Inject constructor(
 
     fun plusPageCount() {
 //        if (!loadedPages.contains(pageCount)) {
-        pageCount += 1
+        pageNumber += 1
 //        }
     }
 

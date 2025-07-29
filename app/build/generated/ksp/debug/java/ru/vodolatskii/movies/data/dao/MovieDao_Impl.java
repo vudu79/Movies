@@ -41,6 +41,8 @@ public final class MovieDao_Impl implements MovieDao {
 
   private final GenreConverter __genreConverter = new GenreConverter();
 
+  private final EntityInsertionAdapter<MovieEntity> __insertionAdapterOfMovieEntity_1;
+
   private final SharedSQLiteStatement __preparedStmtOfUpdateMovieToFavorite;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteMovie;
@@ -52,6 +54,31 @@ public final class MovieDao_Impl implements MovieDao {
       @NonNull
       protected String createQuery() {
         return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final MovieEntity entity) {
+        statement.bindLong(1, entity.getId());
+        statement.bindLong(2, entity.getApiId());
+        statement.bindString(3, entity.getTitle());
+        statement.bindString(4, entity.getDescription());
+        statement.bindString(5, entity.getPosterUrl());
+        statement.bindDouble(6, entity.getRating());
+        statement.bindString(7, entity.getReleaseDate());
+        statement.bindLong(8, entity.getReleaseDateTimeStump());
+        statement.bindLong(9, entity.getReleaseDateYear());
+        final int _tmp = entity.isFavorite() ? 1 : 0;
+        statement.bindLong(10, _tmp);
+        final String _tmp_1 = __genreConverter.fromGenres(entity.getGenres());
+        statement.bindString(11, _tmp_1);
+      }
+    };
+    this.__insertionAdapterOfMovieEntity_1 = new EntityInsertionAdapter<MovieEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT OR IGNORE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -108,7 +135,7 @@ public final class MovieDao_Impl implements MovieDao {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
-      __insertionAdapterOfMovieEntity.insert(movies);
+      __insertionAdapterOfMovieEntity_1.insert(movies);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

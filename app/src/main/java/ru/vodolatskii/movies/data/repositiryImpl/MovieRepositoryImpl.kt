@@ -171,10 +171,9 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getAllMoviesFromFavorites(): Single<List<Movie>> {
         return movieDao.getFavoriteMovies().map { list ->
-            val result = list.map { movie ->
+             list.map { movie ->
                 movie.convertEntityToModel()
             }
-            result
         }
     }
 

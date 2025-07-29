@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,20 +9,15 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
@@ -29,7 +25,7 @@ import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
-import java.util.Locale
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 
 class FavoriteFragment : Fragment() {
