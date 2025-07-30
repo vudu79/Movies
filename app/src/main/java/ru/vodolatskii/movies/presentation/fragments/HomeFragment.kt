@@ -32,6 +32,7 @@ import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
+import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
@@ -187,7 +188,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
             }
             .addTo(autoDisposable)
-
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -393,19 +393,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
         speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.sort_alph -> {
-//                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
+                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true  // false will close it without animation
                 }
 
                 R.id.sort_date -> {
-//                    viewModel.onSortRVEvents(SortEvents.DATE)
+                    viewModel.onSortRVEvents(SortEvents.DATE)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }
 
                 R.id.sort_rating -> {
-//                    viewModel.onSortRVEvents(SortEvents.RATING)
+                    viewModel.onSortRVEvents(SortEvents.RATING)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }

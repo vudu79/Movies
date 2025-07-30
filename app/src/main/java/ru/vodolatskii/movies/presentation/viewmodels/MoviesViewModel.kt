@@ -245,28 +245,28 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun onSortRVEvents(event: SortEvents) {
-//        when (event) {
-//            SortEvents.ALPHABET -> {
-//                val sortedList = cachedMovieList.value?.sortedBy {
-//                    it.title
-//                } ?: emptyList()
-//                _computedUIState.value = UIState.Success(sortedList)
-//            }
-//
-//            SortEvents.DATE -> {
-//                val sortedList = cachedMovieList.value?.sortedBy {
-//                    it.releaseDateTimeStump
-//                } ?: emptyList()
-//                _computedUIState.value = UIState.Success(sortedList)
-//            }
-//
-//            SortEvents.RATING -> {
-//                val sortedList = cachedMovieList.value?.sortedBy {
-//                    it.rating
-//                }?.reversed() ?: emptyList()
-//                _computedUIState.value = UIState.Success(sortedList)
-//            }
+        when (event) {
+            SortEvents.ALPHABET -> {
+                val sorted = _cachedMovieList.sortedBy {
+                    it.title
+                }
+                homeUIState.onNext(HomeUIState.Success(sorted))
+            }
 
+            SortEvents.DATE -> {
+                val sorted = _cachedMovieList.sortedBy {
+                    it.releaseDateTimeStump
+                }
+                homeUIState.onNext(HomeUIState.Success(sorted))
+            }
+
+            SortEvents.RATING -> {
+                val sorted = _cachedMovieList.sortedBy {
+                    it.rating
+                }.reversed()
+                homeUIState.onNext(HomeUIState.Success(sorted))
+            }
+        }
     }
 
     suspend fun loadWallpaper(url: String): Bitmap {
