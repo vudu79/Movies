@@ -55,7 +55,6 @@ class MovieRepositoryImpl @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 val movies = response.body()!!.toMovieList()
                 val moviesEntity = movies.map { it.convertModelToEntity() }
-                Log.d("mytag", "jjjj - $moviesEntity")
                 movieDao.insertMovies(moviesEntity)
                 Single.just(movies)
             } else {

@@ -42,7 +42,7 @@ class MoviesViewModel @Inject constructor(
     var messageSingleLiveEvent = SingleLiveEvent<String>()
         private set
 
-    private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(true)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
 
