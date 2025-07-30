@@ -21,7 +21,6 @@ import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
 import ru.vodolatskii.movies.presentation.MainActivity;
-import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider;
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel;
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel_Factory;
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory;
@@ -78,8 +77,6 @@ public final class DaggerAppComponent {
 
     private Provider<MovieRepository> provideRepositoryProvider;
 
-    private Provider<AndroidResourceProvider> provideResourceProvider;
-
     private Provider<MoviesViewModel> moviesViewModelProvider;
 
     private AppComponentImpl(RemoteModule remoteModuleParam, DatabaseModule databaseModuleParam,
@@ -105,8 +102,7 @@ public final class DaggerAppComponent {
       this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
       this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
-      this.provideResourceProvider = DoubleCheck.provider(DatabaseModule_ProvideResourceProviderFactory.create(databaseModuleParam, contextProvider));
-      this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider, provideResourceProvider);
+      this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
     }
 
     @Override

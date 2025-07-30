@@ -7,7 +7,6 @@ import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.inject.Provider;
 import ru.vodolatskii.movies.domain.MovieRepository;
-import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -21,26 +20,20 @@ import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider;
 public final class MoviesViewModel_Factory implements Factory<MoviesViewModel> {
   private final Provider<MovieRepository> repositoryProvider;
 
-  private final Provider<AndroidResourceProvider> resourceProvider;
-
-  public MoviesViewModel_Factory(Provider<MovieRepository> repositoryProvider,
-      Provider<AndroidResourceProvider> resourceProvider) {
+  public MoviesViewModel_Factory(Provider<MovieRepository> repositoryProvider) {
     this.repositoryProvider = repositoryProvider;
-    this.resourceProvider = resourceProvider;
   }
 
   @Override
   public MoviesViewModel get() {
-    return newInstance(repositoryProvider.get(), resourceProvider.get());
+    return newInstance(repositoryProvider.get());
   }
 
-  public static MoviesViewModel_Factory create(Provider<MovieRepository> repositoryProvider,
-      Provider<AndroidResourceProvider> resourceProvider) {
-    return new MoviesViewModel_Factory(repositoryProvider, resourceProvider);
+  public static MoviesViewModel_Factory create(Provider<MovieRepository> repositoryProvider) {
+    return new MoviesViewModel_Factory(repositoryProvider);
   }
 
-  public static MoviesViewModel newInstance(MovieRepository repository,
-      AndroidResourceProvider resourceProvider) {
-    return new MoviesViewModel(repository, resourceProvider);
+  public static MoviesViewModel newInstance(MovieRepository repository) {
+    return new MoviesViewModel(repository);
   }
 }

@@ -1,23 +1,20 @@
 package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import ru.vodolatskii.movies.data.entity.MovieWithGenre
-import ru.vodolatskii.movies.data.service.BaseError
-import ru.vodolatskii.movies.data.service.BaseResponse
+import io.reactivex.rxjava3.core.Single
+import ru.vodolatskii.movies.data.entity.MovieEntity
 import ru.vodolatskii.movies.domain.models.Movie
 
 interface MovieRepository {
-    suspend fun getMovieResponseFromKPApi(page: Int):BaseResponse<List<Movie>, BaseError>
+     fun getMovieResponseFromKPApi(page: Int):Single<List<Movie>>
 
-    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
+//    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
-    suspend fun updateMovieToFavorite(isFavorite: Boolean, title: String)
+     fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 
-    suspend fun getAllMoviesFromFavorites(): List<MovieWithGenre>?
+     fun getAllMoviesFromFavorites(): Single<List<Movie>>
 
     fun getDefaultCategoryFromPreferences(): String
 
@@ -35,7 +32,7 @@ interface MovieRepository {
 
     suspend fun putMovieToDbWithSettings(movie: Movie)
 
-     fun getAllMoviesFromDB(): LiveData<List<Movie>>
+     fun getAllMoviesFromDB(): Single<List<Movie>>
 
     fun getContentSourceFromPreferences(): String?
 
@@ -57,10 +54,10 @@ interface MovieRepository {
 
      fun getMovieCount(): Int
 
-    suspend fun getMoviesByFilter(
-        rating: Double,
-        date: Int,
-        title: String,
-        genres: List<Int>
-    ): List<Movie>
+//    suspend fun getMoviesByFilter(
+//        rating: Double,
+//        date: Int,
+//        title: String,
+//        genres: List<Int>
+//    ): List<Movie>
 }

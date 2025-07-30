@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,25 +9,23 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.AutoDisposable
+import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
+import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
-import java.util.Locale
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 
 class FavoriteFragment : Fragment() {
@@ -34,6 +33,8 @@ class FavoriteFragment : Fragment() {
     private lateinit var binding: FragmentFavoriteBinding
     private lateinit var favoriteAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
+    private val autoDisposable = AutoDisposable()
+
 
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
@@ -41,7 +42,9 @@ class FavoriteFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        autoDisposable.bindTo(lifecycle)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,15 +65,16 @@ class FavoriteFragment : Fragment() {
         viewModel.getFavoriteMovies()
     }
 
-    private fun checkToolBar(){
+    private fun checkToolBar() {
 
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
             binding.favoriteSearchView.visibility = if (state) View.VISIBLE else View.GONE
-            when(state){
-                true-> {
+            when (state) {
+                true -> {
                     activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                         View.GONE
                 }
+
                 false -> {
                     activity?.findViewById<AppBarLayout>(R.id.topAppBarLayout)?.visibility =
                         View.VISIBLE
@@ -106,15 +110,15 @@ class FavoriteFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (newText.isEmpty()) {
-                    favoriteAdapter.setData(viewModel.cachedFavoriteMovieList)
-                    return true
-                }
-                val result = viewModel.cachedFavoriteMovieList.filter {
-                    it.title.toLowerCase(Locale.getDefault())
-                        .contains(newText.toLowerCase(Locale.getDefault()))
-                }
-                favoriteAdapter.setData(result)
+//                if (newText.isEmpty()) {
+//                    favoriteAdapter.setData(viewModel.cachedFavoriteMovieList)
+//                    return true
+//                }
+//                val result = viewModel.cachedFavoriteMovieList.filter {
+//                    it.title.toLowerCase(Locale.getDefault())
+//                        .contains(newText.toLowerCase(Locale.getDefault()))
+//                }
+//                favoriteAdapter.setData(result)
                 return true
             }
         })
@@ -122,27 +126,26 @@ class FavoriteFragment : Fragment() {
 
 
     private fun setupObservers() {
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.favoriteState.collect { uiState ->
-                    when (uiState) {
-                        is UIState.Success -> {
-                            val mutableMoviesList = uiState.listMovie
-                            setFavoriteViewsVisibility(uiState)
-//                            favoriteAdapter.setData(mutableMoviesList ?: emptyList())
-                        }
+        viewModel.favoriteUIState
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { state ->
+                when (state) {
+                    is FavoriteUIState.Success -> {
+                        val mutableMoviesList = state.listMovie
+                        setFavoriteViewsVisibility(state)
+                        favoriteAdapter.setData(mutableMoviesList)
+                    }
 
-                        is UIState.Error -> {
-                            setFavoriteViewsVisibility(uiState)
-                        }
+                    is FavoriteUIState.Error -> {
+                        setFavoriteViewsVisibility(state)
+                    }
 
-                        is UIState.Loading -> {
-                            setFavoriteViewsVisibility(uiState)
-                        }
+                    is FavoriteUIState.Loading -> {
+                        setFavoriteViewsVisibility(state)
                     }
                 }
             }
-        }
+            .addTo(autoDisposable)
     }
 
 
@@ -161,6 +164,7 @@ class FavoriteFragment : Fragment() {
                     }
                 }
             }
+
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
                     RecyclerView.SCROLL_STATE_IDLE -> {
@@ -180,7 +184,12 @@ class FavoriteFragment : Fragment() {
 
         binding.recyclerViewFav.apply {
             favoriteAdapter = ContentAdapter(
-                onItemClick = { movie, view -> (activity as MainActivity).launchDetailsFragment(movie, view) },
+                onItemClick = { movie, view ->
+                    (activity as MainActivity).launchDetailsFragment(
+                        movie,
+                        view
+                    )
+                },
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
@@ -217,19 +226,19 @@ class FavoriteFragment : Fragment() {
     }
 
 
-    private fun setFavoriteViewsVisibility(state: UIState) {
+    private fun setFavoriteViewsVisibility(state: FavoriteUIState) {
         when (state) {
-            is UIState.Success -> {
+            is FavoriteUIState.Success -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            is UIState.Error -> {
+            is FavoriteUIState.Error -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            UIState.Loading -> {
+            FavoriteUIState.Loading -> {
                 binding.progressCircularFav.visibility = View.VISIBLE
                 binding.recyclerViewFav.visibility = View.GONE
             }

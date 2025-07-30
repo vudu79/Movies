@@ -10,7 +10,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,24 +22,22 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
-import ru.vodolatskii.movies.presentation.utils.UIState
+import ru.vodolatskii.movies.presentation.utils.AutoDisposable
+import ru.vodolatskii.movies.presentation.utils.HomeUIState
+import ru.vodolatskii.movies.presentation.utils.SortEvents
+import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import java.util.Locale
-
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 
 internal interface ContentAdapterController {
@@ -53,6 +50,8 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private var isContentSourceApi: Boolean = true
     private lateinit var viewModel: MoviesViewModel
+    private val autoDisposable = AutoDisposable()
+
 
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
@@ -60,7 +59,9 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        autoDisposable.bindTo(lifecycle)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,9 +86,12 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupListeners()
         checkToolBar()
-        viewModel.switchContentSource(true)
-        viewModel.getMoviesFromApi()
+        showMovies()
         initSpeedDial(savedInstanceState == null)
+    }
+
+    private fun showMovies() {
+        viewModel.getMoviesFromApi()
     }
 
     private fun checkToolBar() {
@@ -129,15 +133,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
             false
         }
 
-        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-
-                when (val list = viewModel.computedUIState.value) {
-                    is UIState.Success -> {
+//        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String): Boolean {
+//
+//                when (val list = viewModel.computedUIState.value) {
+//                    is UIState.Success -> {
 //                       if (newText.isEmpty()) {
 //                           contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
 //                           return true
@@ -147,16 +151,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                               .contains(newText.toLowerCase(Locale.getDefault()))
 //                       } ?: emptyList()
 //                       contentAdapter.setData(res)
-                        return true
-                    }
-
-                    is UIState.Error -> TODO()
-                    UIState.Loading -> TODO()
-                    null -> TODO()
-                }
-
-            }
-        })
+//                        return true
+//                    }
+//
+//                    is UIState.Error -> TODO()
+//                    UIState.Loading -> TODO()
+//                }
+//                return true
+//            }
+//        })
 
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
@@ -167,35 +170,24 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
     private fun setupObservers() {
+        viewModel.homeUIState
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { state ->
+                when (state) {
+                    is HomeUIState.Loading -> setHomeViewsVisibility(state)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.computedUIState.observe(viewLifecycleOwner) { uiState ->
+                    is HomeUIState.Success -> {
+                        contentAdapter.setData(state.movie)
+                        setHomeViewsVisibility(state)
+                    }
 
-                    when (uiState) {
-                        is UIState.Success -> {
-                            if (uiState.isSourceApe) {
-                                val mutableMoviesList = uiState.listMovie.second
-                                contentAdapter.updateData(mutableMoviesList)
-                            } else {
-                                val mutableMoviesList = uiState.listMovie.first
-                                contentAdapter.setData(mutableMoviesList)
-                            }
-                            setHomeViewsVisibility(uiState)
-                        }
-
-                        is UIState.Error -> {
-                            binding.errorTextView.text = uiState.message
-                            setHomeViewsVisibility(uiState)
-                        }
-
-                        is UIState.Loading -> {
-                            setHomeViewsVisibility(uiState)
-                        }
+                    is HomeUIState.Error -> {
+                        binding.errorTextView.text = state.message
+                        setHomeViewsVisibility(state)
                     }
                 }
             }
-        }
+            .addTo(autoDisposable)
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -215,7 +207,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
     private fun setupContentRV() {
 
         val onScrollListener = object : RecyclerView.OnScrollListener() {
-            //            var currentPosition = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
 //                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -235,6 +226,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
                 if (!recyclerView.canScrollVertically(1)) {
                     viewModel.plusPageCount()
+
                     viewModel.getMoviesFromApi()
                 }
 
@@ -251,7 +243,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
             }
 
-
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
                     RecyclerView.SCROLL_STATE_IDLE -> {
@@ -261,7 +252,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
 
                     RecyclerView.SCROLL_STATE_SETTLING -> {
-                        // Прокрутка завершается
+
                     }
                 }
             }
@@ -284,7 +275,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-//                    viewModel.deleteFromCachedList(movie = movie)
+                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 
@@ -316,37 +307,26 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
 
-    private fun setHomeViewsVisibility(state: UIState) {
+    private fun setHomeViewsVisibility(state: HomeUIState) {
         when (state) {
-            is UIState.Success -> {
-                binding.progressCircular.visibility = View.GONE
-                binding.recyclerviewContent.visibility = View.VISIBLE
-                binding.errorTextView.visibility = View.GONE
-            }
-
-            is UIState.Error -> {
+            is HomeUIState.Error -> {
                 binding.progressCircular.visibility = View.GONE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.VISIBLE
             }
 
-            UIState.Loading -> {
+            HomeUIState.Loading -> {
                 binding.progressCircular.visibility = View.VISIBLE
                 binding.recyclerviewContent.visibility = View.GONE
                 binding.errorTextView.visibility = View.GONE
             }
-        }
-    }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+            is HomeUIState.Success -> {
+                binding.progressCircular.visibility = View.GONE
+                binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.errorTextView.visibility = View.GONE
             }
+        }
     }
 
     override fun updateAdapterData(data: List<Movie>?) {

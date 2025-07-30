@@ -2,7 +2,7 @@ package ru.vodolatskii.movies.domain.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
+import ru.vodolatskii.movies.data.entity.MovieEntity
 
 @Parcelize
 data class Movie(
@@ -16,12 +16,12 @@ data class Movie(
     val releaseDateTimeStump: Long = 0L,
     val releaseDateYear: Int = -1,
     var isFavorite: Boolean = false,
-    var genreList: List<Int> = emptyList(),
+//    var genreList: List<String> = emptyList(),
     var genreListString: List<String> = emptyList()
 ) : Parcelable
 
-fun Movie.convertModelToEntity(): MovieWithoutGenre {
-    return MovieWithoutGenre(
+fun Movie.convertModelToEntity(): MovieEntity {
+    return MovieEntity(
         apiId = this.apiId,
         title = this.title,
         description = this.description,
@@ -30,6 +30,7 @@ fun Movie.convertModelToEntity(): MovieWithoutGenre {
         releaseDate = this.releaseDate,
         releaseDateTimeStump = this.releaseDateTimeStump,
         releaseDateYear = this.releaseDateYear,
-        isFavorite = this.isFavorite
+        isFavorite = this.isFavorite,
+        genres = this.genreListString
     )
 }
