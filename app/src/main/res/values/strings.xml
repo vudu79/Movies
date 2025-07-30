@@ -59,4 +59,5 @@
     <string name="permission_storage">Нет разрешения. Пожалуйста, предоставьте разрешение</string>
     <string name="downloaded_to_gallery">"Сохранено в галерею"</string>
     <string name="open_gallery">В галерею</string>
+    <string name="search_result">Результат поиска</string>
 </resources>
