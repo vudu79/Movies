@@ -5,14 +5,13 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import ru.vodolatskii.movies.domain.models.Movie
 import java.util.stream.Collectors
 
 
 class GenreConverter {
     @TypeConverter
-    fun fromGenres(genres: List<String?>): String {
+    fun fromGenres(genres: List<String>): String {
         return genres.stream().collect(Collectors.joining(":"))
     }
 
@@ -22,6 +21,7 @@ class GenreConverter {
             .toTypedArray())
     }
 }
+
 //data class MovieWithGenre(
 //    @PrimaryKey(autoGenerate = true)
 //    @Embedded val movie: MovieWithoutGenre,
@@ -33,7 +33,6 @@ class GenreConverter {
 //)
 
 @Entity(tableName = "movies", indices = [Index(value = ["title"], unique = true)])
-@TypeConverters(GenreConverter::class)
 data class MovieEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -75,6 +74,6 @@ fun MovieEntity.convertEntityToModel(): Movie {
         releaseDateTimeStump = this.releaseDateTimeStump,
         releaseDateYear = this.releaseDateYear,
         isFavorite = this.isFavorite,
-        genreList = this.genres
+        genreListString = this.genres
     )
 }

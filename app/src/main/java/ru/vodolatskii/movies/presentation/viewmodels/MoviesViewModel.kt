@@ -3,7 +3,6 @@ package ru.vodolatskii.movies.presentation.viewmodels
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,7 +13,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.utils.AndroidResourceProvider
 import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
@@ -104,15 +102,6 @@ class MoviesViewModel @Inject constructor(
             homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
         }
     }
-
-//    fun loadMoviesFromStorageInOffLine() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val moviesFromStorage = repository.getAllMoviesFromDB()
-//            cachedMovieList.clear()
-//            cachedMovieList.addAll(moviesFromStorage)
-//            _homeState.value = UIStateHome.Success(cachedMovieList)
-//        }
-//    }
 
 
     fun getAllMoviesForStorageFragment() {

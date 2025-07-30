@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
+import android.util.Log
 import io.reactivex.rxjava3.core.Single
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
@@ -52,9 +53,11 @@ class MovieRepositoryImpl @Inject constructor(
             )
         ).flatMap { response ->
             if (response.isSuccessful && response.body() != null) {
-                val users = response.body()!!.toMovieList()
-                movieDao.insertMovies(users.map { it.convertModelToEntity() })
-                Single.just(users)
+                val movies = response.body()!!.toMovieList()
+                val moviesEntity = movies.map { it.convertModelToEntity() }
+                Log.d("mytag", "jjjj - $moviesEntity")
+                movieDao.insertMovies(moviesEntity)
+                Single.just(movies)
             } else {
                 Single.error(Exception("Network error: ${response.code()}"))
             }

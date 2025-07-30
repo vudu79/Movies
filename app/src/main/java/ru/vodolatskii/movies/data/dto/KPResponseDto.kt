@@ -57,7 +57,7 @@ data class Rating(
 
 fun KPResponseDto.toMovieList(): List<Movie> {
     val notNullList = this.docs.filter {
-        it.id != null && it.description != null && it.premiere.world != null && it.rating.imdb != null && it.poster.url != null && it.genres != null
+        it.premiere.world != null && it.rating.imdb != null && it.poster.url != null && it.genres != null
     }
     val movieList: List<Movie> = notNullList.map {
         val dateString = it.premiere.world.substring(0, it.premiere.world.indexOf("T"))

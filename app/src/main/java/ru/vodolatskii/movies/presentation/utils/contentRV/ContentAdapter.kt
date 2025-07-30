@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.utils.contentRV
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -99,7 +98,7 @@ class ContentAdapter(
                 holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
 
 //                val genreString = movie.genreList.toGenresString()
-                val genreString = movie.genreList.toString()
+                val genreString = movie.genreListString.toString().replace("[", "").replace("]","")
                 holder.genres.text = "Жанры: $genreString"
 //                setAnimation(holder.shineView)
             }
