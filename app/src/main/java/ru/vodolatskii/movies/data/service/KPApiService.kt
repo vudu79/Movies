@@ -14,13 +14,25 @@ interface KPApiService {
         "Accept:application/json",
     )
     @GET("v1.4/movie")
-    fun getSearchResponse(
+    fun getPopularMovieResponse(
         @Query("page") page: Int,
         @Query("limit") limit: Int,
         @Query("rating.kp") ratingKp: String,
 //        @Query("rating.imdb") ratingImdb: String,
         @Query("selectFields") selectFields: List<String>,
         @Query("notNullFields") notNullFields: List<String>
+    ): Single<Response<KPResponseDto>>
+
+
+    @Headers(
+        "X-API-KEY:${Constant.API_KEY_KP}",
+        "Accept:application/json",
+    )
+    @GET("v1.4/movie/search")
+    fun getSearchResponse(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("query") query: String,
     ): Single<Response<KPResponseDto>>
 }
 

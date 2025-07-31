@@ -150,6 +150,7 @@ class StorageRVFragment : Fragment() {
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = {},
                 context = requireContext(),
+                onLoadMorePage = {}
             )
 
             layoutManager =

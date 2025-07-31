@@ -2,7 +2,6 @@ package ru.vodolatskii.movies.presentation.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +38,8 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
+import kotlin.concurrent.timerTask
 
 
 internal interface ContentAdapterController {
@@ -48,7 +50,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     private lateinit var binding: FragmentHomeBinding
     lateinit var contentAdapter: ContentAdapter
-    private var isContentSourceApi: Boolean = true
     private lateinit var viewModel: MoviesViewModel
     private val autoDisposable = AutoDisposable()
 
@@ -69,6 +70,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         viewModel = (activity as MainActivity).shareMoviesViewModel()
+        showMovies()
         return binding.root
     }
 
@@ -82,16 +84,16 @@ class HomeFragment : Fragment(), ContentAdapterController {
             AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
         }
 
+        initSearchView()
         setupContentRV()
         setupObservers()
         setupListeners()
         checkToolBar()
-        showMovies()
         initSpeedDial(savedInstanceState == null)
     }
 
     private fun showMovies() {
-        viewModel.getMoviesFromApi()
+        viewModel.loadCurrentPage()
     }
 
     private fun checkToolBar() {
@@ -124,47 +126,14 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         binding.homeSearchView.queryHint = "Search movie"
 
-        binding.homeSearchView.setOnClickListener {
-            binding.homeSearchView.isIconified = false
-        }
-
         binding.homeSearchView.setOnCloseListener {
             viewModel.switchSearchViewVisibility(false)
             false
         }
 
-//        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//            override fun onQueryTextSubmit(query: String?): Boolean {
-//                return true
-//            }
-//
-//            override fun onQueryTextChange(newText: String): Boolean {
-//
-//                when (val list = viewModel.computedUIState.value) {
-//                    is UIState.Success -> {
-//                       if (newText.isEmpty()) {
-//                           contentAdapter.setData(viewModel.cachedMovieList.value ?: emptyList())
-//                           return true
-//                       }
-//                      val res = list.listMovie.filter {
-//                           it.title.toLowerCase(Locale.getDefault())
-//                               .contains(newText.toLowerCase(Locale.getDefault()))
-//                       } ?: emptyList()
-//                       contentAdapter.setData(res)
-//                        return true
-//                    }
-//
-//                    is UIState.Error -> TODO()
-//                    UIState.Loading -> TODO()
-//                }
-//                return true
-//            }
-//        })
-
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
-            viewModel.clearLoadedPages()
-            viewModel.getMoviesFromApi()
+            viewModel.loadNextPage()
             binding.pullToRefresh.isRefreshing = false
         }
     }
@@ -177,7 +146,15 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     is HomeUIState.Loading -> setHomeViewsVisibility(state)
 
                     is HomeUIState.Success -> {
-                        contentAdapter.setData(state.movie)
+                        Timber.d("state - ${state.movies}")
+                        contentAdapter.updateData(
+                            state.movies,
+                            state.hasMore,
+                            state.nextPageSize,
+                            state.currentPage,
+                            state.totalPages,
+                            state.totalItems
+                        )
                         setHomeViewsVisibility(state)
                     }
 
@@ -224,11 +201,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                    viewModel.getPopularMovies()
 //                }
 
-                if (!recyclerView.canScrollVertically(1)) {
-                    viewModel.plusPageCount()
-
-                    viewModel.getMoviesFromApi()
-                }
+//                if (!recyclerView.canScrollVertically(1)) {
+//                    viewModel.plusPageCount()
+//
+////                    viewModel.getMoviesFromApi()
+//                }
 
                 viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
                     if (state) {
@@ -277,6 +254,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 onDeleteFromPopular = { movie ->
                     viewModel.deleteFromCachedList(movie = movie)
                 },
+                onLoadMorePage = { viewModel.loadNextPage() }
             )
 
             layoutManager =
@@ -304,6 +282,74 @@ class HomeFragment : Fragment(), ContentAdapterController {
             linearSnapHelper.attachToRecyclerView(this)
 
         }
+    }
+
+    private fun initSearchView() {
+
+
+        binding.homeSearchView.setOnClickListener {
+            binding.homeSearchView.isIconified = false
+        }
+
+        binding.homeSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { viewModel.onSearchViewQueryChanged(it) }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let {
+                    viewModel.onSearchViewQueryChanged(it) }
+                return true
+            }
+        })
+
+
+// НЕРАБОТАЕТ
+//        Observable.create(ObservableOnSubscribe<String> { subscriber ->
+//            //Вешаем слушатель на клавиатуру
+//            binding.homeSearchView.setOnQueryTextListener(object :
+//            //Вызывается на ввод символов
+//                SearchView.OnQueryTextListener {
+//                override fun onQueryTextChange(newText: String): Boolean {
+//                    contentAdapter.setData(emptyList())
+//                    subscriber.onNext(newText)
+//                    return false
+//                }
+//
+//                //Вызывается по нажатию кнопки "Поиск"
+//                override fun onQueryTextSubmit(query: String): Boolean {
+//                    subscriber.onNext(query)
+//                    return false
+//                }
+//            })
+//        })
+//            .subscribeOn(Schedulers.io())
+//            .map {
+//                it.toLowerCase(Locale.getDefault()).trim()
+//            }
+//            .debounce(1500, TimeUnit.MILLISECONDS)
+//            .filter {
+//                //Если в поиске пустое поле, возвращаем список фильмов по умолчанию
+////                viewModel.getMoviesFromApi()
+//                it.isNotBlank()
+//            }
+//            .flatMap {
+//                Log.d("mytag","qqq - $it")
+//                viewModel.getSearchResult(page = 1, query = it)
+//            }
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribeBy(
+//                onError = {
+//                    Toast.makeText(requireContext(), "Что-то пошло не так", Toast.LENGTH_SHORT)
+//                        .show()
+//                },
+//                onNext = {
+//                    contentAdapter.setData(it)
+//                }
+//            )
+//            .addTo(autoDisposable)
     }
 
 

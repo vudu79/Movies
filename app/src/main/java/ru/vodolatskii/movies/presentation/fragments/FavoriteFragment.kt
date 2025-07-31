@@ -196,6 +196,7 @@ class FavoriteFragment : Fragment() {
                 },
                 onDeleteFromPopular = {},
                 context = requireContext(),
+                onLoadMorePage = {}
             )
 
             layoutManager =

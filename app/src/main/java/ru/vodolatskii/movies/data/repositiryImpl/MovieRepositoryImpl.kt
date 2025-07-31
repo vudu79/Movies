@@ -1,10 +1,11 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
-import android.util.Log
 import io.reactivex.rxjava3.core.Single
+import retrofit2.Response
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
+import ru.vodolatskii.movies.data.dto.KPResponseDto
 import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.KPApiService
@@ -13,6 +14,8 @@ import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.domain.models.convertModelToEntity
+import ru.vodolatskii.movies.presentation.utils.MetaWrapper
+import ru.vodolatskii.movies.presentation.utils.SOURCE
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -26,51 +29,85 @@ class MovieRepositoryImpl @Inject constructor(
     private val preferences: PreferenceProvider,
 ) : MovieRepository {
 
-    override fun getMovieResponseFromKPApi(page: Int): Single<List<Movie>> {
-        return kpApiService.getSearchResponse(
-            page = page,
-            limit = App.instance.loadPopularMoviesLimit,
-            ratingKp = "1-10",
-            selectFields = listOf(
-                "id",
-                "name",
-                "description",
-                "poster",
-                "premiere",
-                "genres",
-                "year",
-                "rating"
-            ),
-            notNullFields = listOf(
-                "id",
-                "name",
-                "description",
-                "poster.url",
-                "premiere.world",
-                "genres.name",
-                "year",
-                "rating.imdb",
-            )
-        ).flatMap { response ->
-            if (response.isSuccessful && response.body() != null) {
-                val movies = response.body()!!.toMovieList()
-                val moviesEntity = movies.map { it.convertModelToEntity() }
-                movieDao.insertMovies(moviesEntity)
-                Single.just(movies)
-            } else {
-                Single.error(Exception("Network error: ${response.code()}"))
+    override fun getMovieResponseFromKPApi(page: Int, query: String): Single<MetaWrapper> {
+        if (query.isBlank()) {
+            return kpApiService.getPopularMovieResponse(
+                page = page,
+                limit = App.instance.loadPopularMoviesLimit,
+                ratingKp = "1-10",
+                selectFields = listOf(
+                    "id",
+                    "name",
+                    "description",
+                    "poster",
+                    "premiere",
+                    "genres",
+                    "year",
+                    "rating"
+                ),
+                notNullFields = listOf(
+                    "id",
+                    "name",
+                    "description",
+                    "poster.url",
+                    "premiere.world",
+                    "genres.name",
+                    "year",
+                    "rating.imdb",
+                )
+            ).flatMap { response ->
+                responseMapping(response)
+            }
+                .onErrorResumeNext {
+                    getFromDbOnError()
+                }
+        } else {
+            return kpApiService.getSearchResponse(
+                page = page,
+                limit = App.instance.loadPopularMoviesLimit,
+                query = query
+            ).flatMap { response ->
+                responseMapping(response)
             }
         }
-            .onErrorResumeNext {
-                movieDao.getAllMovies()
-                    .map { entities -> entities.map { it.convertEntityToModel() } }
-                    .flatMap { usersFromDb ->
-                        if (usersFromDb.isNotEmpty()) {
-                            Single.just(usersFromDb)
-                        } else {
-                            Single.error(Exception("Network error. No data available from storage"))
-                        }
-                    }
+    }
+
+    private fun responseMapping(response: Response<KPResponseDto>): Single<MetaWrapper> {
+        if (response.isSuccessful && response.body() != null) {
+            val resp = response.body()!!
+            val movies = resp.toMovieList()
+            val moviesEntity = movies.map { it.convertModelToEntity() }
+            movieDao.insertMovies(moviesEntity)
+
+            return Single.just(
+                MetaWrapper(
+                    movies = movies,
+                    total = resp.total,
+                    limit = resp.limit,
+                    page = resp.page,
+                    pages = resp.pages,
+                    source = SOURCE.WEB
+                )
+            )
+        } else {
+            return Single.error(Exception("Network error: ${response.code()}"))
+        }
+    }
+
+    private fun getFromDbOnError(): Single<MetaWrapper> {
+        return movieDao.getAllMovies()
+            .map { entities -> entities.map { it.convertEntityToModel() } }
+            .flatMap { movies ->
+                if (movies.isNotEmpty()) {
+                    Single.just(
+                        MetaWrapper(
+                            movies = movies,
+                            source = SOURCE.BASE
+                        )
+                    )
+                } else {
+                    Single.error(Exception("Network error. No data available from storage"))
+                }
             }
     }
 
@@ -173,7 +210,7 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getAllMoviesFromFavorites(): Single<List<Movie>> {
         return movieDao.getFavoriteMovies().map { list ->
-             list.map { movie ->
+            list.map { movie ->
                 movie.convertEntityToModel()
             }
         }

@@ -18,9 +18,17 @@ class App : Application() {
         instance = this
         dagger = DaggerAppComponent.factory().create(this)
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+//        if (BuildConfig.DEBUG) {
+            Timber.plant(object:Timber.DebugTree()
+            {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    super.log(priority, "vudu $tag", message, t)
+                }
+                override fun createStackElementTag(element: StackTraceElement): String {
+                    return " ${super.createStackElementTag(element)}: ${element.methodName}:${element.lineNumber}"
+                }
+            })
+//        }
     }
 
     // Вызывается при изменении конфигурации, например, поворот
