@@ -259,6 +259,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 }
             )
 
+
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
