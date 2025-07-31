@@ -39,7 +39,6 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelper
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import timber.log.Timber
-import kotlin.concurrent.timerTask
 
 
 internal interface ContentAdapterController {
@@ -254,7 +253,10 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 onDeleteFromPopular = { movie ->
                     viewModel.deleteFromCachedList(movie = movie)
                 },
-                onLoadMorePage = { viewModel.loadNextPage() }
+                onLoadMorePage = {
+                    val currentSearchViewQuery = binding.homeSearchView.query
+                    viewModel.loadNextPage(query = if (currentSearchViewQuery.isBlank()) "" else currentSearchViewQuery.toString())
+                }
             )
 
             layoutManager =
@@ -285,8 +287,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
     private fun initSearchView() {
-
-
         binding.homeSearchView.setOnClickListener {
             binding.homeSearchView.isIconified = false
         }
@@ -299,57 +299,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let {
-                    viewModel.onSearchViewQueryChanged(it) }
+                    viewModel.onSearchViewQueryChanged(it)
+                }
                 return true
             }
         })
-
-
-// НЕРАБОТАЕТ
-//        Observable.create(ObservableOnSubscribe<String> { subscriber ->
-//            //Вешаем слушатель на клавиатуру
-//            binding.homeSearchView.setOnQueryTextListener(object :
-//            //Вызывается на ввод символов
-//                SearchView.OnQueryTextListener {
-//                override fun onQueryTextChange(newText: String): Boolean {
-//                    contentAdapter.setData(emptyList())
-//                    subscriber.onNext(newText)
-//                    return false
-//                }
-//
-//                //Вызывается по нажатию кнопки "Поиск"
-//                override fun onQueryTextSubmit(query: String): Boolean {
-//                    subscriber.onNext(query)
-//                    return false
-//                }
-//            })
-//        })
-//            .subscribeOn(Schedulers.io())
-//            .map {
-//                it.toLowerCase(Locale.getDefault()).trim()
-//            }
-//            .debounce(1500, TimeUnit.MILLISECONDS)
-//            .filter {
-//                //Если в поиске пустое поле, возвращаем список фильмов по умолчанию
-////                viewModel.getMoviesFromApi()
-//                it.isNotBlank()
-//            }
-//            .flatMap {
-//                Log.d("mytag","qqq - $it")
-//                viewModel.getSearchResult(page = 1, query = it)
-//            }
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribeBy(
-//                onError = {
-//                    Toast.makeText(requireContext(), "Что-то пошло не так", Toast.LENGTH_SHORT)
-//                        .show()
-//                },
-//                onNext = {
-//                    contentAdapter.setData(it)
-//                }
-//            )
-//            .addTo(autoDisposable)
     }
 
 
