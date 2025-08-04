@@ -132,7 +132,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
         binding.pullToRefresh.setOnRefreshListener {
             contentAdapter.setData(emptyList())
-            viewModel.loadNextPage()
+            viewModel.loadNextPage("")
             binding.pullToRefresh.isRefreshing = false
         }
     }
@@ -145,14 +145,16 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     is HomeUIState.Loading -> setHomeViewsVisibility(state)
 
                     is HomeUIState.Success -> {
-                        Timber.d("state - ${state.movies}")
+//                        state.movies.forEach {
+//                        Timber.d("state for qwery ${binding.homeSearchView.query}- ${it.title}")
+//                        }
                         contentAdapter.updateData(
                             state.movies,
                             state.hasMore,
                             state.nextPageSize,
                             state.currentPage,
                             state.totalPages,
-                            state.totalItems
+                            state.totalItems,
                         )
                         setHomeViewsVisibility(state)
                     }

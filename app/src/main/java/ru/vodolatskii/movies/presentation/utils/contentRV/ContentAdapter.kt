@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
+import timber.log.Timber
 import java.util.Collections
 
 class ContentAdapter(
@@ -39,6 +40,7 @@ class ContentAdapter(
     private var currentPage = 0
     private var totalPages = 0
     private var totalItems = 0
+
 
     companion object {
         private const val TYPE_MOVIE_CARD = 0
@@ -69,17 +71,22 @@ class ContentAdapter(
         nextPageSize: Int,
         currentPage: Int,
         totalPages: Int,
-        totalItems: Int
-
+        totalItems: Int,
     ) {
         this.hasMore = hasMore
         this.nextPageSize = nextPageSize
         this.currentPage = currentPage
         this.totalPages = totalPages
         this.totalItems = totalItems
+        Timber.d("mov b--- ${movies.size}")
         movies.clear()
+        Timber.d("mov a--- ${movies.size}")
         movies.addAll(newMovies)
-        asyncListDiffer.submitList(movies)
+        movies.forEach {
+        Timber.d("mov list --- ${it.title}")
+
+        }
+        asyncListDiffer.submitList(movies.toMutableList())
     }
 
     fun getData(): List<Movie> {

@@ -56,8 +56,17 @@ class MoviesViewModel @Inject constructor(
     private var pageSize = App.instance.loadPopularMoviesLimit
     private var nextPageSize = 0
 
+    private var currentPageSearch = 1
+    private var isLoadingSearch = false
+    private var hasMoreSearch = true
+    private var totalPagesSearch = 0
+    private var totalItemsSearch = 0
+    private var pageSizeSearch = App.instance.loadPopularMoviesLimit
+    private var nextPageSizeSearch = 0
+    private var querySearch = ""
+
     private var cachedMovieList: MutableSet<Movie> = mutableSetOf()
-    private var cachedSearchMovieList: MutableSet<Movie> = mutableSetOf()
+    private var cachedMovieListSearch: MutableSet<Movie> = mutableSetOf()
     private var cachedFavoriteMovieList: MutableSet<Movie> = mutableSetOf()
 
     private val searchSubject: BehaviorSubject<String> = BehaviorSubject.createDefault("")
@@ -77,18 +86,173 @@ class MoviesViewModel @Inject constructor(
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    Timber.d("qqq - $it")
+                    cachedMovieListSearch.clear()
+                    currentPageSearch = 1
+                    hasMoreSearch = true
+                    totalPagesSearch = 0
+                    totalItemsSearch = 0
+                    nextPageSizeSearch = 0
                     loadNextPage(it)
                 }
         )
     }
 
+
+    fun loadNextPage(query: String) {
+        if (query.isBlank()) {
+            if (isLoading || !hasMore) return
+            isLoading = true
+            homeUIState.onNext(HomeUIState.Loading)
+            disposable.add(
+                repository.getMovieResponseFromKPApi(page = currentPage, query = query)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess {
+                        messageSingleLiveEvent.postValue("Success loading data!")
+                    }
+                    .doOnError { error ->
+                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                    }
+                    .subscribe(
+                        { response ->
+                            isLoading = false
+                            totalItems = response.total
+                            totalPages = response.pages
+                            pageSize = response.limit
+
+                            if (response.movies.isNotEmpty()) {
+                                cachedMovieList.addAll(response.movies)
+                                currentPage++
+                                hasMore = currentPage <= totalPages
+                                nextPageSize = if (hasMore) {
+                                    if (currentPage == totalPages) {
+                                        totalItems - cachedMovieList.size
+                                    } else {
+                                        pageSize
+                                    }
+                                } else {
+                                    0
+                                }
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieList.toList(),
+                                        hasMore,
+                                        nextPageSize,
+                                        currentPage - 1,
+                                        totalPages,
+                                        totalItems
+                                    )
+                                )
+                            } else {
+                                hasMore = false
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieList.toList(),
+                                        false,
+                                        0,
+                                        currentPage - 1,
+                                        totalPages,
+                                        totalItems
+                                    )
+                                )
+                            }
+                        },
+                        { error ->
+                            isLoading = false
+                            homeUIState.onNext(
+                                HomeUIState.Error(
+                                    error.message ?: "Unknown error"
+                                )
+                            )
+                        }
+                    )
+            )
+        } else {
+            if (isLoadingSearch || !hasMoreSearch) return
+            Timber.d("query ---- $query")
+            if (query != querySearch){
+                querySearch = query
+                cachedMovieListSearch.clear()
+            }
+            isLoadingSearch = true
+            homeUIState.onNext(HomeUIState.Loading)
+
+            disposable.add(
+                repository.getMovieResponseFromKPApi(page = currentPageSearch, query = query)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess {
+                        messageSingleLiveEvent.postValue("Success loading data!")
+                    }
+                    .doOnError { error ->
+                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                    }
+                    .subscribe(
+                        { response ->
+                            isLoadingSearch = false
+                            totalItemsSearch = response.total
+                            totalPagesSearch = response.pages
+                            pageSizeSearch = response.limit
+
+                            if (response.movies.isNotEmpty()) {
+
+                                cachedMovieListSearch.addAll(response.movies)
+                                currentPageSearch++
+                                hasMoreSearch = currentPageSearch <= totalPagesSearch
+                                nextPageSizeSearch = if (hasMoreSearch) {
+                                    if (currentPageSearch == totalPagesSearch) {
+                                        totalItemsSearch - cachedMovieListSearch.size
+                                    } else {
+                                        pageSizeSearch
+                                    }
+                                } else {
+                                    0
+                                }
+                                cachedMovieListSearch.forEach {
+                                    Timber.d("list -- ${it.title}")
+                                }
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieListSearch.toList(),
+                                        hasMoreSearch,
+                                        nextPageSizeSearch,
+                                        currentPageSearch - 1,
+                                        totalPagesSearch,
+                                        totalItemsSearch)
+                                )
+                            } else {
+                                hasMoreSearch = false
+
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieListSearch.toList(),
+                                        false,
+                                        0,
+                                        currentPageSearch - 1,
+                                        totalPagesSearch,
+                                        totalItemsSearch
+                                    )
+                                )
+                            }
+                        },
+                        { error ->
+                            isLoadingSearch = false
+                            homeUIState.onNext(
+                                HomeUIState.Error(
+                                    error.message ?: "Unknown error"
+                                )
+                            )
+                        }
+                    )
+            )
+        }
+    }
+
     fun loadCurrentPage() {
         if (cachedMovieList.isEmpty()) {
-            Timber.d("sdfsdfsdf")
-            loadNextPage()
+            loadNextPage("")
         } else {
-            Timber.d("elseeeeee")
-
             homeUIState.onNext(
                 HomeUIState.Success(
                     cachedMovieList.toList(),
@@ -96,84 +260,10 @@ class MoviesViewModel @Inject constructor(
                     nextPageSize,
                     currentPage - 1,
                     totalPages,
-                    totalItems
+                    totalItems,
                 )
             )
         }
-    }
-
-
-    fun loadNextPage(query: String = "") {
-        if (isLoading || !hasMore) return
-        isLoading = true
-        homeUIState.onNext(HomeUIState.Loading)
-
-        disposable.add(
-            repository.getMovieResponseFromKPApi(page = currentPage, query = query)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess {
-                    messageSingleLiveEvent.postValue("Success loading data!")
-                }
-                .doOnError { error ->
-                    messageSingleLiveEvent.postValue("Server error - ${error.message}")
-                }
-                .subscribe(
-                    { response ->
-                        isLoading = false
-                        totalItems = response.total
-                        totalPages = response.pages
-                        pageSize = response.limit
-
-                        if (response.movies.isNotEmpty()) {
-                            if (query.isBlank()) cachedMovieList.addAll(response.movies) else cachedSearchMovieList.addAll(
-                                response.movies
-                            )
-                            currentPage++
-                            hasMore = currentPage <= totalPages
-                            nextPageSize = if (hasMore) {
-                                if (currentPage == totalPages) {
-                                    totalItems - (if (query.isBlank()) cachedMovieList.size else cachedSearchMovieList.size)
-                                } else {
-                                    pageSize
-                                }
-                            } else {
-                                0
-                            }
-                            homeUIState.onNext(
-                                HomeUIState.Success(
-                                    if (query.isBlank()) cachedMovieList.toList() else cachedSearchMovieList.toList(),
-                                    hasMore,
-                                    nextPageSize,
-                                    currentPage - 1,
-                                    totalPages,
-                                    totalItems
-                                )
-                            )
-                        } else {
-                            hasMore = false
-                            homeUIState.onNext(
-                                HomeUIState.Success(
-                                    if (query.isBlank()) cachedMovieList.toList() else cachedSearchMovieList.toList(),
-                                    false,
-                                    0,
-                                    currentPage - 1,
-                                    totalPages,
-                                    totalItems
-                                )
-                            )
-                        }
-                    },
-                    { error ->
-                        isLoading = false
-                        homeUIState.onNext(
-                            HomeUIState.Error(
-                                error.message ?: "Unknown error"
-                            )
-                        )
-                    }
-                )
-        )
     }
 
 
@@ -320,7 +410,6 @@ class MoviesViewModel @Inject constructor(
                 currentPage = currentPage,
                 totalPages = totalPages,
                 totalItems = totalItems
-
             )
         )
     }
@@ -393,7 +482,7 @@ class MoviesViewModel @Inject constructor(
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
 //                clearLoadedPages()
 //                clearCachedMovieList()
-                loadNextPage()
+                loadNextPage("")
             }
         }
     }

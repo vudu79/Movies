@@ -1,12 +1,15 @@
 package ru.vodolatskii.movies.data.repositiryImpl
 
 import android.content.SharedPreferences
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Response
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.dto.KPResponseDto
 import ru.vodolatskii.movies.data.dto.toMovieList
+import ru.vodolatskii.movies.data.entity.MovieEntity
 import ru.vodolatskii.movies.data.entity.convertEntityToModel
 import ru.vodolatskii.movies.data.service.KPApiService
 import ru.vodolatskii.movies.data.service.TmdbApiService
@@ -77,7 +80,11 @@ class MovieRepositoryImpl @Inject constructor(
             val resp = response.body()!!
             val movies = resp.toMovieList()
             val moviesEntity = movies.map { it.convertModelToEntity() }
-            movieDao.insertMovies(moviesEntity)
+            Completable.fromSingle<List<MovieEntity>> {
+                movieDao.insertMovies(moviesEntity)
+            }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
 
             return Single.just(
                 MetaWrapper(

@@ -2,7 +2,6 @@ package ru.vodolatskii.movies
 
 import android.app.Application
 import android.content.res.Configuration
-import com.github.ajalt.timberkt.BuildConfig
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import timber.log.Timber
@@ -10,7 +9,7 @@ import timber.log.Timber
 class App : Application() {
 
     lateinit var dagger: AppComponent
-    var loadPopularMoviesLimit: Int = 50
+    var loadPopularMoviesLimit: Int = 3
     var isFirstLaunch = true
 
     override fun onCreate() {
