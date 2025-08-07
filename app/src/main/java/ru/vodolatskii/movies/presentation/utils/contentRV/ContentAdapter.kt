@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
-import timber.log.Timber
 import java.util.Collections
 
 class ContentAdapter(
@@ -50,7 +49,7 @@ class ContentAdapter(
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
         object : DiffUtil.ItemCallback<Movie>() {
             override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return oldItem === newItem
+                return oldItem.apiId == newItem.apiId
             }
 
             override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
@@ -78,15 +77,9 @@ class ContentAdapter(
         this.currentPage = currentPage
         this.totalPages = totalPages
         this.totalItems = totalItems
-        Timber.d("mov b--- ${movies.size}")
         movies.clear()
-        Timber.d("mov a--- ${movies.size}")
         movies.addAll(newMovies)
-        movies.forEach {
-        Timber.d("mov list --- ${it.title}")
-
-        }
-        asyncListDiffer.submitList(movies.toMutableList())
+        asyncListDiffer.submitList(movies)
     }
 
     fun getData(): List<Movie> {
@@ -125,9 +118,11 @@ class ContentAdapter(
                 val movie = asyncListDiffer.currentList[position]
                 holder.bind(movie = movie, onItemClick = onItemClick)
             }
+
             is LoadMoreViewHolder -> {
                 holder.bind(nextPageSize, currentPage, totalPages, totalItems)
             }
+
             else -> {
             }
         }

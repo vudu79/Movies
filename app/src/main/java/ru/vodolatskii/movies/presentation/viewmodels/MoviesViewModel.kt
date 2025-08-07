@@ -81,12 +81,10 @@ class MoviesViewModel @Inject constructor(
                 .debounce(1000, TimeUnit.MILLISECONDS)
                 .distinctUntilChanged()
                 .filter {
-                    loadCurrentPage()
                     it.isNotBlank()
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Timber.d("qqq - $it")
                     cachedMovieListSearch.clear()
                     currentPageSearch = 1
                     hasMoreSearch = true
@@ -98,7 +96,6 @@ class MoviesViewModel @Inject constructor(
         )
     }
 
-
     fun loadNextPage(query: String) {
         if (query.isBlank()) {
             if (isLoading || !hasMore) return
@@ -109,10 +106,10 @@ class MoviesViewModel @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSuccess {
-                        messageSingleLiveEvent.postValue("Success loading data!")
+                        messageSingleLiveEvent.postValue("Данные успешно получены!")
                     }
                     .doOnError { error ->
-                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                        messageSingleLiveEvent.postValue("Ошибка на стороне сервера - ${error.message}")
                     }
                     .subscribe(
                         { response ->
@@ -162,19 +159,28 @@ class MoviesViewModel @Inject constructor(
                             isLoading = false
                             homeUIState.onNext(
                                 HomeUIState.Error(
-                                    error.message ?: "Unknown error"
+                                    error.message ?: "Неизвестная ошибка"
                                 )
                             )
                         }
                     )
             )
         } else {
-            if (isLoadingSearch || !hasMoreSearch) return
-            Timber.d("query ---- $query")
-            if (query != querySearch){
+
+            if (query != querySearch) {
                 querySearch = query
                 cachedMovieListSearch.clear()
+                currentPageSearch = 1
+                isLoadingSearch = false
+                hasMoreSearch = true
+                totalPagesSearch = 0
+                totalItemsSearch = 0
+                pageSizeSearch = App.instance.loadPopularMoviesLimit
+                nextPageSizeSearch = 0
             }
+
+            if (isLoadingSearch || !hasMoreSearch) return
+
             isLoadingSearch = true
             homeUIState.onNext(HomeUIState.Loading)
 
@@ -183,10 +189,10 @@ class MoviesViewModel @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSuccess {
-                        messageSingleLiveEvent.postValue("Success loading data!")
+                        messageSingleLiveEvent.postValue("Данные успешно получены!")
                     }
                     .doOnError { error ->
-                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                        messageSingleLiveEvent.postValue("Ошибка на стороне сервера - ${error.message}")
                     }
                     .subscribe(
                         { response ->
@@ -219,7 +225,8 @@ class MoviesViewModel @Inject constructor(
                                         nextPageSizeSearch,
                                         currentPageSearch - 1,
                                         totalPagesSearch,
-                                        totalItemsSearch)
+                                        totalItemsSearch
+                                    )
                                 )
                             } else {
                                 hasMoreSearch = false
@@ -240,7 +247,7 @@ class MoviesViewModel @Inject constructor(
                             isLoadingSearch = false
                             homeUIState.onNext(
                                 HomeUIState.Error(
-                                    error.message ?: "Unknown error"
+                                    error.message ?: "Неизвестная ошибка"
                                 )
                             )
                         }
@@ -281,11 +288,11 @@ class MoviesViewModel @Inject constructor(
                             storageUIState.onNext(UIStateStorage.Success(listMovie = movies))
 
                         } else {
-                            storageUIState.onNext(UIStateStorage.Error("Content not found!"))
+                            storageUIState.onNext(UIStateStorage.Error("Контент не найден!"))
                         }
                     },
                     { error ->
-                        storageUIState.onNext(UIStateStorage.Error("Unknown error $error"))
+                        storageUIState.onNext(UIStateStorage.Error("Неизвестная ошибка $error"))
                     })
         )
     }
@@ -341,12 +348,13 @@ class MoviesViewModel @Inject constructor(
                         if (movies.isEmpty()) {
                             favoriteUIState.onNext(FavoriteUIState.Error("В избранном пока ничего нет"))
                         } else {
+                            cachedFavoriteMovieList.clear()
                             cachedFavoriteMovieList.addAll(movies)
                             favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
                         }
                     },
                     { error ->
-                        favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
+                        favoriteUIState.onNext(FavoriteUIState.Error("Неизвестная ошибка $error"))
                     }
                 )
         )
@@ -359,8 +367,8 @@ class MoviesViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { movies ->
-                        if (movies.isEmpty() || !movies.any { movie.apiId == it.apiId && movie.title == it.title }) {
+                    { favoriteMovies ->
+                        if (favoriteMovies.isEmpty() || !favoriteMovies.any { movie.apiId == it.apiId && movie.title == it.title }) {
                             Completable.fromSingle<Movie> {
                                 repository.updateMovieToFavorite(true, movie.title)
                             }
@@ -390,11 +398,6 @@ class MoviesViewModel @Inject constructor(
             cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                 .toMutableSet()
         favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
-
-//        if (!cachedMovieList.any { movie.apiId == it.apiId && movie.title == it.title }) {
-//            cachedMovieList.add(movie)
-//            homeUIState.onNext(HomeUIState.Success(cachedMovieList.toList()))
-//        }
     }
 
 

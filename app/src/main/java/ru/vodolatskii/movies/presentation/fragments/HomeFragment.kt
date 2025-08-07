@@ -257,6 +257,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 },
                 onLoadMorePage = {
                     val currentSearchViewQuery = binding.homeSearchView.query
+                    Timber.d("home query - $currentSearchViewQuery")
                     viewModel.loadNextPage(query = if (currentSearchViewQuery.isBlank()) "" else currentSearchViewQuery.toString())
                 }
             )
