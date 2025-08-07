@@ -24,6 +24,7 @@ import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
 import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
@@ -31,7 +32,7 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 class FavoriteFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding
-    private lateinit var favoriteAdapter: ContentAdapter
+    private lateinit var favoriteAdapter: FavoriteAdapter
     private lateinit var viewModel: MoviesViewModel
     private val autoDisposable = AutoDisposable()
 
@@ -183,7 +184,7 @@ class FavoriteFragment : Fragment() {
         binding.recyclerViewFav.addOnScrollListener(onScrollListener)
 
         binding.recyclerViewFav.apply {
-            favoriteAdapter = ContentAdapter(
+            favoriteAdapter = FavoriteAdapter(
                 onItemClick = { movie, view ->
                     (activity as MainActivity).launchDetailsFragment(
                         movie,
@@ -195,8 +196,7 @@ class FavoriteFragment : Fragment() {
                     viewModel.deleteMovieFromFavorite(movie)
                 },
                 onDeleteFromPopular = {},
-                context = requireContext(),
-                onLoadMorePage = {}
+                context = requireContext()
             )
 
             layoutManager =

@@ -31,7 +31,7 @@ class ContentAdapter(
     private val onDeleteFromPopular: (Movie) -> Unit,
     private val context: Context
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(), ContentItemTouchHelperListener {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemTouchHelperListener {
 
     private val movies = mutableListOf<Movie>()
     private var hasMore = false

@@ -15,7 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 class FavoriteItemTouchHelperCallback(
     private val recyclerView: RecyclerView,
 ) : ItemTouchHelper.Callback() {
-    private val adapter = recyclerView.adapter as ContentAdapter
+    private val adapter = recyclerView.adapter as FavoriteAdapter
     private val background = ColorDrawable()
     private val backgroundColorDelete = Color.parseColor("#f44336")
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
