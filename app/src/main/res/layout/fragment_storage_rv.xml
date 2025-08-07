@@ -17,7 +17,7 @@
         android:layout_marginTop="20dp"
         android:textColor="@color/white"
         android:textSize="22sp"
-        android:text="Результат поиска"
+        android:text="@string/search_result"
         app:layout_constraintBottom_toTopOf="@+id/rv_storage_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

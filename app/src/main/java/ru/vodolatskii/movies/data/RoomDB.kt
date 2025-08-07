@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import ru.vodolatskii.movies.data.dao.MovieDao
-import ru.vodolatskii.movies.data.entity.Genre
-import ru.vodolatskii.movies.data.entity.MovieWithoutGenre
+import ru.vodolatskii.movies.data.entity.GenreConverter
+import ru.vodolatskii.movies.data.entity.MovieEntity
 
 
-@Database(entities = [MovieWithoutGenre::class, Genre::class], version = 1)
+@Database(entities = [MovieEntity::class], version = 1)
+@TypeConverters(GenreConverter::class)
 abstract class RoomDB : RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

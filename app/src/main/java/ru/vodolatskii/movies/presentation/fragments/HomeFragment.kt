@@ -22,6 +22,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
@@ -29,15 +30,14 @@ import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AnimationHelper
+import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
+import ru.vodolatskii.movies.presentation.utils.SortEvents
+import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 
 internal interface ContentAdapterController {
@@ -50,6 +50,8 @@ class HomeFragment : Fragment(), ContentAdapterController {
     lateinit var contentAdapter: ContentAdapter
     private var isContentSourceApi: Boolean = true
     private lateinit var viewModel: MoviesViewModel
+    private val autoDisposable = AutoDisposable()
+
 
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
@@ -57,7 +59,9 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        autoDisposable.bindTo(lifecycle)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,8 +86,12 @@ class HomeFragment : Fragment(), ContentAdapterController {
         setupObservers()
         setupListeners()
         checkToolBar()
-        viewModel.getMoviesFromApi()
+        showMovies()
         initSpeedDial(savedInstanceState == null)
+    }
+
+    private fun showMovies() {
+        viewModel.getMoviesFromApi()
     }
 
     private fun checkToolBar() {
@@ -162,29 +170,24 @@ class HomeFragment : Fragment(), ContentAdapterController {
     }
 
     private fun setupObservers() {
+        viewModel.homeUIState
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { state ->
+                when (state) {
+                    is HomeUIState.Loading -> setHomeViewsVisibility(state)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.homeUIState.collect { uiState ->
+                    is HomeUIState.Success -> {
+                        contentAdapter.setData(state.movie)
+                        setHomeViewsVisibility(state)
+                    }
 
-                    if (!uiState.isLoading && uiState.error == "") {
-                        if (uiState.isSourceApe) {
-                            val mutableMoviesList = uiState.movies.second
-                            contentAdapter.setData(mutableMoviesList)
-                        } else {
-                            val mutableMoviesList = uiState.movies.first
-                            contentAdapter.setData(mutableMoviesList)
-                        }
-                        setHomeViewsVisibility(uiState)
-                    } else if (uiState.isLoading && uiState.error == "") {
-                        setHomeViewsVisibility(uiState)
-                    } else if (uiState.error.isNotBlank()) {
-                        binding.errorTextView.text = uiState.error
-                        setHomeViewsVisibility(uiState)
+                    is HomeUIState.Error -> {
+                        binding.errorTextView.text = state.message
+                        setHomeViewsVisibility(state)
                     }
                 }
             }
-        }
+            .addTo(autoDisposable)
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -222,8 +225,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
 //                }
 
                 if (!recyclerView.canScrollVertically(1)) {
-                    Log.d("mytag", "scroll")
-
                     viewModel.plusPageCount()
 
                     viewModel.getMoviesFromApi()
@@ -241,6 +242,7 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 }
             }
+
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 when (newState) {
                     RecyclerView.SCROLL_STATE_IDLE -> {
@@ -269,11 +271,11 @@ class HomeFragment : Fragment(), ContentAdapterController {
                     }
                 },
                 onMoveToFavorite = { movie ->
-//                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
+                    viewModel.addMovieToFavorite(movie.copy(isFavorite = true))
                 },
                 onDeleteFromFavorite = {},
                 onDeleteFromPopular = { movie ->
-//                    viewModel.deleteFromCachedList(movie = movie)
+                    viewModel.deleteFromCachedList(movie = movie)
                 },
             )
 
@@ -306,31 +308,25 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
 
     private fun setHomeViewsVisibility(state: HomeUIState) {
-        if (state.error == "" && !state.isLoading) {
-            binding.progressCircular.visibility = View.GONE
-            binding.recyclerviewContent.visibility = View.VISIBLE
-            binding.errorTextView.visibility = View.GONE
-        } else if (state.error.isNotBlank()) {
-            binding.progressCircular.visibility = View.GONE
-            binding.recyclerviewContent.visibility = View.GONE
-            binding.errorTextView.visibility = View.VISIBLE
-        } else if (state.isLoading) {
-            binding.progressCircular.visibility = View.VISIBLE
-            binding.recyclerviewContent.visibility = View.GONE
-            binding.errorTextView.visibility = View.GONE
-        }
-    }
-
-
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+        when (state) {
+            is HomeUIState.Error -> {
+                binding.progressCircular.visibility = View.GONE
+                binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.VISIBLE
             }
+
+            HomeUIState.Loading -> {
+                binding.progressCircular.visibility = View.VISIBLE
+                binding.recyclerviewContent.visibility = View.GONE
+                binding.errorTextView.visibility = View.GONE
+            }
+
+            is HomeUIState.Success -> {
+                binding.progressCircular.visibility = View.GONE
+                binding.recyclerviewContent.visibility = View.VISIBLE
+                binding.errorTextView.visibility = View.GONE
+            }
+        }
     }
 
     override fun updateAdapterData(data: List<Movie>?) {
@@ -397,19 +393,19 @@ class HomeFragment : Fragment(), ContentAdapterController {
         speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.sort_alph -> {
-//                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
+                    viewModel.onSortRVEvents(SortEvents.ALPHABET)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true  // false will close it without animation
                 }
 
                 R.id.sort_date -> {
-//                    viewModel.onSortRVEvents(SortEvents.DATE)
+                    viewModel.onSortRVEvents(SortEvents.DATE)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }
 
                 R.id.sort_rating -> {
-//                    viewModel.onSortRVEvents(SortEvents.RATING)
+                    viewModel.onSortRVEvents(SortEvents.RATING)
                     speedDialView.close()  // To close the Speed Dial with animation
                     return@OnActionSelectedListener true
                 }

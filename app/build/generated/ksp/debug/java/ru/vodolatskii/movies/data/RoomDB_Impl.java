@@ -37,17 +37,15 @@ public final class RoomDB_Impl extends RoomDB {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL, `genres` TEXT NOT NULL)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_title` ON `movies` (`title`)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Genre` (`idGenre` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id_genre_fk` INTEGER NOT NULL, `genre` INTEGER NOT NULL, FOREIGN KEY(`id_genre_fk`) REFERENCES `movies`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '327b15e87823d2288281b9808084ce0c')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'af8a76a37483c79c2760945a57d17c85')");
       }
 
       @Override
       public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS `movies`");
-        db.execSQL("DROP TABLE IF EXISTS `Genre`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -69,7 +67,6 @@ public final class RoomDB_Impl extends RoomDB {
       @Override
       public void onOpen(@NonNull final SupportSQLiteDatabase db) {
         mDatabase = db;
-        db.execSQL("PRAGMA foreign_keys = ON");
         internalInitInvalidationTracker(db);
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
@@ -92,7 +89,7 @@ public final class RoomDB_Impl extends RoomDB {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(10);
+        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(11);
         _columnsMovies.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("api_id", new TableInfo.Column("api_id", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -103,33 +100,20 @@ public final class RoomDB_Impl extends RoomDB {
         _columnsMovies.put("release_date_time_stump", new TableInfo.Column("release_date_time_stump", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("release_date_year", new TableInfo.Column("release_date_year", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("is_favorite", new TableInfo.Column("is_favorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("genres", new TableInfo.Column("genres", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysMovies = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesMovies = new HashSet<TableInfo.Index>(1);
         _indicesMovies.add(new TableInfo.Index("index_movies_title", true, Arrays.asList("title"), Arrays.asList("ASC")));
         final TableInfo _infoMovies = new TableInfo("movies", _columnsMovies, _foreignKeysMovies, _indicesMovies);
         final TableInfo _existingMovies = TableInfo.read(db, "movies");
         if (!_infoMovies.equals(_existingMovies)) {
-          return new RoomOpenHelper.ValidationResult(false, "movies(ru.vodolatskii.movies.data.entity.MovieWithoutGenre).\n"
+          return new RoomOpenHelper.ValidationResult(false, "movies(ru.vodolatskii.movies.data.entity.MovieEntity).\n"
                   + " Expected:\n" + _infoMovies + "\n"
                   + " Found:\n" + _existingMovies);
         }
-        final HashMap<String, TableInfo.Column> _columnsGenre = new HashMap<String, TableInfo.Column>(3);
-        _columnsGenre.put("idGenre", new TableInfo.Column("idGenre", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsGenre.put("id_genre_fk", new TableInfo.Column("id_genre_fk", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsGenre.put("genre", new TableInfo.Column("genre", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysGenre = new HashSet<TableInfo.ForeignKey>(1);
-        _foreignKeysGenre.add(new TableInfo.ForeignKey("movies", "CASCADE", "NO ACTION", Arrays.asList("id_genre_fk"), Arrays.asList("id")));
-        final HashSet<TableInfo.Index> _indicesGenre = new HashSet<TableInfo.Index>(0);
-        final TableInfo _infoGenre = new TableInfo("Genre", _columnsGenre, _foreignKeysGenre, _indicesGenre);
-        final TableInfo _existingGenre = TableInfo.read(db, "Genre");
-        if (!_infoGenre.equals(_existingGenre)) {
-          return new RoomOpenHelper.ValidationResult(false, "Genre(ru.vodolatskii.movies.data.entity.Genre).\n"
-                  + " Expected:\n" + _infoGenre + "\n"
-                  + " Found:\n" + _existingGenre);
-        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "327b15e87823d2288281b9808084ce0c", "dc9d84be980b5c319c0c6548bedbf85a");
+    }, "af8a76a37483c79c2760945a57d17c85", "6da3175b6bccfc8e8c770ddfa7ae6a18");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -140,30 +124,19 @@ public final class RoomDB_Impl extends RoomDB {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "movies","Genre");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "movies");
   }
 
   @Override
   public void clearAllTables() {
     super.assertNotMainThread();
     final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
-    final boolean _supportsDeferForeignKeys = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP;
     try {
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = FALSE");
-      }
       super.beginTransaction();
-      if (_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA defer_foreign_keys = TRUE");
-      }
       _db.execSQL("DELETE FROM `movies`");
-      _db.execSQL("DELETE FROM `Genre`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = TRUE");
-      }
       _db.query("PRAGMA wal_checkpoint(FULL)").close();
       if (!_db.inTransaction()) {
         _db.execSQL("VACUUM");

@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +12,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentStorageRvBinding
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
+import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
@@ -27,10 +29,12 @@ class StorageRVFragment : Fragment() {
     private lateinit var binding: FragmentStorageRvBinding
     private lateinit var storageAdapter: ContentAdapter
     private lateinit var viewModel: MoviesViewModel
+    private val autoDisposable = AutoDisposable()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        autoDisposable.bindTo(lifecycle)
     }
 
     override fun onCreateView(
@@ -109,28 +113,27 @@ class StorageRVFragment : Fragment() {
 
 
     private fun setupObservers() {
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.storageState.collect { uiState ->
-                    when (uiState) {
-                        is UIStateStorage.Success -> {
-                            val mutableMoviesList = uiState.listMovie.toMutableList()
-                            setStorageViewsVisibility(uiState)
-                            storageAdapter.setData(mutableMoviesList)
-                        }
+        viewModel.storageUIState
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { uiState ->
+                when (uiState) {
+                    is UIStateStorage.Success -> {
+                        val mutableMoviesList = uiState.listMovie.toMutableList()
+                        setStorageViewsVisibility(uiState)
+                        storageAdapter.setData(mutableMoviesList)
+                    }
 
-                        is UIStateStorage.Error -> {
-                            binding.storageErrorTextView.text = uiState.message
-                            setStorageViewsVisibility(uiState)
-                        }
+                    is UIStateStorage.Error -> {
+                        binding.storageErrorTextView.text = uiState.message
+                        setStorageViewsVisibility(uiState)
+                    }
 
-                        is UIStateStorage.Loading -> {
-                            setStorageViewsVisibility(uiState)
-                        }
+                    is UIStateStorage.Loading -> {
+                        setStorageViewsVisibility(uiState)
                     }
                 }
             }
-        }
+            .addTo(autoDisposable)
     }
 
 

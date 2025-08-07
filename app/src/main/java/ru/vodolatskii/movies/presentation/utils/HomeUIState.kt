@@ -3,9 +3,8 @@ package ru.vodolatskii.movies.presentation.utils
 import ru.vodolatskii.movies.domain.models.Movie
 
 
-data class HomeUIState(
-    var movies: Pair<List<Movie>, List<Movie>> = Pair(emptyList(), emptyList()),
-    var isSourceApe: Boolean = true,
-    var isLoading: Boolean = false,
-    var error: String = ""
-)
+sealed class HomeUIState {
+    data object Loading : HomeUIState()
+    data class Success(val movie: List<Movie>) : HomeUIState()
+    data class Error(val message: String) : HomeUIState()
+}
