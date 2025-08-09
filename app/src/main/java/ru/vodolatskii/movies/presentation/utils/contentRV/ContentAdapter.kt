@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
+import timber.log.Timber
 import java.util.Collections
 
 class ContentAdapter(
@@ -40,7 +41,6 @@ class ContentAdapter(
     private var totalPages = 0
     private var totalItems = 0
 
-
     companion object {
         private const val TYPE_MOVIE_CARD = 0
         private const val TYPE_LOAD_MORE_BUTTON = 1
@@ -49,15 +49,35 @@ class ContentAdapter(
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
         object : DiffUtil.ItemCallback<Movie>() {
             override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return oldItem.apiId == newItem.apiId
+                return oldItem.apiId == newItem.apiId &&
+                        oldItem.description == newItem.description &&
+                        oldItem.posterUrl == newItem.posterUrl &&
+                        oldItem.releaseDateTimeStump == newItem.releaseDateTimeStump
+
             }
 
             override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return oldItem == newItem
+                return oldItem.apiId == newItem.apiId &&
+                        oldItem.description == newItem.description &&
+                        oldItem.posterUrl == newItem.posterUrl &&
+                        oldItem.releaseDateTimeStump == newItem.releaseDateTimeStump
             }
         }
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
+
+    init {
+        asyncListDiffer.addListListener { previousList, currentList ->
+            previousList.forEach {
+                Timber.d("prev - ${it.title}")
+            }
+            currentList.forEach {
+                Timber.d("curr - ${it.title}")
+            }
+
+
+        }
+    }
 
     fun setData(movies: List<Movie>) {
         val list = movies.toMutableList()
@@ -77,9 +97,12 @@ class ContentAdapter(
         this.currentPage = currentPage
         this.totalPages = totalPages
         this.totalItems = totalItems
+
         movies.clear()
         movies.addAll(newMovies)
+//        val anyMemoryList = movies.toMutableList()
         asyncListDiffer.submitList(movies)
+        notifyDataSetChanged()
     }
 
     fun getData(): List<Movie> {
@@ -138,6 +161,7 @@ class ContentAdapter(
         val card: CardView = itemView.findViewById(R.id.card)
         val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
         val genres: TextView = itemView.findViewById(R.id.genre_list)
+        val isFavoriteImage: ImageView = itemView.findViewById(R.id.is_favorite_image)
 //        val shineView: View = itemView.findViewById(R.id.shine)
 
         fun bind(movie: Movie, onItemClick: (Movie, View) -> Unit) {
@@ -158,8 +182,7 @@ class ContentAdapter(
             releaseDate.text = "Дата выхода: " + movie.releaseDate
             val genreString = movie.genreListString.toString().replace("[", "").replace("]", "")
             genres.text = "Жанры: $genreString"
-//                val genreString = movie.genreList.toGenresString()
-//                setAnimation(holder.shineView)
+            isFavoriteImage.visibility = if (movie.isFavorite) View.VISIBLE else View.INVISIBLE
         }
     }
 
@@ -203,10 +226,11 @@ class ContentAdapter(
     }
 
     override fun onItemSwipedToRight(movie: Movie, position: Int) {
-        onItemDismiss(position)
-        onMoveToFavorite(movie)
+        asyncListDiffer.currentList[position].isFavorite =
+            !asyncListDiffer.currentList[position].isFavorite
+        notifyItemChanged(position)
+        onMoveToFavorite(asyncListDiffer.currentList[position])
     }
-
 
     private fun setAnimation(viewToAnimate: View) {
         try {

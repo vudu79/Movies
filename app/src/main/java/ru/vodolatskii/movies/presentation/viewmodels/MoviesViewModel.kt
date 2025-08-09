@@ -80,18 +80,19 @@ class MoviesViewModel @Inject constructor(
             searchSubject
                 .debounce(1000, TimeUnit.MILLISECONDS)
                 .distinctUntilChanged()
-                .filter {
-                    it.isNotBlank()
-                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    cachedMovieListSearch.clear()
-                    currentPageSearch = 1
-                    hasMoreSearch = true
-                    totalPagesSearch = 0
-                    totalItemsSearch = 0
-                    nextPageSizeSearch = 0
-                    loadNextPage(it)
+                    if (it.isBlank()){
+                        loadCurrentPage()
+                    } else{
+                        cachedMovieListSearch.clear()
+                        currentPageSearch = 1
+                        hasMoreSearch = true
+                        totalPagesSearch = 0
+                        totalItemsSearch = 0
+                        nextPageSizeSearch = 0
+                        loadNextPage(it)
+                    }
                 }
         )
     }
@@ -202,7 +203,6 @@ class MoviesViewModel @Inject constructor(
                             pageSizeSearch = response.limit
 
                             if (response.movies.isNotEmpty()) {
-
                                 cachedMovieListSearch.addAll(response.movies)
                                 currentPageSearch++
                                 hasMoreSearch = currentPageSearch <= totalPagesSearch
@@ -230,7 +230,6 @@ class MoviesViewModel @Inject constructor(
                                 )
                             } else {
                                 hasMoreSearch = false
-
                                 homeUIState.onNext(
                                     HomeUIState.Success(
                                         cachedMovieListSearch.toList(),
@@ -375,9 +374,9 @@ class MoviesViewModel @Inject constructor(
                                 .subscribeOn(Schedulers.io())
                                 .subscribe()
 
-                            deleteFromCachedList(movie)
+//                            deleteFromCachedList(movie)
                         }
-                        deleteFromCachedList(movie)
+//                        deleteFromCachedList(movie)
                     },
                     { error ->
                         favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
@@ -398,6 +397,13 @@ class MoviesViewModel @Inject constructor(
             cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                 .toMutableSet()
         favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
+
+        cachedMovieList =
+            cachedMovieList.map {
+                if (it.apiId == movie.apiId) it.isFavorite = false
+                it
+            }.toMutableSet()
+        loadCurrentPage()
     }
 
 
