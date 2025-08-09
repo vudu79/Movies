@@ -2,15 +2,17 @@ package ru.vodolatskii.movies.domain
 
 import android.content.SharedPreferences
 import io.reactivex.rxjava3.core.Single
-import ru.vodolatskii.movies.data.entity.MovieEntity
 import ru.vodolatskii.movies.domain.models.Movie
+import ru.vodolatskii.movies.presentation.utils.MetaWrapper
 
 interface MovieRepository {
-     fun getMovieResponseFromKPApi(page: Int):Single<List<Movie>>
+     fun getMovieResponseFromKPApi(page: Int, query: String):Single<MetaWrapper>
 
 //    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
-     fun updateMovieToFavorite(isFavorite: Boolean, title: String)
+//    fun getSearchResponseFromKPApi(page: Int, query: String): Single<List<Movie>>
+
+    fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 

@@ -104,7 +104,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.timberkt)
 
-    implementation(libs.timber)
+    implementation (libs.timber) // Or the latest version
 
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
@@ -153,6 +153,8 @@ dependencies {
 //RxJava
     implementation (libs.rxandroid)
     implementation (libs.rxjava.v3010)
+    implementation (libs.rxkotlin)
+
 
 
 }

@@ -1,6 +1,7 @@
 package ru.vodolatskii.movies.presentation
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -87,10 +88,8 @@ class MainActivity : AppCompatActivity() {
 
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
 
-//        actionBarDrawerToggle.syncState()
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true);
+        supportActionBar?.setHomeButtonEnabled(true)
 
         navView.setupWithNavController(navController)
         binding.bottomNavigation.setupWithNavController(navController)
@@ -127,7 +126,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
 
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -192,8 +190,12 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.top_app_bar_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // check conndition for drawer item with menu item
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
         } else {
