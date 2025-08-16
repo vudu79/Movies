@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.common
+package ru.vodolatskii.remote_module.entity
 
 // check
 class Constant {

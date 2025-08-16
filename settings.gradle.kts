@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Movies"
 include(":app")
- 
+include(":remote_module")

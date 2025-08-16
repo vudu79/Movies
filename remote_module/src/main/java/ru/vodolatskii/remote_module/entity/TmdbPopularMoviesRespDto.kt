@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.dto
+package ru.vodolatskii.remote_module.entity
 
 import com.squareup.moshi.Json
 import java.text.SimpleDateFormat
