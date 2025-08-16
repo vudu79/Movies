@@ -77,28 +77,27 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
-
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    implementation(libs.retrofit2.converter.moshi)
-    implementation(libs.moshi.kotlin)
 
     implementation(libs.glide)
 
     implementation(libs.androidx.recyclerview)
     annotationProcessor(libs.compiler)
 
-    implementation(libs.retrofit)
-    implementation(libs.retrofit2.converter.gson)
-    implementation (libs.adapter.rxjava3)
 
-    implementation(libs.converter.scalars)
-    implementation (libs.okhttp.v492)
-    implementation (libs.logging.interceptor.v492)
-    implementation(libs.converter.gson.v260)
-    implementation(libs.gson)
+    implementation(libs.retrofit)
+//    implementation(libs.retrofit2.converter.gson)
+//    implementation (libs.adapter.rxjava3)
+//    implementation(libs.converter.scalars)
+//    implementation (libs.okhttp.v492)
+//    implementation (libs.logging.interceptor.v492)
+//    implementation(libs.converter.gson.v260)
+//    implementation(libs.gson)
+//    implementation(libs.retrofit2.converter.moshi)
+//    implementation(libs.moshi.kotlin)
+
+
 
     implementation(libs.coordinatorlayout)
     implementation(libs.material)
@@ -155,7 +154,8 @@ dependencies {
     implementation (libs.rxjava.v3010)
     implementation (libs.rxkotlin)
 
-
+    //Remote module
+    implementation (project(":remote_module"))
 
 }
 

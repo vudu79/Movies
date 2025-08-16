@@ -2,21 +2,15 @@
 package ru.vodolatskii.movies.di;
 
 import android.content.Context;
-import com.squareup.moshi.Moshi;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.InstanceFactory;
 import dagger.internal.Preconditions;
 import javax.inject.Provider;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
 import ru.vodolatskii.movies.data.RoomDB;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl_Factory;
-import ru.vodolatskii.movies.data.service.KPApiService;
-import ru.vodolatskii.movies.data.service.TmdbApiService;
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
@@ -24,6 +18,8 @@ import ru.vodolatskii.movies.presentation.MainActivity;
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel;
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel_Factory;
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory;
+import ru.vodolatskii.remote_module.KPApiService;
+import ru.vodolatskii.remote_module.RemoteProvider;
 
 @DaggerGenerated
 @SuppressWarnings({
@@ -42,9 +38,10 @@ public final class DaggerAppComponent {
 
   private static final class Factory implements AppComponent.Factory {
     @Override
-    public AppComponent create(Context context) {
+    public AppComponent create(Context context, RemoteProvider remoteProvider) {
       Preconditions.checkNotNull(context);
-      return new AppComponentImpl(new RemoteModule(), new DatabaseModule(), context);
+      Preconditions.checkNotNull(remoteProvider);
+      return new AppComponentImpl(new DatabaseModule(), remoteProvider, context);
     }
   }
 
@@ -57,19 +54,7 @@ public final class DaggerAppComponent {
 
     private Provider<MovieDao> provideMovieDaoProvider;
 
-    private Provider<HttpLoggingInterceptor> provideHttpLoggingInterceptorProvider;
-
-    private Provider<OkHttpClient> provideHttpClientProvider;
-
-    private Provider<Moshi> provideMoshiProvider;
-
-    private Provider<Retrofit> provideRetrofitKPProvider;
-
-    private Provider<KPApiService> provideKPServiceProvider;
-
-    private Provider<Retrofit> provideRetrofitTMDBProvider;
-
-    private Provider<TmdbApiService> provideKPServiceTMDBProvider;
+    private Provider<KPApiService> provideRemoteProvider;
 
     private Provider<PreferenceProvider> provideSharedPreferenceProvider;
 
@@ -79,28 +64,22 @@ public final class DaggerAppComponent {
 
     private Provider<MoviesViewModel> moviesViewModelProvider;
 
-    private AppComponentImpl(RemoteModule remoteModuleParam, DatabaseModule databaseModuleParam,
+    private AppComponentImpl(DatabaseModule databaseModuleParam, RemoteProvider remoteProviderParam,
         Context contextParam) {
 
-      initialize(remoteModuleParam, databaseModuleParam, contextParam);
+      initialize(databaseModuleParam, remoteProviderParam, contextParam);
 
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final RemoteModule remoteModuleParam,
-        final DatabaseModule databaseModuleParam, final Context contextParam) {
+    private void initialize(final DatabaseModule databaseModuleParam,
+        final RemoteProvider remoteProviderParam, final Context contextParam) {
       this.contextProvider = InstanceFactory.create(contextParam);
       this.provideDBProvider = DoubleCheck.provider(DatabaseModule_ProvideDBFactory.create(databaseModuleParam, contextProvider));
       this.provideMovieDaoProvider = DoubleCheck.provider(DatabaseModule_ProvideMovieDaoFactory.create(databaseModuleParam, provideDBProvider));
-      this.provideHttpLoggingInterceptorProvider = DoubleCheck.provider(RemoteModule_ProvideHttpLoggingInterceptorFactory.create(remoteModuleParam));
-      this.provideHttpClientProvider = DoubleCheck.provider(RemoteModule_ProvideHttpClientFactory.create(remoteModuleParam, provideHttpLoggingInterceptorProvider));
-      this.provideMoshiProvider = DoubleCheck.provider(RemoteModule_ProvideMoshiFactory.create(remoteModuleParam));
-      this.provideRetrofitKPProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitKPFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
-      this.provideKPServiceProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceFactory.create(remoteModuleParam, provideRetrofitKPProvider));
-      this.provideRetrofitTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideRetrofitTMDBFactory.create(remoteModuleParam, provideHttpClientProvider, provideMoshiProvider));
-      this.provideKPServiceTMDBProvider = DoubleCheck.provider(RemoteModule_ProvideKPServiceTMDBFactory.create(remoteModuleParam, provideRetrofitTMDBProvider));
+      this.provideRemoteProvider = new ProvideRemoteProvider(remoteProviderParam);
       this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
-      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideKPServiceProvider, provideKPServiceTMDBProvider, provideSharedPreferenceProvider);
+      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideRemoteProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
       this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
     }
@@ -116,6 +95,19 @@ public final class DaggerAppComponent {
 
     @Override
     public void inject(LaunchActivity activityLaunch) {
+    }
+
+    private static final class ProvideRemoteProvider implements Provider<KPApiService> {
+      private final RemoteProvider remoteProvider;
+
+      ProvideRemoteProvider(RemoteProvider remoteProvider) {
+        this.remoteProvider = remoteProvider;
+      }
+
+      @Override
+      public KPApiService get() {
+        return Preconditions.checkNotNullFromComponent(remoteProvider.provideRemote());
+      }
     }
   }
 }

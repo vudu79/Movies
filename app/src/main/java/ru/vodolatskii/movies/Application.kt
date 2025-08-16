@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.res.Configuration
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
+import ru.vodolatskii.remote_module.DaggerRemoteComponent
 import timber.log.Timber
 
 class App : Application() {
@@ -15,18 +16,19 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        dagger = DaggerAppComponent.factory().create(this)
+        val remoteProvider = DaggerRemoteComponent.create()
+        dagger = DaggerAppComponent.factory().create(this, remoteProvider)
 
 //        if (BuildConfig.DEBUG) {
-            Timber.plant(object:Timber.DebugTree()
-            {
-                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    super.log(priority, "vudu $tag", message, t)
-                }
-                override fun createStackElementTag(element: StackTraceElement): String {
-                    return " ${super.createStackElementTag(element)}: ${element.methodName}:${element.lineNumber}"
-                }
-            })
+        Timber.plant(object : Timber.DebugTree() {
+            override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                super.log(priority, "vudu $tag", message, t)
+            }
+
+            override fun createStackElementTag(element: StackTraceElement): String {
+                return " ${super.createStackElementTag(element)}: ${element.methodName}:${element.lineNumber}"
+            }
+        })
 //        }
     }
 

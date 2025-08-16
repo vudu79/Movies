@@ -6,12 +6,13 @@ import dagger.Component
 import ru.vodolatskii.movies.presentation.LaunchActivity
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory
+import ru.vodolatskii.remote_module.RemoteProvider
 import javax.inject.Singleton
 
 @Singleton
 @Component(
+    dependencies = [RemoteProvider::class],
     modules = [
-        RemoteModule::class,
         DomainModule::class,
         DatabaseModule::class
     ]
@@ -22,7 +23,10 @@ interface AppComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance context: Context): AppComponent
+        fun create(
+            @BindsInstance context: Context,
+            remoteProvider: RemoteProvider
+        ): AppComponent
     }
 
     fun inject(activityMain: MainActivity)

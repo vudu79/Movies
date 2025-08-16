@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.data.dto
+package ru.vodolatskii.remote_module.entity
 
 data class FullDocsResponseDto(
 
