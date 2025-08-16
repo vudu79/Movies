@@ -2,7 +2,6 @@ package ru.vodolatskii.movies
 
 import android.app.Application
 import android.content.res.Configuration
-import com.github.ajalt.timberkt.BuildConfig
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import timber.log.Timber
@@ -10,7 +9,7 @@ import timber.log.Timber
 class App : Application() {
 
     lateinit var dagger: AppComponent
-    var loadPopularMoviesLimit: Int = 50
+    var loadPopularMoviesLimit: Int = 3
     var isFirstLaunch = true
 
     override fun onCreate() {
@@ -18,9 +17,17 @@ class App : Application() {
         instance = this
         dagger = DaggerAppComponent.factory().create(this)
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+//        if (BuildConfig.DEBUG) {
+            Timber.plant(object:Timber.DebugTree()
+            {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    super.log(priority, "vudu $tag", message, t)
+                }
+                override fun createStackElementTag(element: StackTraceElement): String {
+                    return " ${super.createStackElementTag(element)}: ${element.methodName}:${element.lineNumber}"
+                }
+            })
+//        }
     }
 
     // Вызывается при изменении конфигурации, например, поворот

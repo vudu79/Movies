@@ -10,10 +10,10 @@ import java.util.Locale
 
 data class KPResponseDto(
     val docs: List<Doc> = emptyList(),
-    val total: Long,
-    val limit: Long,
-    val page: Long,
-    val pages: Long
+    val total: Int,
+    val limit: Int,
+    val page: Int,
+    val pages: Int
 )
 
 @Parcelize
@@ -22,53 +22,47 @@ data class Doc(
     val name: String,
     val year: Long,
     val description: String,
-    val rating: Rating,
-    val poster: Poster,
+    val rating: Rating?,
+    val poster: Poster?,
     val genres: List<Genre>,
-//    val persons: List<Person>,
-    val premiere: Premiere,
+    val premiere: Premiere?,
 ) : Parcelable
 
 @Parcelize
 data class Genre(
-    val name: String,
+    val name: String?,
 ) : Parcelable
 
 @Parcelize
 data class Poster(
-    val url: String = "",
-    val previewUrl: String = "",
+    val url: String? = "",
+    val previewUrl: String? = "",
 ) : Parcelable
 
 @Parcelize
 data class Premiere(
-    val world: String,
+    val world: String?,
 ) : Parcelable
 
 @Parcelize
 data class Rating(
-//    val kp: Double,
-    val imdb: Double,
-//    val filmCritics: Long,
-//    val russianFilmCritics: Long,
-//    val await: Long?,
+    val imdb: Double?,
 ) : Parcelable
 
 
 fun KPResponseDto.toMovieList(): List<Movie> {
-    val notNullList = this.docs.filter {
-        it.premiere.world != null && it.rating.imdb != null && it.poster.url != null && it.genres != null
-    }
-    val movieList: List<Movie> = notNullList.map {
-        val dateString = it.premiere.world.substring(0, it.premiere.world.indexOf("T"))
+    val movieList: List<Movie> = this.docs.map {
+        val dateString = it.premiere?.world?.substring(0, it.premiere.world.indexOf("T")) ?: ""
         val movie = Movie(
             apiId = it.id,
             title = it.name,
             description = it.description,
-            posterUrl = it.poster.url,
-            rating = it.rating.imdb,
+            posterUrl = it.poster?.url ?: "",
+            rating = it.rating?.imdb ?: 0.0,
             releaseDate = dateString,
-            genreListString = it.genres.map { genre -> genre.name },
+            genreListString = it.genres.map { genre ->
+                if (!genre.name.isNullOrEmpty()) genre.name else ""
+            },
             releaseDateTimeStump = getTimeStump(dateString),
             releaseDateYear = it.year.toInt(),
             isFavorite = false,
@@ -79,10 +73,12 @@ fun KPResponseDto.toMovieList(): List<Movie> {
 }
 
 private fun getTimeStump(dateString: String): Long {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-    val date = dateFormat.parse(dateString)
-    val calendar = Calendar.getInstance()
-    date?.let { calendar.setTime(it) }
-    return calendar.timeInMillis
+    if (dateString.isNotBlank()){
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        val date = dateFormat.parse(dateString)
+        val calendar = Calendar.getInstance()
+        date?.let { calendar.setTime(it) }
+        return calendar.timeInMillis
+    } else return -1L
 }
 

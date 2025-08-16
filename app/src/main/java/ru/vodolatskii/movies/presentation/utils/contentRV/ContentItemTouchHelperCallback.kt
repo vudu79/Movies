@@ -11,6 +11,7 @@ import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import ru.vodolatskii.movies.R
 
 
 class ContentItemTouchHelperCallback(
@@ -32,9 +33,15 @@ class ContentItemTouchHelperCallback(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
+        val front = viewHolder.itemView.findViewById<View>(R.id.is_favorite_image)
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
         val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-        return makeMovementFlags(dragFlags, swipeFlags)
+
+        return if (front.visibility == View.VISIBLE) {
+            ItemTouchHelper.ACTION_STATE_IDLE
+        } else {
+            makeMovementFlags(dragFlags, swipeFlags)
+        }
     }
 
     override fun onMove(
@@ -68,6 +75,7 @@ class ContentItemTouchHelperCallback(
             }
 
             32 -> {
+//                listener.redrawViewHolder( position)
                 adapter.onItemSwipedToRight(swipedMovie, position)  // заменить
                 Snackbar.make(
                     recyclerView,
@@ -93,6 +101,8 @@ class ContentItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
+
+
         val itemView = viewHolder.itemView
         val itemHeight = itemView.bottom - itemView.top
         val isCanceled = dX == 0f && !isCurrentlyActive
@@ -140,5 +150,12 @@ class ContentItemTouchHelperCallback(
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
         c?.drawRect(left, top, right, bottom, clearPaint)
+    }
+
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        super.clearView(recyclerView, viewHolder)
+        viewHolder.itemView.findViewById<View>(R.id.cardview_container).apply {
+            getDefaultUIUtil().clearView(this)
+        }
     }
 }

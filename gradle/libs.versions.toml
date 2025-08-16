@@ -38,6 +38,7 @@ roomCompiler = "2.3.0-beta02"
 roomRuntime = "2.3.0-beta02"
 rxjava = "3.0.0"
 rxjavaVersion = "3.0.10"
+rxkotlin = "3.0.1"
 secret = "2.0.1"
 secretsGradlePlugin = "2.0.1"
 speedDial = "3.3.0"
@@ -99,6 +100,7 @@ retrofit2-converter-moshi = { module = "com.squareup.retrofit2:converter-moshi",
 rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxjava" }
 rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
 rxjava-v3010 = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjavaVersion" }
+rxkotlin = { module = "io.reactivex.rxjava3:rxkotlin", version.ref = "rxkotlin" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 speed-dial = { module = "com.leinardi.android:speed-dial", version.ref = "speedDial" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "symbolProcessingApi" }

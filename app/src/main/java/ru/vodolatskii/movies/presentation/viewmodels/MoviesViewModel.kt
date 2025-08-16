@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
@@ -19,7 +20,9 @@ import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
 import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
+import timber.log.Timber
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -45,61 +48,227 @@ class MoviesViewModel @Inject constructor(
     private val _isSearchViewVisible: MutableLiveData<Boolean> = MutableLiveData(false)
     val isSearchViewVisible: LiveData<Boolean> = _isSearchViewVisible
 
+    private var currentPage = 1
+    private var isLoading = false
+    private var hasMore = true
+    private var totalPages = 0
+    private var totalItems = 0
+    private var pageSize = App.instance.loadPopularMoviesLimit
+    private var nextPageSize = 0
 
-    var loadedPages: MutableSet<Int> = mutableSetOf()
-        private set
+    private var currentPageSearch = 1
+    private var isLoadingSearch = false
+    private var hasMoreSearch = true
+    private var totalPagesSearch = 0
+    private var totalItemsSearch = 0
+    private var pageSizeSearch = App.instance.loadPopularMoviesLimit
+    private var nextPageSizeSearch = 0
+    private var querySearch = ""
 
-    var pageNumber = 1
-        private set
+    private var cachedMovieList: MutableSet<Movie> = mutableSetOf()
+    private var cachedMovieListSearch: MutableSet<Movie> = mutableSetOf()
+    private var cachedFavoriteMovieList: MutableSet<Movie> = mutableSetOf()
 
-    private var _cachedMovieList: MutableSet<Movie> = mutableSetOf()
-    private var _cachedFavoriteMovieList: MutableSet<Movie> = mutableSetOf()
-
+    private val searchSubject: BehaviorSubject<String> = BehaviorSubject.createDefault("")
     val homeUIState: BehaviorSubject<HomeUIState> = BehaviorSubject.create()
     val favoriteUIState: BehaviorSubject<FavoriteUIState> = BehaviorSubject.create()
     val storageUIState: BehaviorSubject<UIStateStorage> = BehaviorSubject.create()
 
-
     init {
         setupSettings()
+        disposable.add(
+            searchSubject
+                .debounce(1000, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (it.isBlank()){
+                        loadCurrentPage()
+                    } else{
+                        cachedMovieListSearch.clear()
+                        currentPageSearch = 1
+                        hasMoreSearch = true
+                        totalPagesSearch = 0
+                        totalItemsSearch = 0
+                        nextPageSizeSearch = 0
+                        loadNextPage(it)
+                    }
+                }
+        )
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        disposable.clear()
-    }
-
-
-    fun getMoviesFromApi() {
-        homeUIState.onNext(HomeUIState.Loading)
-        if (!loadedPages.contains(pageNumber) || _cachedMovieList.isEmpty()){
+    fun loadNextPage(query: String) {
+        if (query.isBlank()) {
+            if (isLoading || !hasMore) return
+            isLoading = true
+            homeUIState.onNext(HomeUIState.Loading)
             disposable.add(
-                repository.getMovieResponseFromKPApi(page = pageNumber)
+                repository.getMovieResponseFromKPApi(page = currentPage, query = query)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSuccess {
-                        loadedPages.add(pageNumber)
-                        messageSingleLiveEvent.postValue("Success loading data!")
+                        messageSingleLiveEvent.postValue("Данные успешно получены!")
                     }
                     .doOnError { error ->
-                        messageSingleLiveEvent.postValue("Server error - ${error.message}")
+                        messageSingleLiveEvent.postValue("Ошибка на стороне сервера - ${error.message}")
                     }
                     .subscribe(
-                        { movies ->
-                            _cachedMovieList.addAll(movies)
-                            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+                        { response ->
+                            isLoading = false
+                            totalItems = response.total
+                            totalPages = response.pages
+                            pageSize = response.limit
+
+                            if (response.movies.isNotEmpty()) {
+                                cachedMovieList.addAll(response.movies)
+                                currentPage++
+                                hasMore = currentPage <= totalPages
+                                nextPageSize = if (hasMore) {
+                                    if (currentPage == totalPages) {
+                                        totalItems - cachedMovieList.size
+                                    } else {
+                                        pageSize
+                                    }
+                                } else {
+                                    0
+                                }
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieList.toList(),
+                                        hasMore,
+                                        nextPageSize,
+                                        currentPage - 1,
+                                        totalPages,
+                                        totalItems
+                                    )
+                                )
+                            } else {
+                                hasMore = false
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieList.toList(),
+                                        false,
+                                        0,
+                                        currentPage - 1,
+                                        totalPages,
+                                        totalItems
+                                    )
+                                )
+                            }
                         },
                         { error ->
+                            isLoading = false
                             homeUIState.onNext(
                                 HomeUIState.Error(
-                                    error.message ?: "Unknown error"
+                                    error.message ?: "Неизвестная ошибка"
                                 )
                             )
                         }
                     )
             )
-        }else{
-            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+        } else {
+
+            if (query != querySearch) {
+                querySearch = query
+                cachedMovieListSearch.clear()
+                currentPageSearch = 1
+                isLoadingSearch = false
+                hasMoreSearch = true
+                totalPagesSearch = 0
+                totalItemsSearch = 0
+                pageSizeSearch = App.instance.loadPopularMoviesLimit
+                nextPageSizeSearch = 0
+            }
+
+            if (isLoadingSearch || !hasMoreSearch) return
+
+            isLoadingSearch = true
+            homeUIState.onNext(HomeUIState.Loading)
+
+            disposable.add(
+                repository.getMovieResponseFromKPApi(page = currentPageSearch, query = query)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess {
+                        messageSingleLiveEvent.postValue("Данные успешно получены!")
+                    }
+                    .doOnError { error ->
+                        messageSingleLiveEvent.postValue("Ошибка на стороне сервера - ${error.message}")
+                    }
+                    .subscribe(
+                        { response ->
+                            isLoadingSearch = false
+                            totalItemsSearch = response.total
+                            totalPagesSearch = response.pages
+                            pageSizeSearch = response.limit
+
+                            if (response.movies.isNotEmpty()) {
+                                cachedMovieListSearch.addAll(response.movies)
+                                currentPageSearch++
+                                hasMoreSearch = currentPageSearch <= totalPagesSearch
+                                nextPageSizeSearch = if (hasMoreSearch) {
+                                    if (currentPageSearch == totalPagesSearch) {
+                                        totalItemsSearch - cachedMovieListSearch.size
+                                    } else {
+                                        pageSizeSearch
+                                    }
+                                } else {
+                                    0
+                                }
+                                cachedMovieListSearch.forEach {
+                                    Timber.d("list -- ${it.title}")
+                                }
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieListSearch.toList(),
+                                        hasMoreSearch,
+                                        nextPageSizeSearch,
+                                        currentPageSearch - 1,
+                                        totalPagesSearch,
+                                        totalItemsSearch
+                                    )
+                                )
+                            } else {
+                                hasMoreSearch = false
+                                homeUIState.onNext(
+                                    HomeUIState.Success(
+                                        cachedMovieListSearch.toList(),
+                                        false,
+                                        0,
+                                        currentPageSearch - 1,
+                                        totalPagesSearch,
+                                        totalItemsSearch
+                                    )
+                                )
+                            }
+                        },
+                        { error ->
+                            isLoadingSearch = false
+                            homeUIState.onNext(
+                                HomeUIState.Error(
+                                    error.message ?: "Неизвестная ошибка"
+                                )
+                            )
+                        }
+                    )
+            )
+        }
+    }
+
+    fun loadCurrentPage() {
+        if (cachedMovieList.isEmpty()) {
+            loadNextPage("")
+        } else {
+            homeUIState.onNext(
+                HomeUIState.Success(
+                    cachedMovieList.toList(),
+                    hasMore,
+                    nextPageSize,
+                    currentPage - 1,
+                    totalPages,
+                    totalItems,
+                )
+            )
         }
     }
 
@@ -118,11 +287,11 @@ class MoviesViewModel @Inject constructor(
                             storageUIState.onNext(UIStateStorage.Success(listMovie = movies))
 
                         } else {
-                            storageUIState.onNext(UIStateStorage.Error("Content not found!"))
+                            storageUIState.onNext(UIStateStorage.Error("Контент не найден!"))
                         }
                     },
                     { error ->
-                        storageUIState.onNext(UIStateStorage.Error("Unknown error $error"))
+                        storageUIState.onNext(UIStateStorage.Error("Неизвестная ошибка $error"))
                     })
         )
     }
@@ -178,12 +347,13 @@ class MoviesViewModel @Inject constructor(
                         if (movies.isEmpty()) {
                             favoriteUIState.onNext(FavoriteUIState.Error("В избранном пока ничего нет"))
                         } else {
-                            _cachedFavoriteMovieList.addAll(movies)
-                            favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
+                            cachedFavoriteMovieList.clear()
+                            cachedFavoriteMovieList.addAll(movies)
+                            favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
                         }
                     },
                     { error ->
-                        favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
+                        favoriteUIState.onNext(FavoriteUIState.Error("Неизвестная ошибка $error"))
                     }
                 )
         )
@@ -196,21 +366,17 @@ class MoviesViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { movies ->
-                        if (movies.isEmpty() || !movies.any { movie.apiId == it.apiId && movie.title == it.title }) {
+                    { favoriteMovies ->
+                        if (favoriteMovies.isEmpty() || !favoriteMovies.any { movie.apiId == it.apiId && movie.title == it.title }) {
                             Completable.fromSingle<Movie> {
                                 repository.updateMovieToFavorite(true, movie.title)
                             }
                                 .subscribeOn(Schedulers.io())
                                 .subscribe()
 
-//                            val m = movie.copy(isFavorite = true)
-//
-//                            _cachedFavoriteMovieList.add(m)
-//                            favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
-                            deleteFromCachedList(movie)
+//                            deleteFromCachedList(movie)
                         }
-                        deleteFromCachedList(movie)
+//                        deleteFromCachedList(movie)
                     },
                     { error ->
                         favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
@@ -227,44 +393,83 @@ class MoviesViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .subscribe()
 
-        _cachedFavoriteMovieList =
-            _cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }.toMutableSet()
-        favoriteUIState.onNext(FavoriteUIState.Success(_cachedFavoriteMovieList.toList()))
+        cachedFavoriteMovieList =
+            cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
+                .toMutableSet()
+        favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
 
-        if (!_cachedMovieList.any { movie.apiId == it.apiId && movie.title == it.title }) {
-            _cachedMovieList.add(movie)
-            homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
-        }
+        cachedMovieList =
+            cachedMovieList.map {
+                if (it.apiId == movie.apiId) it.isFavorite = false
+                it
+            }.toMutableSet()
+        loadCurrentPage()
     }
 
 
     fun deleteFromCachedList(movie: Movie) {
-         _cachedMovieList =
-            _cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }.toMutableSet()
-        homeUIState.onNext(HomeUIState.Success(_cachedMovieList.toList()))
+        cachedMovieList =
+            cachedMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
+                .toMutableSet()
+        homeUIState.onNext(
+            HomeUIState.Success(
+                movies = cachedMovieList.toList(),
+                hasMore = hasMore,
+                nextPageSize = nextPageSize,
+                currentPage = currentPage,
+                totalPages = totalPages,
+                totalItems = totalItems
+            )
+        )
     }
 
     fun onSortRVEvents(event: SortEvents) {
         when (event) {
             SortEvents.ALPHABET -> {
-                val sorted = _cachedMovieList.sortedBy {
+                val sorted = cachedMovieList.sortedBy {
                     it.title
                 }
-                homeUIState.onNext(HomeUIState.Success(sorted))
+                homeUIState.onNext(
+                    HomeUIState.Success(
+                        sorted, hasMore = hasMore,
+                        nextPageSize = nextPageSize,
+                        currentPage = currentPage,
+                        totalPages = totalPages,
+                        totalItems = totalItems
+                    )
+                )
             }
 
             SortEvents.DATE -> {
-                val sorted = _cachedMovieList.sortedBy {
+                val sorted = cachedMovieList.sortedBy {
                     it.releaseDateTimeStump
                 }
-                homeUIState.onNext(HomeUIState.Success(sorted))
+                homeUIState.onNext(
+                    HomeUIState.Success(
+                        sorted,
+                        hasMore = hasMore,
+                        nextPageSize = nextPageSize,
+                        currentPage = currentPage,
+                        totalPages = totalPages,
+                        totalItems = totalItems
+                    )
+                )
             }
 
             SortEvents.RATING -> {
-                val sorted = _cachedMovieList.sortedBy {
+                val sorted = cachedMovieList.sortedBy {
                     it.rating
                 }.reversed()
-                homeUIState.onNext(HomeUIState.Success(sorted))
+                homeUIState.onNext(
+                    HomeUIState.Success(
+                        sorted,
+                        hasMore = hasMore,
+                        nextPageSize = nextPageSize,
+                        currentPage = currentPage,
+                        totalPages = totalPages,
+                        totalItems = totalItems
+                    )
+                )
             }
         }
     }
@@ -284,9 +489,9 @@ class MoviesViewModel @Inject constructor(
     ) {
         when (key) {
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
-                clearLoadedPages()
+//                clearLoadedPages()
 //                clearCachedMovieList()
-                getMoviesFromApi()
+                loadNextPage("")
             }
         }
     }
@@ -295,26 +500,18 @@ class MoviesViewModel @Inject constructor(
         repository.deleteAllFromDB()
     }
 
-    fun getMovieCountInDB() = repository.getMovieCount()
 
-
-    fun clearLoadedPages() {
-        loadedPages.clear()
-    }
-
-//    fun clearCachedMovieList() {
-//        cachedMovieList.clear()
+//    fun clearLoadedPages() {
+//        loadedPages.clear()
 //    }
 
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
 
-    fun plusPageCount() {
-//        if (!loadedPages.contains(pageCount)) {
-        pageNumber += 1
-//        }
-    }
+//    fun plusPageCount() {
+//        pageNumber += 1
+//    }
 
     private fun getRequestLanguage() {
         requestLanguageLifeData.value = repository.getRequestLanguageFromPreferences()
@@ -374,32 +571,6 @@ class MoviesViewModel @Inject constructor(
         repository.getPreference().registerOnSharedPreferenceChangeListener(this)
     }
 
-//    private fun initListViewDataModel() {
-//        val dataModel = ArrayList<DataModel>()
-//        dataModel.add(DataModel(Pair(28, "Action"), false))
-//        dataModel.add(DataModel(Pair(12, "Adventure"), false))
-//        dataModel.add(DataModel(Pair(16, "Animation"), false))
-//        dataModel.add(DataModel(Pair(35, "Comedy"), false))
-//        dataModel.add(DataModel(Pair(80, "Crime"), false))
-//        dataModel.add(DataModel(Pair(80, "Crime"), false))
-//        dataModel.add(DataModel(Pair(99, "Documentary"), false))
-//        dataModel.add(DataModel(Pair(18, "Drama"), false))
-//        dataModel.add(DataModel(Pair(10751, "Family"), false))
-//        dataModel.add(DataModel(Pair(14, "Fantasy"), false))
-//        dataModel.add(DataModel(Pair(36, "History"), false))
-//        dataModel.add(DataModel(Pair(27, "Horror"), false))
-//        dataModel.add(DataModel(Pair(10402, "Music"), false))
-//        dataModel.add(DataModel(Pair(9648, "Mystery"), false))
-//        dataModel.add(DataModel(Pair(10749, "Romance"), false))
-//        dataModel.add(DataModel(Pair(878, "Science Fiction"), false))
-//        dataModel.add(DataModel(Pair(10770, "TV Movie"), false))
-//        dataModel.add(DataModel(Pair(53, "Thriller"), false))
-//        dataModel.add(DataModel(Pair(10752, "War"), false))
-//        dataModel.add(DataModel(Pair(37, "Western"), false))
-//        listViewDataModelModeData.value = dataModel
-//    }
-//
-
     private fun setupSettings() {
         registerSPListener()
         getContentSource()
@@ -410,6 +581,21 @@ class MoviesViewModel @Inject constructor(
         getRequestLanguage()
     }
 
+
+    fun onSearchViewQueryChanged(it: String) {
+        searchSubject.onNext(it)
+    }
+
+    fun isLoading(): Boolean = isLoading
+    fun hasMore(): Boolean = hasMore
+    fun getCurrentPage(): Int = currentPage - 1
+    fun getTotalPages(): Int = totalPages
+    fun getTotalItems(): Int = totalItems
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
+    }
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"

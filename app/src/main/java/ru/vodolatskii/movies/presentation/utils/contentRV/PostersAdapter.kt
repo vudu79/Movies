@@ -34,14 +34,13 @@ class PostersAdapter(
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         if (docs.isNotEmpty()) {
             val doc = docs[position]
-            val imageUrl = doc.poster.url
+            val imageUrl = doc.poster!!.url
             try {
                 Glide.with(holder.itemView.context)
                     .load(imageUrl)
                     .centerCrop()
                     .into(holder.imageView)
             } catch (e: Exception) {
-                Log.d("mytag", "исключение из глайда - $e")
             }
         } else {
             val imageUrl = errorUrls[position]
@@ -51,7 +50,6 @@ class PostersAdapter(
                     .centerCrop()
                     .into(holder.imageView)
             } catch (e: Exception) {
-                Log.d("mytag", "исключение из глайда - $e")
             }
         }
     }
