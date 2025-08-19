@@ -1,12 +1,12 @@
-package ru.vodolatskii.movies.data.service
+package ru.vodolatskii.remote_module
 
 import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
-import ru.vodolatskii.movies.common.Constant
-import ru.vodolatskii.movies.data.dto.KPResponseDto
+import ru.vodolatskii.remote_module.entity.Constant
+import ru.vodolatskii.remote_module.entity.KPResponseDto
 
 interface KPApiService {
     @Headers(

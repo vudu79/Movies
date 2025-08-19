@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.di
+package ru.vodolatskii.remote_module
 
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
@@ -9,9 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.vodolatskii.movies.common.Constant
-import ru.vodolatskii.movies.data.service.KPApiService
-import ru.vodolatskii.movies.data.service.TmdbApiService
+import ru.vodolatskii.remote_module.entity.Constant
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton

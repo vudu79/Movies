@@ -6,19 +6,18 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Response
 import ru.vodolatskii.movies.App
+import ru.vodolatskii.movies.common.ModelConverter
 import ru.vodolatskii.movies.data.dao.MovieDao
-import ru.vodolatskii.movies.data.dto.KPResponseDto
-import ru.vodolatskii.movies.data.dto.toMovieList
 import ru.vodolatskii.movies.data.entity.MovieEntity
 import ru.vodolatskii.movies.data.entity.convertEntityToModel
-import ru.vodolatskii.movies.data.service.KPApiService
-import ru.vodolatskii.movies.data.service.TmdbApiService
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.domain.models.convertModelToEntity
 import ru.vodolatskii.movies.presentation.utils.MetaWrapper
 import ru.vodolatskii.movies.presentation.utils.SOURCE
+import ru.vodolatskii.remote_module.KPApiService
+import ru.vodolatskii.remote_module.entity.KPResponseDto
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,7 +27,7 @@ import javax.inject.Inject
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val kpApiService: KPApiService,
-    private val tmdbApiService: TmdbApiService,
+//    private val tmdbApiService: TmdbApiService,
     private val preferences: PreferenceProvider,
 ) : MovieRepository {
 
@@ -78,7 +77,7 @@ class MovieRepositoryImpl @Inject constructor(
     private fun responseMapping(response: Response<KPResponseDto>): Single<MetaWrapper> {
         if (response.isSuccessful && response.body() != null) {
             val resp = response.body()!!
-            val movies = resp.toMovieList()
+            val movies = ModelConverter.dtoToMovieList(resp)
             val moviesEntity = movies.map { it.convertModelToEntity() }
             Completable.fromSingle<List<MovieEntity>> {
                 movieDao.insertMovies(moviesEntity)
