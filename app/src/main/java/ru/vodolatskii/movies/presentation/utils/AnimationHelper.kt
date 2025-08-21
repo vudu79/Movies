@@ -39,9 +39,9 @@ object AnimationHelper {
                             duration = 300
                             interpolator = AccelerateDecelerateInterpolator()
 
-                            doOnEnd {
-                                rootView.setBackgroundResource(R.color.black)
-                            }
+//                            doOnEnd {
+//                                rootView.setBackgroundResource(R.color.black)
+//                            }
                         }
 
                         val alfaAnim = ObjectAnimator.ofFloat(rootView, View.ALPHA, 1f, 0f).apply {

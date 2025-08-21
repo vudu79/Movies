@@ -58,7 +58,7 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
+//        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
         setupFavoriteRV()
         setupObservers()
         setupSearchViewListeners()

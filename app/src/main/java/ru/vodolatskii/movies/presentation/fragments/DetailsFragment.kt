@@ -184,7 +184,7 @@ class DetailsFragment : Fragment() {
             Toast.makeText(requireContext(),"jhgjhgjh", Toast.LENGTH_SHORT).show()
         }
 
-        binding.detailsFab.setOnClickListener {
+        binding.detailsFabShare.setOnClickListener {
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
             intent.putExtra(

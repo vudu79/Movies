@@ -75,13 +75,14 @@ class HomeFragment : Fragment(), ContentAdapterController {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (App.instance.isFirstLaunch) {
-            App.instance.isFirstLaunch = false
-            view.setBackgroundResource(R.color.black)
-            view.visibility = View.VISIBLE
-        } else {
-            AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
-        }
+
+//        if (App.instance.isFirstLaunch) {
+//            App.instance.isFirstLaunch = false
+////            view.setBackgroundResource(R.color.black)
+//            view.visibility = View.VISIBLE
+//        } else {
+//            AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 1)
+//        }
 
         initSearchView()
         setupContentRV()

@@ -1,5 +1,8 @@
 package ru.vodolatskii.movies.presentation
 
+import android.content.BroadcastReceiver
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +23,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
@@ -30,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private   lateinit var receiver : BroadcastReceiver
 
     val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
@@ -46,6 +51,15 @@ class MainActivity : AppCompatActivity() {
         setupDrawerMenu()
         setupObservers()
         setupClickListeners()
+        registerReceiver()
+    }
+
+    private fun registerReceiver() {
+        receiver = AppReceiver()
+        val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
+        intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
+        registerReceiver(receiver, intentFilters)
+
     }
 
     private fun setupDrawerMenu() {
@@ -67,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
                     navController.navigateUp()
                 }
+
                 else -> {
                     drawerLayout.openDrawer(GravityCompat.START)
                 }
@@ -82,6 +97,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
                     actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
                 }
+
                 else -> {}
             }
         }
@@ -201,6 +217,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(receiver)
+        super.onDestroy()
     }
 }
 
