@@ -20,6 +20,7 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel_Factory;
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory;
 import ru.vodolatskii.remote_module.KPApiService;
 import ru.vodolatskii.remote_module.RemoteProvider;
+import ru.vodolatskii.remote_module.SunSetApiService;
 
 @DaggerGenerated
 @SuppressWarnings({
@@ -54,7 +55,9 @@ public final class DaggerAppComponent {
 
     private Provider<MovieDao> provideMovieDaoProvider;
 
-    private Provider<KPApiService> provideRemoteProvider;
+    private Provider<KPApiService> provideRemoteKPProvider;
+
+    private Provider<SunSetApiService> provideRemoteSunProvider;
 
     private Provider<PreferenceProvider> provideSharedPreferenceProvider;
 
@@ -77,9 +80,10 @@ public final class DaggerAppComponent {
       this.contextProvider = InstanceFactory.create(contextParam);
       this.provideDBProvider = DoubleCheck.provider(DatabaseModule_ProvideDBFactory.create(databaseModuleParam, contextProvider));
       this.provideMovieDaoProvider = DoubleCheck.provider(DatabaseModule_ProvideMovieDaoFactory.create(databaseModuleParam, provideDBProvider));
-      this.provideRemoteProvider = new ProvideRemoteProvider(remoteProviderParam);
+      this.provideRemoteKPProvider = new ProvideRemoteKPProvider(remoteProviderParam);
+      this.provideRemoteSunProvider = new ProvideRemoteSunProvider(remoteProviderParam);
       this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
-      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideRemoteProvider, provideSharedPreferenceProvider);
+      this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideRemoteKPProvider, provideRemoteSunProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
       this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
     }
@@ -97,16 +101,29 @@ public final class DaggerAppComponent {
     public void inject(LaunchActivity activityLaunch) {
     }
 
-    private static final class ProvideRemoteProvider implements Provider<KPApiService> {
+    private static final class ProvideRemoteKPProvider implements Provider<KPApiService> {
       private final RemoteProvider remoteProvider;
 
-      ProvideRemoteProvider(RemoteProvider remoteProvider) {
+      ProvideRemoteKPProvider(RemoteProvider remoteProvider) {
         this.remoteProvider = remoteProvider;
       }
 
       @Override
       public KPApiService get() {
-        return Preconditions.checkNotNullFromComponent(remoteProvider.provideRemote());
+        return Preconditions.checkNotNullFromComponent(remoteProvider.provideRemoteKP());
+      }
+    }
+
+    private static final class ProvideRemoteSunProvider implements Provider<SunSetApiService> {
+      private final RemoteProvider remoteProvider;
+
+      ProvideRemoteSunProvider(RemoteProvider remoteProvider) {
+        this.remoteProvider = remoteProvider;
+      }
+
+      @Override
+      public SunSetApiService get() {
+        return Preconditions.checkNotNullFromComponent(remoteProvider.provideRemoteSun());
       }
     }
   }

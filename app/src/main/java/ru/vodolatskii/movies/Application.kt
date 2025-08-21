@@ -10,10 +10,12 @@ import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
 import timber.log.Timber
 
+
 class App : Application() {
 
     lateinit var dagger: AppComponent
     private lateinit var preference: SharedPreferences
+
     var loadPopularMoviesLimit: Int = 3
 
     override fun onCreate() {

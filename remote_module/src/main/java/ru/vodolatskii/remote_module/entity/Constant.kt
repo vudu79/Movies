@@ -3,6 +3,7 @@ package ru.vodolatskii.remote_module.entity
 // check
 class Constant {
     companion object {
+        const val BASE_URL_SUN_SET = "https://api.sunrise-sunset.org"
         const val BASE_URL_KP = "https://api.kinopoisk.dev/"
         const val BASE_URL_TMDB = "https://api.themoviedb.org/"
         const val IMAGES_URL = "https://image.tmdb.org/t/p/"

@@ -1,8 +1,12 @@
 package ru.vodolatskii.movies.presentation
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -12,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import ru.vodolatskii.movies.App
@@ -23,6 +28,9 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 @SuppressLint("CustomSplashScreen")
 class LaunchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLaunchBinding
+    private lateinit var locationManager: LocationManager
+    private lateinit var locationListener: LocationListener
+
     private val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
     }
@@ -32,6 +40,7 @@ class LaunchActivity : AppCompatActivity() {
         binding = ActivityLaunchBinding.inflate(layoutInflater)
         val root = binding.root
         setContentView(root)
+
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -42,6 +51,56 @@ class LaunchActivity : AppCompatActivity() {
         App.instance.dagger.inject(this)
         switchContentSource()
         startTVAnimation()
+        setupLocationManager()
+        setupLocationManager()
+    }
+
+
+    private fun setupLocationManager() {
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        locationListener = LocationListener { location ->
+            viewModel.getSunSetData(location.latitude, location.longitude)
+//            Timber.d("lat -- $location.latitude, long -- $location.longitude")
+        }
+        if (!checkPermission()) {
+            requestPermission()
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                0f,
+                locationListener
+            )
+        } else {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                0f,
+                locationListener
+            )
+        }
+    }
+
+    private fun checkPermission(): Boolean {
+        return (ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+                )
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            1
+        )
+        return
     }
 
     private fun startTVAnimation() {

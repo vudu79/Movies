@@ -17,7 +17,10 @@ import ru.vodolatskii.movies.domain.models.convertModelToEntity
 import ru.vodolatskii.movies.presentation.utils.MetaWrapper
 import ru.vodolatskii.movies.presentation.utils.SOURCE
 import ru.vodolatskii.remote_module.KPApiService
+import ru.vodolatskii.remote_module.SunSetApiService
 import ru.vodolatskii.remote_module.entity.KPResponseDto
+import ru.vodolatskii.remote_module.entity.SunSetDto
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -27,8 +30,9 @@ import javax.inject.Inject
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val kpApiService: KPApiService,
-//    private val tmdbApiService: TmdbApiService,
+    private val sunSetService: SunSetApiService,
     private val preferences: PreferenceProvider,
+//    private val tmdbApiService: TmdbApiService,
 ) : MovieRepository {
 
     override fun getMovieResponseFromKPApi(page: Int, query: String): Single<MetaWrapper> {
@@ -72,6 +76,20 @@ class MovieRepositoryImpl @Inject constructor(
                 responseMapping(response)
             }
         }
+    }
+
+
+    override fun getSunDataFromApi(lat: Double, long: Double, date: String): Single<SunSetDto> {
+        return sunSetService.getSunData(lat = lat, long = long, date = date)
+            .flatMap { resp ->
+                val body = resp.body()
+                if (body != null && resp.isSuccessful) {
+                    Timber.d("oooo --- $body")
+                    Single.just(body)
+                } else {
+                    Single.error(Exception("Network error"))
+                }
+            }
     }
 
     private fun responseMapping(response: Response<KPResponseDto>): Single<MetaWrapper> {

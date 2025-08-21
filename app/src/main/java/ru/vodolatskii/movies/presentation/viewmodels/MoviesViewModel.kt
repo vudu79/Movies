@@ -82,9 +82,9 @@ class MoviesViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (it.isBlank()){
+                    if (it.isBlank()) {
                         loadCurrentPage()
-                    } else{
+                    } else {
                         cachedMovieListSearch.clear()
                         currentPageSearch = 1
                         hasMoreSearch = true
@@ -496,6 +496,19 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
+    fun getSunSetData(lat: Double, long:Double) {
+
+        repository.getSunDataFromApi(lat, long, "2025-08-22")
+            .observeOn(Schedulers.io())
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe { it ->
+                Timber.d("восход -- ${it.results.sunset}")
+                Timber.d("lat -- $lat")
+                Timber.d("long -- $long")
+            }
+    }
+
+
     fun deleteAllFromDB() {
         repository.deleteAllFromDB()
     }
@@ -586,11 +599,6 @@ class MoviesViewModel @Inject constructor(
         searchSubject.onNext(it)
     }
 
-    fun isLoading(): Boolean = isLoading
-    fun hasMore(): Boolean = hasMore
-    fun getCurrentPage(): Int = currentPage - 1
-    fun getTotalPages(): Int = totalPages
-    fun getTotalItems(): Int = totalItems
 
     override fun onCleared() {
         super.onCleared()

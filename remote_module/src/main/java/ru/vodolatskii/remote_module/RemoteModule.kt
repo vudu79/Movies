@@ -19,6 +19,12 @@ import javax.inject.Singleton
 annotation class Tmdb
 
 
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Sun
+
+
 @Module
 class RemoteModule {
     @Provides
@@ -59,6 +65,23 @@ class RemoteModule {
     fun provideKPService(retrofit: Retrofit): KPApiService =
         retrofit.create(KPApiService::class.java)
 
+
+    //   данные о восходе и заходе сольца
+    @Sun
+    @Singleton
+    @Provides
+    fun provideRetrofitSunSet(client: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+        .client(client)
+        .baseUrl(Constant.BASE_URL_SUN_SET)
+        .build()
+
+    @Singleton
+    @Provides
+    fun provideSunSetService(@Sun retrofit: Retrofit): SunSetApiService =
+        retrofit.create(SunSetApiService::class.java)
+
     //TMDB
     @Tmdb
     @Singleton
@@ -74,3 +97,5 @@ class RemoteModule {
     fun provideKPServiceTMDB(@Tmdb retrofit: Retrofit): TmdbApiService =
         retrofit.create(TmdbApiService::class.java)
 }
+
+
