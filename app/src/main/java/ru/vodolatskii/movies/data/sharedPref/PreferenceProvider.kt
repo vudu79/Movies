@@ -17,7 +17,6 @@ class PreferenceProvider(context: Context) {
             preference.edit { putBoolean(KEY_SAVE_MOVIE_MODE, DEFAULT_SAVE_MOVIE_MODE) }
             preference.edit { putInt(KEY_RATING_SAVE_MOVIE_MODE, DEFAULT_RATING_SAVE_MOVIE_MODE) }
             preference.edit { putInt(KEY_DATE_SAVE_MOVIE_MODE, DEFAULT_DATE_SAVE_MOVIE_MODE) }
-
             preference.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
         }
     }
@@ -39,6 +38,7 @@ class PreferenceProvider(context: Context) {
             putString(KEY_DEFAULT_LANGUAGE, language)
         }
     }
+
 
     fun getContentSource() =
         preference.getString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) ?: DEFAULT_CONTENT_SOURCE

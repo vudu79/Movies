@@ -74,8 +74,6 @@ class ContentAdapter(
             currentList.forEach {
                 Timber.d("curr - ${it.title}")
             }
-
-
         }
     }
 
@@ -151,7 +149,6 @@ class ContentAdapter(
         }
     }
 
-
     inner class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =
             itemView.findViewById(R.id.poster_image)
@@ -195,8 +192,8 @@ class ContentAdapter(
         private val pageInfo: TextView = itemView.findViewById(R.id.pageInfo)
 
         fun bind(nextPageSize: Int, currentPage: Int, totalPages: Int, totalItems: Int) {
-            loadMoreButton.text = "Показать еще $nextPageSize элементов"
-            pageInfo.text = "Страница $currentPage из $totalPages (всего $totalItems элементов)"
+            loadMoreButton.text = "Показать еще $nextPageSize"
+            pageInfo.text = "Страница $currentPage из $totalPages (всего $totalItems)"
             loadMoreButton.setOnClickListener { onLoadMore() }
         }
     }
@@ -246,8 +243,6 @@ class ContentAdapter(
                 override fun onAnimationStart(p0: Animation?) {}
                 override fun onAnimationRepeat(p0: Animation?) {}
             })
-        } catch (e: Exception) {
-
-        }
+        } catch (e: Exception) { }
     }
 }

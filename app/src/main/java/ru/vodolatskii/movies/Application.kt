@@ -1,7 +1,10 @@
 package ru.vodolatskii.movies
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
+import ru.vodolatskii.movies.common.DayNightThemeManager
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
@@ -10,16 +13,30 @@ import timber.log.Timber
 class App : Application() {
 
     lateinit var dagger: AppComponent
+    private lateinit var preference: SharedPreferences
     var loadPopularMoviesLimit: Int = 3
-    var isFirstLaunch = true
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
+
+        daggerSetup()
+        themeSetup()
+        timberSetup()
+    }
+
+    private fun daggerSetup() {
         val remoteProvider = DaggerRemoteComponent.create()
         dagger = DaggerAppComponent.factory().create(this, remoteProvider)
+    }
 
-//        if (BuildConfig.DEBUG) {
+    private fun themeSetup() {
+        val isDark = preference.getBoolean(KEY_IS_DARK_THEME, DEFAULT_THEME)
+        DayNightThemeManager.setTheme(isDark)
+    }
+
+    private fun timberSetup() {
         Timber.plant(object : Timber.DebugTree() {
             override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                 super.log(priority, "vudu $tag", message, t)
@@ -29,7 +46,6 @@ class App : Application() {
                 return " ${super.createStackElementTag(element)}: ${element.methodName}:${element.lineNumber}"
             }
         })
-//        }
     }
 
     // Вызывается при изменении конфигурации, например, поворот
@@ -52,18 +68,10 @@ class App : Application() {
     companion object {
         lateinit var instance: App
             private set
+        private const val SP_FILE_NAME = "settings"
+        private const val KEY_IS_DARK_THEME = "is_dark"
+        private const val DEFAULT_THEME = false
     }
 }
 
-//class LifeCycleListener : LifecycleObserver {
-////    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-////    fun start() {
-////        Timber.d("on start")
-////    }
-////
-////    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-////    fun stop() {
-////        Timber.d("on stop")
-////    }
-//}
 

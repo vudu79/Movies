@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-    private   lateinit var receiver : BroadcastReceiver
+    private lateinit var receiver: BroadcastReceiver
 
     val viewModel: MoviesViewModel by viewModels {
         App.instance.dagger.viewModelsFactory()
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         navController = findNavController(R.id.my_nav_host_fragment)
 
-        setSupportActionBar(toolBar);
+        setSupportActionBar(toolBar)
 
         actionBarDrawerToggle =
             ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close)
@@ -91,11 +91,11 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.detailsFragment, R.id.favoriteFragment, R.id.afterFragment, R.id.homeFragment -> {
-                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_menu_24)
                 }
 
                 R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
-                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
                 }
 
                 else -> {}
