@@ -6,8 +6,9 @@ import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.inject.Provider;
+import ru.vodolatskii.movies.domain.MovieRepository;
 
-@ScopeMetadata
+@ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
 @DaggerGenerated
 @SuppressWarnings({
@@ -17,22 +18,22 @@ import javax.inject.Provider;
     "KotlinInternalInJava"
 })
 public final class ViewModelFactory_Factory implements Factory<ViewModelFactory> {
-  private final Provider<MoviesViewModel> myViewModelProvider;
+  private final Provider<MovieRepository> repositoryProvider;
 
-  public ViewModelFactory_Factory(Provider<MoviesViewModel> myViewModelProvider) {
-    this.myViewModelProvider = myViewModelProvider;
+  public ViewModelFactory_Factory(Provider<MovieRepository> repositoryProvider) {
+    this.repositoryProvider = repositoryProvider;
   }
 
   @Override
   public ViewModelFactory get() {
-    return newInstance(myViewModelProvider);
+    return newInstance(repositoryProvider.get());
   }
 
-  public static ViewModelFactory_Factory create(Provider<MoviesViewModel> myViewModelProvider) {
-    return new ViewModelFactory_Factory(myViewModelProvider);
+  public static ViewModelFactory_Factory create(Provider<MovieRepository> repositoryProvider) {
+    return new ViewModelFactory_Factory(repositoryProvider);
   }
 
-  public static ViewModelFactory newInstance(Provider<MoviesViewModel> myViewModelProvider) {
-    return new ViewModelFactory(myViewModelProvider);
+  public static ViewModelFactory newInstance(MovieRepository repository) {
+    return new ViewModelFactory(repository);
   }
 }

@@ -275,18 +275,19 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
 
-    override fun getPreference(): SharedPreferences {
-        return preferences.getInstance()
-    }
-
     override fun getThemeFromPreferences() = preferences.getTheme()
     override fun saveThemeToPreferences(theme: String) {
         preferences.saveTheme(theme)
     }
 
-    override fun getSystemThemeFromPreferences()= preferences.getSystemTheme()
+    override fun getSystemThemeFromPreferences() = preferences.getSystemTheme()
     override fun saveSystemThemeToPreferences(theme: Boolean) {
         preferences.saveSystemTheme(theme)
+    }
+
+
+    override fun getPreference(): SharedPreferences {
+        return preferences.getInstance()
     }
 
     private fun getTimeStump(dateInt: Int): Long {
@@ -297,8 +298,3 @@ class MovieRepositoryImpl @Inject constructor(
         return calendar.timeInMillis
     }
 }
-
-
-//https://api.kinopoisk.dev/v1.4/movie?page=1&limit=5&selectFields=premiere&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&selectFields=enName&notNullFields=premiere.world&notNullFields=name&notNullFields=enName&notNullFields=description&notNullFields=year&notNullFields=rating.kp&notNullFields=poster.url&notNullFields=id&notNullFields=premiere.world
-//
-//https://api.kinopoisk.dev/v1.4/movie/?page=1&limit=30&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=premiere&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&notNullFields=id&notNullFields=name&notNullFields=description&notNullFields=premiere.world&notNullFields=genres&notNullFields=year&notNullFields=rating.kp&notNullFields=persons&notNullFields=poster.url

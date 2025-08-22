@@ -7,6 +7,8 @@ import dagger.internal.DoubleCheck;
 import dagger.internal.InstanceFactory;
 import dagger.internal.Preconditions;
 import javax.inject.Provider;
+import ru.vodolatskii.movies.common.AppReceiver;
+import ru.vodolatskii.movies.common.AppReceiver_MembersInjector;
 import ru.vodolatskii.movies.data.RoomDB;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl;
@@ -15,9 +17,9 @@ import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
 import ru.vodolatskii.movies.presentation.MainActivity;
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel;
-import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel_Factory;
+import ru.vodolatskii.movies.presentation.MainActivity_MembersInjector;
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory;
+import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory_Factory;
 import ru.vodolatskii.remote_module.KPApiService;
 import ru.vodolatskii.remote_module.RemoteProvider;
 import ru.vodolatskii.remote_module.SunSetApiService;
@@ -65,7 +67,7 @@ public final class DaggerAppComponent {
 
     private Provider<MovieRepository> provideRepositoryProvider;
 
-    private Provider<MoviesViewModel> moviesViewModelProvider;
+    private Provider<ViewModelFactory> viewModelFactoryProvider;
 
     private AppComponentImpl(DatabaseModule databaseModuleParam, RemoteProvider remoteProviderParam,
         Context contextParam) {
@@ -85,20 +87,36 @@ public final class DaggerAppComponent {
       this.provideSharedPreferenceProvider = DoubleCheck.provider(DatabaseModule_ProvideSharedPreferenceFactory.create(databaseModuleParam, contextProvider));
       this.movieRepositoryImplProvider = MovieRepositoryImpl_Factory.create(provideMovieDaoProvider, provideRemoteKPProvider, provideRemoteSunProvider, provideSharedPreferenceProvider);
       this.provideRepositoryProvider = DoubleCheck.provider((Provider) movieRepositoryImplProvider);
-      this.moviesViewModelProvider = MoviesViewModel_Factory.create(provideRepositoryProvider);
+      this.viewModelFactoryProvider = DoubleCheck.provider(ViewModelFactory_Factory.create(provideRepositoryProvider));
     }
 
     @Override
     public ViewModelFactory viewModelsFactory() {
-      return new ViewModelFactory(moviesViewModelProvider);
+      return viewModelFactoryProvider.get();
     }
 
     @Override
     public void inject(MainActivity activityMain) {
+      injectMainActivity(activityMain);
     }
 
     @Override
     public void inject(LaunchActivity activityLaunch) {
+    }
+
+    @Override
+    public void inject(AppReceiver receiver) {
+      injectAppReceiver(receiver);
+    }
+
+    private MainActivity injectMainActivity(MainActivity instance) {
+      MainActivity_MembersInjector.injectViewModelFactory(instance, viewModelFactoryProvider.get());
+      return instance;
+    }
+
+    private AppReceiver injectAppReceiver(AppReceiver instance) {
+      AppReceiver_MembersInjector.injectViewModelFactory(instance, viewModelFactoryProvider.get());
+      return instance;
     }
 
     private static final class ProvideRemoteKPProvider implements Provider<KPApiService> {

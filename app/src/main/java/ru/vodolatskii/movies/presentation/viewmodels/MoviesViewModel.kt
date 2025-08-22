@@ -1,5 +1,6 @@
 package ru.vodolatskii.movies.presentation.viewmodels
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,6 +13,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import ru.vodolatskii.movies.App
+import ru.vodolatskii.movies.common.DayNightThemeManager
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
@@ -34,7 +36,7 @@ class MoviesViewModel @Inject constructor(
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
     private val disposable = CompositeDisposable()
 
-    val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData()
+    private val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData(false)
     val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData()
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
@@ -544,23 +546,28 @@ class MoviesViewModel @Inject constructor(
         getContentSource()
     }
 
-    private fun getDayNightThemeProperty() {
+
+    private fun getDayNightThemeProperty() : String {
         dayNightThemeLifeData.value = repository.getThemeFromPreferences()
+        return dayNightThemeLifeData.value ?: ""
     }
 
     fun putDayNightThemeProperty(theme: String) {
         repository.saveThemeToPreferences(theme)
         getDayNightThemeProperty()
+        DayNightThemeManager.setTheme(theme)
     }
 
-    private fun getSystemThemeProperty() {
+     fun getSystemThemeProperty(): Boolean {
         systemThemeLifeData.value = repository.getSystemThemeFromPreferences()
+        return systemThemeLifeData.value ?: false
     }
 
     fun putSystemThemeProperty(theme: Boolean) {
         repository.saveSystemThemeToPreferences(theme)
         getSystemThemeProperty()
     }
+
 
     private fun getAllMovieSavingMode() {
         allMoviesSavingLiveModeData.value = repository.getMovieSavingMode()
@@ -615,10 +622,46 @@ class MoviesViewModel @Inject constructor(
         disposable.clear()
     }
 
+    fun processingIntent(intent: Intent?) {
+        when (intent?.action) {
+            Intent.ACTION_POWER_CONNECTED -> {
+                messageSingleLiveEvent.postValue("POWER_CONNECTED")
+                val dd = getSystemThemeProperty()
+                Timber.d("system POWER_CONNECTED -- $dd")
+                if (dd) {
+                    putDayNightThemeProperty( DAY_THEME)
+                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                }
+            }
+
+            Intent.ACTION_BATTERY_LOW -> {
+                messageSingleLiveEvent.postValue("BATTERY_LOW")
+                val dd = getSystemThemeProperty()
+                Timber.d("system BATTERY_LOW -- $dd")
+                if (dd) {
+                    putDayNightThemeProperty( NIGHT_THEME)
+                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                }
+            }
+
+            Intent.ACTION_BATTERY_OKAY -> {
+                messageSingleLiveEvent.postValue("BATTERY_OKAY")
+                val dd = getSystemThemeProperty()
+                Timber.d("system BATTERY_OK -- $dd")
+                if (dd) {
+                    putDayNightThemeProperty( DAY_THEME)
+                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                }
+            }
+        }
+    }
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"
         private const val KEY_DEFAULT_LANGUAGE = "default_language"
+        private const val DAY_THEME = "day"
+        private const val NIGHT_THEME = "night"
+
     }
 }
 

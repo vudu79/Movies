@@ -14,6 +14,7 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentSettingsBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
 
 
 class SettingsFragment : Fragment() {
@@ -35,6 +36,11 @@ class SettingsFragment : Fragment() {
         setupListeners()
     }
 
+    override fun onDestroy() {
+        Timber.d("destroy")
+        super.onDestroy()
+    }
+
     private fun setupObservers() {
         viewModel.categoryPropertyLifeData.observe(viewLifecycleOwner, Observer<String> {
             when (it) {
@@ -46,11 +52,11 @@ class SettingsFragment : Fragment() {
         })
 
         viewModel.dayNightThemeLifeData.observe(viewLifecycleOwner, Observer<String> {
-            when (it) {
-
-                SYSTEM_THEME -> binding.radioGroupTheme.check(R.id.radio_system_theme)
-                DAY_THEME -> binding.radioGroupTheme.check(R.id.radio_day_theme)
-                NIGHT_THEME -> binding.radioGroupTheme.check(R.id.radio_night_theme)
+            if (!viewModel.getSystemThemeProperty()){
+                when (it) {
+                    DAY_THEME -> binding.radioGroupTheme.check(R.id.radio_day_theme)
+                    NIGHT_THEME -> binding.radioGroupTheme.check(R.id.radio_night_theme)
+                }
             }
         })
 
@@ -148,7 +154,6 @@ class SettingsFragment : Fragment() {
                     viewModel.putSystemThemeProperty(false)
                 }
                 R.id.radio_system_theme -> {
-                    viewModel.putDayNightThemeProperty(SYSTEM_THEME)
                     viewModel.putSystemThemeProperty(true)
                 }
             }
@@ -187,8 +192,6 @@ class SettingsFragment : Fragment() {
 
         private const val REQUEST_LANG_RU = "ru-RU"
         private const val REQUEST_LANG_EN = "en-US"
-
-        private const val SYSTEM_THEME = "system"
         private const val DAY_THEME = "day"
         private const val NIGHT_THEME = "night"
 

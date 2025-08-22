@@ -23,18 +23,12 @@ class App : Application() {
         preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
 
         daggerSetup()
-        themeSetup()
         timberSetup()
     }
 
     private fun daggerSetup() {
         val remoteProvider = DaggerRemoteComponent.create()
         dagger = DaggerAppComponent.factory().create(this, remoteProvider)
-    }
-
-    private fun themeSetup() {
-//        val isDark = preference.getBoolean(KEY_IS_DARK_THEME, DEFAULT_THEME)
-//        DayNightThemeManager.setTheme(isDark)
     }
 
     private fun timberSetup() {

@@ -3,7 +3,6 @@ package ru.vodolatskii.movies.data.sharedPref
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import timber.log.Timber
 
 class PreferenceProvider(context: Context) {
     private val appContext = context.applicationContext
@@ -86,8 +85,8 @@ class PreferenceProvider(context: Context) {
         preference.edit {
             putString(KEY_THEME, theme)
         }
-        Timber.d("from pref ${getTheme()}")
-        Timber.d("from pref sys ${getSystemTheme()}")
+//        Timber.d("from pref ${getTheme()}")
+//        Timber.d("from pref sys ${getSystemTheme()}")
     }
 
 

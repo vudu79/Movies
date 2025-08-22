@@ -7,13 +7,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -27,6 +27,7 @@ import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,14 +37,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var receiver: BroadcastReceiver
 
-    val viewModel: MoviesViewModel by viewModels {
-        App.instance.dagger.viewModelsFactory()
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModel: MoviesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         App.instance.dagger.inject(this)
+        viewModel = viewModelFactory.create(MoviesViewModel::class.java)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -59,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
         intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
         registerReceiver(receiver, intentFilters)
-
     }
 
     private fun setupDrawerMenu() {
