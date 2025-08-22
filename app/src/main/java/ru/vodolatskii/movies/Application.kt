@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import ru.vodolatskii.movies.common.DayNightThemeManager
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
@@ -34,8 +33,8 @@ class App : Application() {
     }
 
     private fun themeSetup() {
-        val isDark = preference.getBoolean(KEY_IS_DARK_THEME, DEFAULT_THEME)
-        DayNightThemeManager.setTheme(isDark)
+//        val isDark = preference.getBoolean(KEY_IS_DARK_THEME, DEFAULT_THEME)
+//        DayNightThemeManager.setTheme(isDark)
     }
 
     private fun timberSetup() {
@@ -71,8 +70,6 @@ class App : Application() {
         lateinit var instance: App
             private set
         private const val SP_FILE_NAME = "settings"
-        private const val KEY_IS_DARK_THEME = "is_dark"
-        private const val DEFAULT_THEME = false
     }
 }
 

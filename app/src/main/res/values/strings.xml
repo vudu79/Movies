@@ -25,6 +25,7 @@
     <string name="language_ru">Русский</string>
     <string name="language_en">English</string>
     <string name="radio_group_header">Подборка на главном экране:</string>
+    <string name="radio_group_theme">Тема:</string>
     <string name="request_language_header">Язык текста в подборке:</string>
     <string name="item_settings_drawer">Настройки</string>
     <string name="storage">Хранилище</string>
@@ -60,4 +61,7 @@
     <string name="downloaded_to_gallery">"Сохранено в галерею"</string>
     <string name="open_gallery">В галерею</string>
     <string name="search_result">Результат поиска</string>
+    <string name="radio_button_day_theme">Светлая</string>
+    <string name="radio_button_night_theme">Темная</string>
+    <string name="radio_button_system_theme">Батарея</string>
 </resources>

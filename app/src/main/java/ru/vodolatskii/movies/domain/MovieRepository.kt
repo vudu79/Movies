@@ -25,6 +25,14 @@ interface MovieRepository {
 
     fun getPreference(): SharedPreferences
 
+    fun getThemeFromPreferences(): String
+
+    fun saveThemeToPreferences(theme: String)
+
+    fun getSystemThemeFromPreferences(): Boolean
+
+    fun saveSystemThemeToPreferences(theme: Boolean)
+
     fun getRequestLanguageFromPreferences(): String
 
     fun saveRequestLanguageToPreferences(language: String)
@@ -58,6 +66,8 @@ interface MovieRepository {
     fun getMovieCount(): Int
 
     fun getSunDataFromApi(lat: Double, long: Double, date: String): Single<SunSetDto>
+
+
 
 //    suspend fun getMoviesByFilter(
 //        rating: Double,

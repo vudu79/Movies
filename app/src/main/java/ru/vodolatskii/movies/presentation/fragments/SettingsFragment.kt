@@ -45,6 +45,15 @@ class SettingsFragment : Fragment() {
             }
         })
 
+        viewModel.dayNightThemeLifeData.observe(viewLifecycleOwner, Observer<String> {
+            when (it) {
+
+                SYSTEM_THEME -> binding.radioGroupTheme.check(R.id.radio_system_theme)
+                DAY_THEME -> binding.radioGroupTheme.check(R.id.radio_day_theme)
+                NIGHT_THEME -> binding.radioGroupTheme.check(R.id.radio_night_theme)
+            }
+        })
+
         viewModel.requestLanguageLifeData.observe(viewLifecycleOwner, Observer<String> {
             when (it) {
                 REQUEST_LANG_EN -> binding.radioGroupLanguage.check(R.id.radio_lang_en)
@@ -127,6 +136,24 @@ class SettingsFragment : Fragment() {
                 if (isChecked) "-" else viewModel.ratingSavingModeLiveData.value.toString()
         })
 
+
+        binding.radioGroupTheme.setOnCheckedChangeListener { theme, checkedId ->
+            when (checkedId) {
+                R.id.radio_day_theme ->{
+                    viewModel.putDayNightThemeProperty(DAY_THEME)
+                    viewModel.putSystemThemeProperty(false)
+                }
+                R.id.radio_night_theme -> {
+                    viewModel.putDayNightThemeProperty(NIGHT_THEME)
+                    viewModel.putSystemThemeProperty(false)
+                }
+                R.id.radio_system_theme -> {
+                    viewModel.putDayNightThemeProperty(SYSTEM_THEME)
+                    viewModel.putSystemThemeProperty(true)
+                }
+            }
+        }
+
         binding.radioGroupCategory.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_popular -> viewModel.putCategoryProperty(POPULAR_CATEGORY)
@@ -160,6 +187,10 @@ class SettingsFragment : Fragment() {
 
         private const val REQUEST_LANG_RU = "ru-RU"
         private const val REQUEST_LANG_EN = "en-US"
+
+        private const val SYSTEM_THEME = "system"
+        private const val DAY_THEME = "day"
+        private const val NIGHT_THEME = "night"
 
         private const val SOURCE_INTERNET = "internet"
         private const val SOURCE_STORAGE = "storage"

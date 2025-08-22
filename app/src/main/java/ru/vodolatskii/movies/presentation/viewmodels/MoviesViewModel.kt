@@ -32,8 +32,10 @@ class MoviesViewModel @Inject constructor(
     private val repository: MovieRepository,
 
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
-
     private val disposable = CompositeDisposable()
+
+    val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData()
+    val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData()
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -374,9 +376,7 @@ class MoviesViewModel @Inject constructor(
                                 .subscribeOn(Schedulers.io())
                                 .subscribe()
 
-//                            deleteFromCachedList(movie)
                         }
-//                        deleteFromCachedList(movie)
                     },
                     { error ->
                         favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
@@ -489,22 +489,20 @@ class MoviesViewModel @Inject constructor(
     ) {
         when (key) {
             KEY_DEFAULT_CATEGORY, KEY_DEFAULT_LANGUAGE -> {
-//                clearLoadedPages()
-//                clearCachedMovieList()
                 loadNextPage("")
             }
         }
     }
 
-    fun getSunSetData(lat: Double, long:Double) {
+    fun getSunSetData(lat: Double, long: Double) {
 
         repository.getSunDataFromApi(lat, long, "2025-08-22")
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe { it ->
-                Timber.d("восход -- ${it.results.sunset}")
-                Timber.d("lat -- $lat")
-                Timber.d("long -- $long")
+//                Timber.d("восход -- ${it.results.sunset}")
+//                Timber.d("lat -- $lat")
+//                Timber.d("long -- $long")
             }
     }
 
@@ -514,17 +512,10 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-//    fun clearLoadedPages() {
-//        loadedPages.clear()
-//    }
-
     fun switchSearchViewVisibility(state: Boolean) {
         _isSearchViewVisible.value = state
     }
 
-//    fun plusPageCount() {
-//        pageNumber += 1
-//    }
 
     private fun getRequestLanguage() {
         requestLanguageLifeData.value = repository.getRequestLanguageFromPreferences()
@@ -551,6 +542,24 @@ class MoviesViewModel @Inject constructor(
     fun putContentSource(source: String) {
         repository.saveContentSourceFromPreferences(source)
         getContentSource()
+    }
+
+    private fun getDayNightThemeProperty() {
+        dayNightThemeLifeData.value = repository.getThemeFromPreferences()
+    }
+
+    fun putDayNightThemeProperty(theme: String) {
+        repository.saveThemeToPreferences(theme)
+        getDayNightThemeProperty()
+    }
+
+    private fun getSystemThemeProperty() {
+        systemThemeLifeData.value = repository.getSystemThemeFromPreferences()
+    }
+
+    fun putSystemThemeProperty(theme: Boolean) {
+        repository.saveSystemThemeToPreferences(theme)
+        getSystemThemeProperty()
     }
 
     private fun getAllMovieSavingMode() {
@@ -592,6 +601,7 @@ class MoviesViewModel @Inject constructor(
         getDateMovieSavingMode()
         getCategoryProperty()
         getRequestLanguage()
+        getDayNightThemeProperty()
     }
 
 
@@ -604,6 +614,7 @@ class MoviesViewModel @Inject constructor(
         super.onCleared()
         disposable.clear()
     }
+
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"

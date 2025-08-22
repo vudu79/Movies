@@ -20,7 +20,6 @@ import ru.vodolatskii.remote_module.KPApiService
 import ru.vodolatskii.remote_module.SunSetApiService
 import ru.vodolatskii.remote_module.entity.KPResponseDto
 import ru.vodolatskii.remote_module.entity.SunSetDto
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -84,7 +83,7 @@ class MovieRepositoryImpl @Inject constructor(
             .flatMap { resp ->
                 val body = resp.body()
                 if (body != null && resp.isSuccessful) {
-                    Timber.d("oooo --- $body")
+//                    Timber.d("oooo --- $body")
                     Single.just(body)
                 } else {
                     Single.error(Exception("Network error"))
@@ -278,6 +277,16 @@ class MovieRepositoryImpl @Inject constructor(
 
     override fun getPreference(): SharedPreferences {
         return preferences.getInstance()
+    }
+
+    override fun getThemeFromPreferences() = preferences.getTheme()
+    override fun saveThemeToPreferences(theme: String) {
+        preferences.saveTheme(theme)
+    }
+
+    override fun getSystemThemeFromPreferences()= preferences.getSystemTheme()
+    override fun saveSystemThemeToPreferences(theme: Boolean) {
+        preferences.saveSystemTheme(theme)
     }
 
     private fun getTimeStump(dateInt: Int): Long {
