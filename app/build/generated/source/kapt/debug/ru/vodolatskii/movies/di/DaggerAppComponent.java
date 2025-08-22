@@ -16,6 +16,7 @@ import ru.vodolatskii.movies.data.repositiryImpl.MovieRepositoryImpl_Factory;
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.movies.domain.MovieRepository;
 import ru.vodolatskii.movies.presentation.LaunchActivity;
+import ru.vodolatskii.movies.presentation.LaunchActivity_MembersInjector;
 import ru.vodolatskii.movies.presentation.MainActivity;
 import ru.vodolatskii.movies.presentation.MainActivity_MembersInjector;
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory;
@@ -102,6 +103,7 @@ public final class DaggerAppComponent {
 
     @Override
     public void inject(LaunchActivity activityLaunch) {
+      injectLaunchActivity(activityLaunch);
     }
 
     @Override
@@ -111,6 +113,11 @@ public final class DaggerAppComponent {
 
     private MainActivity injectMainActivity(MainActivity instance) {
       MainActivity_MembersInjector.injectViewModelFactory(instance, viewModelFactoryProvider.get());
+      return instance;
+    }
+
+    private LaunchActivity injectLaunchActivity(LaunchActivity instance) {
+      LaunchActivity_MembersInjector.injectViewModelFactory(instance, viewModelFactoryProvider.get());
       return instance;
     }
 

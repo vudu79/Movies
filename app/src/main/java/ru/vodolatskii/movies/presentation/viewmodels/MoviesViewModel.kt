@@ -24,6 +24,8 @@ import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import timber.log.Timber
 import java.net.URL
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -499,7 +501,7 @@ class MoviesViewModel @Inject constructor(
 
     fun getSunSetData(lat: Double, long: Double) {
 
-        repository.getSunDataFromApi(lat, long, "2025-08-22")
+        repository.getSunDataFromApi(lat, long, getDate())
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe { it ->
@@ -548,7 +550,7 @@ class MoviesViewModel @Inject constructor(
     }
 
 
-    private fun getDayNightThemeProperty() : String {
+    private fun getDayNightThemeProperty(): String {
         dayNightThemeLifeData.value = repository.getThemeFromPreferences()
         return dayNightThemeLifeData.value ?: ""
     }
@@ -559,7 +561,7 @@ class MoviesViewModel @Inject constructor(
         DayNightThemeManager.setTheme(theme)
     }
 
-     fun getSystemThemeProperty(): Boolean {
+    fun getSystemThemeProperty(): Boolean {
         systemThemeLifeData.value = repository.getSystemThemeFromPreferences()
         return systemThemeLifeData.value ?: false
     }
@@ -626,24 +628,29 @@ class MoviesViewModel @Inject constructor(
         when (intent?.action) {
             Intent.ACTION_POWER_CONNECTED -> {
                 if (getSystemThemeProperty()) {
-                    putDayNightThemeProperty( DAY_THEME)
+                    putDayNightThemeProperty(DAY_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
+
             Intent.ACTION_BATTERY_LOW -> {
                 if (getSystemThemeProperty()) {
-                    putDayNightThemeProperty( NIGHT_THEME)
+                    putDayNightThemeProperty(NIGHT_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
+
             Intent.ACTION_BATTERY_OKAY -> {
                 if (getSystemThemeProperty()) {
-                    putDayNightThemeProperty( DAY_THEME)
+                    putDayNightThemeProperty(DAY_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
         }
     }
+
+    private fun getDate()  = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"
