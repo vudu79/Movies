@@ -37,7 +37,7 @@ class MoviesViewModel @Inject constructor(
     private val disposable = CompositeDisposable()
 
     private val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData(false)
-    val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData()
+    val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData(DAY_THEME)
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -80,6 +80,7 @@ class MoviesViewModel @Inject constructor(
 
     init {
         setupSettings()
+
         disposable.add(
             searchSubject
                 .debounce(1000, TimeUnit.MILLISECONDS)
@@ -616,39 +617,27 @@ class MoviesViewModel @Inject constructor(
         searchSubject.onNext(it)
     }
 
-
     override fun onCleared() {
         super.onCleared()
         disposable.clear()
     }
 
-    fun processingIntent(intent: Intent?) {
+    fun processingBroadCastIntent(intent: Intent?) {
         when (intent?.action) {
             Intent.ACTION_POWER_CONNECTED -> {
-                messageSingleLiveEvent.postValue("POWER_CONNECTED")
-                val dd = getSystemThemeProperty()
-                Timber.d("system POWER_CONNECTED -- $dd")
-                if (dd) {
+                if (getSystemThemeProperty()) {
                     putDayNightThemeProperty( DAY_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
-
             Intent.ACTION_BATTERY_LOW -> {
-                messageSingleLiveEvent.postValue("BATTERY_LOW")
-                val dd = getSystemThemeProperty()
-                Timber.d("system BATTERY_LOW -- $dd")
-                if (dd) {
+                if (getSystemThemeProperty()) {
                     putDayNightThemeProperty( NIGHT_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
-
             Intent.ACTION_BATTERY_OKAY -> {
-                messageSingleLiveEvent.postValue("BATTERY_OKAY")
-                val dd = getSystemThemeProperty()
-                Timber.d("system BATTERY_OK -- $dd")
-                if (dd) {
+                if (getSystemThemeProperty()) {
                     putDayNightThemeProperty( DAY_THEME)
                     DayNightThemeManager.setTheme(getDayNightThemeProperty())
                 }
@@ -661,6 +650,7 @@ class MoviesViewModel @Inject constructor(
         private const val KEY_DEFAULT_LANGUAGE = "default_language"
         private const val DAY_THEME = "day"
         private const val NIGHT_THEME = "night"
+        private const val SYSTEM_THEME = "system"
 
     }
 }

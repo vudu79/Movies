@@ -168,16 +168,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
             }
             .addTo(autoDisposable)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                (activity as MainActivity).viewModel.messageSingleLiveEvent.observe(
-                    viewLifecycleOwner
-                ) { message ->
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
         viewModel.isSearchViewVisible.observe(viewLifecycleOwner) { state ->
             binding.homeSearchView.visibility = if (state) View.VISIBLE else View.GONE
         }

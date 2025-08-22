@@ -42,6 +42,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupObservers() {
+
         viewModel.categoryPropertyLifeData.observe(viewLifecycleOwner, Observer<String> {
             when (it) {
                 POPULAR_CATEGORY -> binding.radioGroupCategory.check(R.id.radio_popular)
@@ -52,7 +53,7 @@ class SettingsFragment : Fragment() {
         })
 
         viewModel.dayNightThemeLifeData.observe(viewLifecycleOwner, Observer<String> {
-            if (!viewModel.getSystemThemeProperty()){
+            if (!viewModel.getSystemThemeProperty()) {
                 when (it) {
                     DAY_THEME -> binding.radioGroupTheme.check(R.id.radio_day_theme)
                     NIGHT_THEME -> binding.radioGroupTheme.check(R.id.radio_night_theme)
@@ -95,7 +96,8 @@ class SettingsFragment : Fragment() {
                 .setIcon(R.drawable.baseline_warning_24)
                 .setPositiveButton("Да") { _, _ ->
                     viewModel.deleteAllFromDB()
-                    Toast.makeText(requireContext(), "Все фильмы удалены!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Все фильмы удалены!", Toast.LENGTH_SHORT)
+                        .show()
                 }
                 .setNegativeButton("Нет") { _, _ ->
                 }
@@ -145,14 +147,16 @@ class SettingsFragment : Fragment() {
 
         binding.radioGroupTheme.setOnCheckedChangeListener { theme, checkedId ->
             when (checkedId) {
-                R.id.radio_day_theme ->{
+                R.id.radio_day_theme -> {
                     viewModel.putDayNightThemeProperty(DAY_THEME)
                     viewModel.putSystemThemeProperty(false)
                 }
+
                 R.id.radio_night_theme -> {
                     viewModel.putDayNightThemeProperty(NIGHT_THEME)
                     viewModel.putSystemThemeProperty(false)
                 }
+
                 R.id.radio_system_theme -> {
                     viewModel.putSystemThemeProperty(true)
                 }
@@ -192,8 +196,10 @@ class SettingsFragment : Fragment() {
 
         private const val REQUEST_LANG_RU = "ru-RU"
         private const val REQUEST_LANG_EN = "en-US"
+
         private const val DAY_THEME = "day"
         private const val NIGHT_THEME = "night"
+        private const val SYSTEM_THEME = "system"
 
         private const val SOURCE_INTERNET = "internet"
         private const val SOURCE_STORAGE = "storage"
