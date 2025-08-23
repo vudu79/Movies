@@ -18,14 +18,20 @@
 <!--        <item name="android:colorBackground">@color/colorPrimary</item>-->
     </style>
 
-    <style name="FAB" parent="Widget.Design.FloatingActionButton">
+    <style name="FAB_share" parent="Widget.Design.FloatingActionButton">
         <item name="android:foreground">@drawable/fab_gradient_share</item>
         <item name="android:background">@drawable/button_ripple</item>
         <item name="shapeAppearance">@drawable/rect_fab_twin</item>
     </style>
 
-    <style name="FABCircle" parent="Widget.Design.FloatingActionButton">
+    <style name="FAB_download" parent="Widget.Design.FloatingActionButton">
         <item name="android:foreground">@drawable/fab_gradient_download</item>
+        <item name="android:background">@drawable/button_ripple</item>
+        <item name="shapeAppearance">@drawable/circle_fab_twin</item>
+    </style>
+
+    <style name="FAB_notification" parent="Widget.Design.FloatingActionButton">
+        <item name="android:foreground">@drawable/fab_gradient_notification</item>
         <item name="android:background">@drawable/button_ripple</item>
         <item name="shapeAppearance">@drawable/circle_fab_twin</item>
     </style>

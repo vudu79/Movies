@@ -14,10 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -25,12 +22,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.AppReceiver
+import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
+import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import javax.inject.Inject
 
@@ -40,7 +38,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-    private lateinit var receiver: BroadcastReceiver
+    private lateinit var appReceiver: BroadcastReceiver
+    private lateinit var notificationReceiver: NotificationsReceiver
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -58,14 +57,22 @@ class MainActivity : AppCompatActivity() {
         setupDrawerMenu()
         setupObservers()
         setupClickListeners()
-        registerReceiver()
+        registerReceivers()
+
+        val movie = intent.getParcelableExtra("movie") ?: Movie()
+        passDataForDetailsFragment(movie)
     }
 
-    private fun registerReceiver() {
-        receiver = AppReceiver()
+    private fun registerReceivers() {
+        appReceiver = AppReceiver()
         val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
         intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
-        registerReceiver(receiver, intentFilters)
+        registerReceiver(appReceiver, intentFilters)
+
+        notificationReceiver = NotificationsReceiver()
+        val intentFilters1 = IntentFilter("${this.packageName}.FIND")
+        intentFilters1.addAction("${this.packageName}.CANCEL")
+        registerReceiver(notificationReceiver, intentFilters1)
     }
 
     private fun setupDrawerMenu() {
@@ -191,6 +198,20 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    fun passDataForDetailsFragment(movie: Movie) {
+        val bundle = Bundle()
+        bundle.putParcelable("input", movie)
+
+        val frag = DetailsFragment()
+        frag.arguments = bundle
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.my_nav_host_fragment, frag)
+            .addToBackStack(null)
+            .commit()
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
@@ -230,7 +251,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        unregisterReceiver(receiver)
+        unregisterReceiver(appReceiver)
+        unregisterReceiver(notificationReceiver)
         super.onDestroy()
     }
 }

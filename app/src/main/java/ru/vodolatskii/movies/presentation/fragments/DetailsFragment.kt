@@ -19,12 +19,12 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.myapp.NotificationHelper
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +44,7 @@ class DetailsFragment : Fragment() {
     lateinit var viewModel: MoviesViewModel
     private lateinit var movie: Movie
     private val scope = CoroutineScope(Dispatchers.IO)
+    private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,9 @@ class DetailsFragment : Fragment() {
             enterTransition = transition
             duration = 500
         }
+
+        notificationHelper = NotificationHelper(requireContext())
+
     }
 
     override fun onCreateView(
@@ -70,11 +74,8 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         initContent(movie)
-
         setListeners(movie)
-
     }
 
     private fun initContent(movie: Movie) {
@@ -178,8 +179,19 @@ class DetailsFragment : Fragment() {
 
         binding.detailsFabDownloadWp.setOnClickListener {
             performAsyncLoadOfPoster()
-            Toast.makeText(requireContext(),"jhgjhgjh", Toast.LENGTH_SHORT).show()
         }
+
+        binding.detailsFabNotification.setOnClickListener {
+            notificationHelper.showCustomExpandedNotification(
+                title = movie.title,
+                message = movie.description,
+                iconUrl = movie.posterUrl,
+                button2Text = "Найти",
+                button1Text = "Убрать",
+                notificationId = 111
+            )
+        }
+
 
         binding.detailsFabShare.setOnClickListener {
             val intent = Intent()
