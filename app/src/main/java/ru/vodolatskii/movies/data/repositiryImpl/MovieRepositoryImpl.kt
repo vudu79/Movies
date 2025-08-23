@@ -17,7 +17,9 @@ import ru.vodolatskii.movies.domain.models.convertModelToEntity
 import ru.vodolatskii.movies.presentation.utils.MetaWrapper
 import ru.vodolatskii.movies.presentation.utils.SOURCE
 import ru.vodolatskii.remote_module.KPApiService
+import ru.vodolatskii.remote_module.SunSetApiService
 import ru.vodolatskii.remote_module.entity.KPResponseDto
+import ru.vodolatskii.remote_module.entity.SunSetDto
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -27,8 +29,9 @@ import javax.inject.Inject
 class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val kpApiService: KPApiService,
-//    private val tmdbApiService: TmdbApiService,
+    private val sunSetService: SunSetApiService,
     private val preferences: PreferenceProvider,
+//    private val tmdbApiService: TmdbApiService,
 ) : MovieRepository {
 
     override fun getMovieResponseFromKPApi(page: Int, query: String): Single<MetaWrapper> {
@@ -72,6 +75,19 @@ class MovieRepositoryImpl @Inject constructor(
                 responseMapping(response)
             }
         }
+    }
+
+
+    override fun getSunDataFromApi(lat: Double, long: Double, date: String): Single<SunSetDto> {
+        return sunSetService.getSunData(lat = lat, long = long, date = date)
+            .flatMap { resp ->
+                val body = resp.body()
+                if (body != null && resp.isSuccessful) {
+                    Single.just(body)
+                } else {
+                    Single.error(Exception("Network error"))
+                }
+            }
     }
 
     private fun responseMapping(response: Response<KPResponseDto>): Single<MetaWrapper> {
@@ -258,6 +274,17 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
 
+    override fun getThemeFromPreferences() = preferences.getTheme()
+    override fun saveThemeToPreferences(theme: String) {
+        preferences.saveTheme(theme)
+    }
+
+    override fun getSystemThemeFromPreferences() = preferences.getSystemTheme()
+    override fun saveSystemThemeToPreferences(theme: Boolean) {
+        preferences.saveSystemTheme(theme)
+    }
+
+
     override fun getPreference(): SharedPreferences {
         return preferences.getInstance()
     }
@@ -270,8 +297,3 @@ class MovieRepositoryImpl @Inject constructor(
         return calendar.timeInMillis
     }
 }
-
-
-//https://api.kinopoisk.dev/v1.4/movie?page=1&limit=5&selectFields=premiere&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&selectFields=enName&notNullFields=premiere.world&notNullFields=name&notNullFields=enName&notNullFields=description&notNullFields=year&notNullFields=rating.kp&notNullFields=poster.url&notNullFields=id&notNullFields=premiere.world
-//
-//https://api.kinopoisk.dev/v1.4/movie/?page=1&limit=30&selectFields=id&selectFields=name&selectFields=description&selectFields=poster&selectFields=premiere&selectFields=genres&selectFields=year&selectFields=rating&selectFields=persons&notNullFields=id&notNullFields=name&notNullFields=description&notNullFields=premiere.world&notNullFields=genres&notNullFields=year&notNullFields=rating.kp&notNullFields=persons&notNullFields=poster.url

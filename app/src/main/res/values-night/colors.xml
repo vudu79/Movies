@@ -12,13 +12,13 @@
     <color name="gradient_end">#7B3CEF</color>
     <color name="gradient_end2">#4805C1</color>
 
-    <color name="colorPrimary">#FBEEFB</color>
-    <color name="colorSecondary">#151516</color>
+    <color name="colorPrimary">#090909</color>
+    <color name="colorSecondary">#FFFFFF</color>
 
-    <color name="colorPrimaryDark">#FFFFFF</color>
-    <color name="colorSecondaryDark">#0B0B0B</color>
+    <color name="colorPrimaryDark">#1F1C1C</color>
+    <color name="colorSecondaryDark">#D5D3D7</color>
 
-    <color name="colorAccent">#ED8A6B</color>
+    <color name="colorAccent">#5B06F2</color>
 
 
 </resources>

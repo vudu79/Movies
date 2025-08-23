@@ -1,5 +1,6 @@
 package ru.vodolatskii.remote_module
 
 interface RemoteProvider {
-    fun provideRemote(): KPApiService
+    fun provideRemoteKP(): KPApiService
+    fun provideRemoteSun(): SunSetApiService
 }

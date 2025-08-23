@@ -29,6 +29,6 @@ class AfterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 4)
+//        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 4)
     }
 }

@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import ru.vodolatskii.movies.data.dao.MovieDao;
 import ru.vodolatskii.movies.data.sharedPref.PreferenceProvider;
 import ru.vodolatskii.remote_module.KPApiService;
+import ru.vodolatskii.remote_module.SunSetApiService;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -24,29 +25,32 @@ public final class MovieRepositoryImpl_Factory implements Factory<MovieRepositor
 
   private final Provider<KPApiService> kpApiServiceProvider;
 
+  private final Provider<SunSetApiService> sunSetServiceProvider;
+
   private final Provider<PreferenceProvider> preferencesProvider;
 
   public MovieRepositoryImpl_Factory(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider,
+      Provider<KPApiService> kpApiServiceProvider, Provider<SunSetApiService> sunSetServiceProvider,
       Provider<PreferenceProvider> preferencesProvider) {
     this.movieDaoProvider = movieDaoProvider;
     this.kpApiServiceProvider = kpApiServiceProvider;
+    this.sunSetServiceProvider = sunSetServiceProvider;
     this.preferencesProvider = preferencesProvider;
   }
 
   @Override
   public MovieRepositoryImpl get() {
-    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), preferencesProvider.get());
+    return newInstance(movieDaoProvider.get(), kpApiServiceProvider.get(), sunSetServiceProvider.get(), preferencesProvider.get());
   }
 
   public static MovieRepositoryImpl_Factory create(Provider<MovieDao> movieDaoProvider,
-      Provider<KPApiService> kpApiServiceProvider,
+      Provider<KPApiService> kpApiServiceProvider, Provider<SunSetApiService> sunSetServiceProvider,
       Provider<PreferenceProvider> preferencesProvider) {
-    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, preferencesProvider);
+    return new MovieRepositoryImpl_Factory(movieDaoProvider, kpApiServiceProvider, sunSetServiceProvider, preferencesProvider);
   }
 
   public static MovieRepositoryImpl newInstance(MovieDao movieDao, KPApiService kpApiService,
-      PreferenceProvider preferences) {
-    return new MovieRepositoryImpl(movieDao, kpApiService, preferences);
+      SunSetApiService sunSetService, PreferenceProvider preferences) {
+    return new MovieRepositoryImpl(movieDao, kpApiService, sunSetService, preferences);
   }
 }

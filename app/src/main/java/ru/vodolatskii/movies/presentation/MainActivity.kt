@@ -1,16 +1,23 @@
 package ru.vodolatskii.movies.presentation
 
+import android.content.BroadcastReceiver
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.viewModels
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -18,11 +25,14 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,15 +40,17 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private lateinit var receiver: BroadcastReceiver
 
-    val viewModel: MoviesViewModel by viewModels {
-        App.instance.dagger.viewModelsFactory()
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModel: MoviesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         App.instance.dagger.inject(this)
+        viewModel = viewModelFactory.create(MoviesViewModel::class.java)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -46,6 +58,14 @@ class MainActivity : AppCompatActivity() {
         setupDrawerMenu()
         setupObservers()
         setupClickListeners()
+        registerReceiver()
+    }
+
+    private fun registerReceiver() {
+        receiver = AppReceiver()
+        val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
+        intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
+        registerReceiver(receiver, intentFilters)
     }
 
     private fun setupDrawerMenu() {
@@ -55,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
         navController = findNavController(R.id.my_nav_host_fragment)
 
-        setSupportActionBar(toolBar);
+        setSupportActionBar(toolBar)
 
         actionBarDrawerToggle =
             ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.open, R.string.close)
@@ -67,6 +87,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
                     navController.navigateUp()
                 }
+
                 else -> {
                     drawerLayout.openDrawer(GravityCompat.START)
                 }
@@ -76,12 +97,13 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.detailsFragment, R.id.favoriteFragment, R.id.afterFragment, R.id.homeFragment -> {
-                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_menu_24)
                 }
 
                 R.id.storageMenuFragment, R.id.storageRVFragment, R.id.settingsFragment -> {
-                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24);
+                    actionBarDrawerToggle.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
                 }
+
                 else -> {}
             }
         }
@@ -143,6 +165,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.isSearchViewVisible.observe(this) { state ->
             binding.topAppBar.visibility = if (state) View.GONE else View.VISIBLE
         }
+
+        viewModel.messageSingleLiveEvent.observe(this) { message ->
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun shareMoviesViewModel(): MoviesViewModel {
@@ -201,6 +227,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(receiver)
+        super.onDestroy()
     }
 }
 

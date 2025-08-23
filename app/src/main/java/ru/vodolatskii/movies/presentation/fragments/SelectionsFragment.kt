@@ -34,7 +34,7 @@ class SelectionsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 3)
+//        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 3)
 
         binding.textedit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

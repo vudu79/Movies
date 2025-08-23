@@ -16,7 +16,6 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.transition.AutoTransition
 import android.transition.TransitionInflater
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,8 +44,6 @@ class DetailsFragment : Fragment() {
     lateinit var viewModel: MoviesViewModel
     private lateinit var movie: Movie
     private val scope = CoroutineScope(Dispatchers.IO)
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,7 +181,7 @@ class DetailsFragment : Fragment() {
             Toast.makeText(requireContext(),"jhgjhgjh", Toast.LENGTH_SHORT).show()
         }
 
-        binding.detailsFab.setOnClickListener {
+        binding.detailsFabShare.setOnClickListener {
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
             intent.putExtra(
@@ -209,8 +206,6 @@ class DetailsFragment : Fragment() {
     }
 
     private fun requestPermission() {
-        Log.d("mytag", "eee -- $${checkPermission()}")
-
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -274,7 +269,6 @@ class DetailsFragment : Fragment() {
 //        }
         //Создаем родительский скоуп с диспатчером Main потока, так как будем взаимодействовать с UI
         MainScope().launch {
-            Log.d("mytag", "int -- $${checkPermission()}")
 
             //Включаем Прогресс-бар
             binding.progressBar.isVisible = true

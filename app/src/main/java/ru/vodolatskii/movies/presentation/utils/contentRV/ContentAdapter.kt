@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
-import timber.log.Timber
 import java.util.Collections
 
 class ContentAdapter(
@@ -65,19 +64,6 @@ class ContentAdapter(
         }
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
-
-    init {
-        asyncListDiffer.addListListener { previousList, currentList ->
-            previousList.forEach {
-                Timber.d("prev - ${it.title}")
-            }
-            currentList.forEach {
-                Timber.d("curr - ${it.title}")
-            }
-
-
-        }
-    }
 
     fun setData(movies: List<Movie>) {
         val list = movies.toMutableList()
@@ -151,7 +137,6 @@ class ContentAdapter(
         }
     }
 
-
     inner class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =
             itemView.findViewById(R.id.poster_image)
@@ -195,8 +180,8 @@ class ContentAdapter(
         private val pageInfo: TextView = itemView.findViewById(R.id.pageInfo)
 
         fun bind(nextPageSize: Int, currentPage: Int, totalPages: Int, totalItems: Int) {
-            loadMoreButton.text = "Показать еще $nextPageSize элементов"
-            pageInfo.text = "Страница $currentPage из $totalPages (всего $totalItems элементов)"
+            loadMoreButton.text = "Показать еще $nextPageSize"
+            pageInfo.text = "Страница $currentPage из $totalPages (всего $totalItems)"
             loadMoreButton.setOnClickListener { onLoadMore() }
         }
     }
@@ -246,8 +231,6 @@ class ContentAdapter(
                 override fun onAnimationStart(p0: Animation?) {}
                 override fun onAnimationRepeat(p0: Animation?) {}
             })
-        } catch (e: Exception) {
-
-        }
+        } catch (e: Exception) { }
     }
 }

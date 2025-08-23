@@ -4,9 +4,10 @@ import android.content.SharedPreferences
 import io.reactivex.rxjava3.core.Single
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.MetaWrapper
+import ru.vodolatskii.remote_module.entity.SunSetDto
 
 interface MovieRepository {
-     fun getMovieResponseFromKPApi(page: Int, query: String):Single<MetaWrapper>
+    fun getMovieResponseFromKPApi(page: Int, query: String): Single<MetaWrapper>
 
 //    suspend fun getMovieResponseFromTMDBApi(page: Int): BaseResponse<List<Movie>, BaseError>
 
@@ -16,13 +17,21 @@ interface MovieRepository {
 
     suspend fun deleteMovieFromFavorites(movie: Movie)
 
-     fun getAllMoviesFromFavorites(): Single<List<Movie>>
+    fun getAllMoviesFromFavorites(): Single<List<Movie>>
 
     fun getDefaultCategoryFromPreferences(): String
 
     fun saveDefaultCategoryToPreferences(category: String)
 
     fun getPreference(): SharedPreferences
+
+    fun getThemeFromPreferences(): String
+
+    fun saveThemeToPreferences(theme: String)
+
+    fun getSystemThemeFromPreferences(): Boolean
+
+    fun saveSystemThemeToPreferences(theme: Boolean)
 
     fun getRequestLanguageFromPreferences(): String
 
@@ -34,7 +43,7 @@ interface MovieRepository {
 
     suspend fun putMovieToDbWithSettings(movie: Movie)
 
-     fun getAllMoviesFromDB(): Single<List<Movie>>
+    fun getAllMoviesFromDB(): Single<List<Movie>>
 
     fun getContentSourceFromPreferences(): String?
 
@@ -54,7 +63,11 @@ interface MovieRepository {
 
     fun deleteAllFromDB()
 
-     fun getMovieCount(): Int
+    fun getMovieCount(): Int
+
+    fun getSunDataFromApi(lat: Double, long: Double, date: String): Single<SunSetDto>
+
+
 
 //    suspend fun getMoviesByFilter(
 //        rating: Double,

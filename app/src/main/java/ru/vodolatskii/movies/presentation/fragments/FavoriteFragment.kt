@@ -27,6 +27,7 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoratio
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
 
 
 class FavoriteFragment : Fragment() {
@@ -58,7 +59,7 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
+//        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
         setupFavoriteRV()
         setupObservers()
         setupSearchViewListeners()
@@ -132,12 +133,15 @@ class FavoriteFragment : Fragment() {
             .subscribe { state ->
                 when (state) {
                     is FavoriteUIState.Success -> {
+                        Timber.d("fav -- ${state.listMovie}")
                         val mutableMoviesList = state.listMovie
                         setFavoriteViewsVisibility(state)
                         favoriteAdapter.setData(mutableMoviesList)
                     }
 
                     is FavoriteUIState.Error -> {
+                        Timber.d("fav -- ${state.message}")
+
                         setFavoriteViewsVisibility(state)
                     }
 

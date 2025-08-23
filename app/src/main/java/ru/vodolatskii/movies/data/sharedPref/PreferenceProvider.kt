@@ -17,6 +17,7 @@ class PreferenceProvider(context: Context) {
             preference.edit { putBoolean(KEY_SAVE_MOVIE_MODE, DEFAULT_SAVE_MOVIE_MODE) }
             preference.edit { putInt(KEY_RATING_SAVE_MOVIE_MODE, DEFAULT_RATING_SAVE_MOVIE_MODE) }
             preference.edit { putInt(KEY_DATE_SAVE_MOVIE_MODE, DEFAULT_DATE_SAVE_MOVIE_MODE) }
+            preference.edit { putString(KEY_THEME, DEFAULT_THEME) }
 
             preference.edit { putBoolean(KEY_FIRST_LAUNCH, false) }
         }
@@ -26,6 +27,7 @@ class PreferenceProvider(context: Context) {
 
     fun getDefaultCategory() =
         preference.getString(KEY_DEFAULT_CATEGORY, DEFAULT_CATEGORY) ?: DEFAULT_CATEGORY
+
     fun saveDefaultCategory(category: String) {
         preference.edit {
             putString(KEY_DEFAULT_CATEGORY, category)
@@ -34,6 +36,7 @@ class PreferenceProvider(context: Context) {
 
     fun getRequestLanguage() =
         preference.getString(KEY_DEFAULT_LANGUAGE, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
+
     fun saveRequestLanguage(language: String) {
         preference.edit {
             putString(KEY_DEFAULT_LANGUAGE, language)
@@ -42,6 +45,7 @@ class PreferenceProvider(context: Context) {
 
     fun getContentSource() =
         preference.getString(KEY_CONTENT_SOURCE, DEFAULT_CONTENT_SOURCE) ?: DEFAULT_CONTENT_SOURCE
+
     fun saveContentSource(source: String) {
         preference.edit {
             putString(KEY_CONTENT_SOURCE, source)
@@ -50,25 +54,47 @@ class PreferenceProvider(context: Context) {
 
     fun getMovieSavingMode() =
         preference.getBoolean(KEY_SAVE_MOVIE_MODE, DEFAULT_SAVE_MOVIE_MODE)
+
     fun saveMovieSavingMode(checked: Boolean) {
         preference.edit {
             putBoolean(KEY_SAVE_MOVIE_MODE, checked)
         }
     }
 
-    fun getRatingMovieSavingMode()=
+    fun getRatingMovieSavingMode() =
         preference.getInt(KEY_RATING_SAVE_MOVIE_MODE, DEFAULT_RATING_SAVE_MOVIE_MODE)
+
     fun saveRatingMovieSavingMode(value: Int) {
         preference.edit {
             putInt(KEY_RATING_SAVE_MOVIE_MODE, value)
         }
     }
 
-    fun getDateMovieSavingMode()=
+    fun getDateMovieSavingMode() =
         preference.getInt(KEY_DATE_SAVE_MOVIE_MODE, DEFAULT_DATE_SAVE_MOVIE_MODE)
+
     fun saveDateMovieSavingMode(value: Int) {
         preference.edit {
             putInt(KEY_DATE_SAVE_MOVIE_MODE, value)
+        }
+    }
+
+    fun getTheme() = preference.getString(KEY_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
+
+    fun saveTheme(theme: String) {
+        preference.edit {
+            putString(KEY_THEME, theme)
+        }
+//        Timber.d("from pref ${getTheme()}")
+//        Timber.d("from pref sys ${getSystemTheme()}")
+    }
+
+
+    fun getSystemTheme() = preference.getBoolean(KEY_SYSTEM_THEME, DEFAULT_SYSTEM_THEME)
+
+    fun saveSystemTheme(theme: Boolean) {
+        preference.edit {
+            putBoolean(KEY_SYSTEM_THEME, theme)
         }
     }
 
@@ -93,5 +119,11 @@ class PreferenceProvider(context: Context) {
 
         private const val KEY_DATE_SAVE_MOVIE_MODE = "date_save_mode"
         private const val DEFAULT_DATE_SAVE_MOVIE_MODE = 1950
+
+        private const val KEY_THEME = "day_night_theme"
+        private const val DEFAULT_THEME = "system"
+
+        private const val KEY_SYSTEM_THEME = "day_system_theme"
+        private const val DEFAULT_SYSTEM_THEME = false
     }
 }

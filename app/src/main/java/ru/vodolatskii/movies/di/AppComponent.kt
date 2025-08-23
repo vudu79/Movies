@@ -3,6 +3,7 @@ package ru.vodolatskii.movies.di
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
+import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.presentation.LaunchActivity
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.viewmodels.ViewModelFactory
@@ -31,4 +32,5 @@ interface AppComponent {
 
     fun inject(activityMain: MainActivity)
     fun inject(activityLaunch: LaunchActivity)
+    fun inject(receiver: AppReceiver)
 }
