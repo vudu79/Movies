@@ -30,6 +30,7 @@ import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerReceivers() {
+        Timber.d("registerReceivers -- ${this.packageName}.FIND")
         appReceiver = AppReceiver()
         val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
         intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)

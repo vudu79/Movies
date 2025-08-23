@@ -133,15 +133,12 @@ class FavoriteFragment : Fragment() {
             .subscribe { state ->
                 when (state) {
                     is FavoriteUIState.Success -> {
-                        Timber.d("fav -- ${state.listMovie}")
                         val mutableMoviesList = state.listMovie
                         setFavoriteViewsVisibility(state)
                         favoriteAdapter.setData(mutableMoviesList)
                     }
 
                     is FavoriteUIState.Error -> {
-                        Timber.d("fav -- ${state.message}")
-
                         setFavoriteViewsVisibility(state)
                     }
 

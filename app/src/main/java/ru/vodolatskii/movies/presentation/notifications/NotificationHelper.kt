@@ -19,6 +19,7 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
+import timber.log.Timber
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -67,13 +68,11 @@ class NotificationHelper(private val context: Context) {
         button2Text: String,
         notificationId: Int = 10
     ) {
-
         val intent = Intent(context, MainActivity::class.java).apply {
             setPackage(context.packageName)
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("movie", movie)
-
         val pendingIntent = PendingIntent.getActivity(
             context,
             0,
@@ -81,43 +80,40 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val customNotificationView =
-            RemoteViews(context.packageName, R.layout.custom_notification_layout)
-        val customExpandedView =
-            RemoteViews(context.packageName, R.layout.custom_notification_layout_exp)
 
-        customNotificationView.setTextViewText(R.id.notification_title, movie.title)
-        customNotificationView.setTextViewText(R.id.notification_message, movie.description)
+        val buttonIntent1 = Intent(context, NotificationsReceiver::class.java)
+        buttonIntent1.action = "${context.packageName}.FIND"
+        buttonIntent1.putExtra("query", movie.title)
+        buttonIntent1.putExtra("notification_id", notificationId)
 
-        customExpandedView.setTextViewText(R.id.notification_title, movie.title)
-        customExpandedView.setTextViewText(R.id.notification_message, movie.description)
-        customExpandedView.setTextViewText(R.id.notification_button1, button1Text)
-        customExpandedView.setTextViewText(R.id.notification_button2, button2Text)
-
-        val buttonIntent1 = Intent(context, NotificationsReceiver::class.java).apply {
-            action = "FIND"
-            putExtra("query", movie.title)
-            putExtra("notification_id", notificationId)
-        }
         val buttonPendingIntent1 = PendingIntent.getBroadcast(
             context,
             notificationId * 2,
             buttonIntent1,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val buttonIntent2 = Intent(context, NotificationsReceiver::class.java).apply {
-            action = "CANCEL"
-            putExtra("notification_id", notificationId)
-        }
+        val buttonIntent2 = Intent(context, NotificationsReceiver::class.java)
+        buttonIntent2.action = "${context.packageName}.CANCEL"
+        buttonIntent2.putExtra("notification_id", notificationId)
 
         val buttonPendingIntent2 = PendingIntent.getBroadcast(
             context,
             notificationId * 2 + 1,
             buttonIntent2,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val customNotificationView =
+            RemoteViews(context.packageName, R.layout.custom_notification_layout)
+        val customExpandedView =
+            RemoteViews(context.packageName, R.layout.custom_notification_layout_exp)
+        customNotificationView.setTextViewText(R.id.notification_title, movie.title)
+        customNotificationView.setTextViewText(R.id.notification_message, movie.description)
+        customExpandedView.setTextViewText(R.id.notification_title, movie.title)
+        customExpandedView.setTextViewText(R.id.notification_message, movie.description)
+        customExpandedView.setTextViewText(R.id.notification_button1, button1Text)
+        customExpandedView.setTextViewText(R.id.notification_button2, button2Text)
         customExpandedView.setOnClickPendingIntent(R.id.notification_button1, buttonPendingIntent1)
         customExpandedView.setOnClickPendingIntent(R.id.notification_button2, buttonPendingIntent2)
 
@@ -126,21 +122,24 @@ class NotificationHelper(private val context: Context) {
                 context,
                 R.drawable.outline_cancel_24
             )
+            customNotificationView.setImageViewBitmap(R.id.notification_image, bitmap)
+            customExpandedView.setImageViewBitmap(R.id.notification_image, bitmap)
 
-            if (bitmap != null) {
-                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
-                customNotificationView.setImageViewBitmap(R.id.notification_image, resizedBitmap)
-                customExpandedView.setImageViewBitmap(R.id.notification_image, resizedBitmap)
-            }
+//            if (bitmap != null) {
+//                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
+//
+//            }
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.tv_set_icon)
-                .setCustomContentView(customNotificationView) // Обычное состояние
-                .setCustomBigContentView(customExpandedView) // Расширенное состояние с кнопкой
+                .setCustomContentView(customNotificationView)
+                .setCustomBigContentView(customExpandedView)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
+                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .build()
+
             notificationManager.notify(notificationId, notification)
         }
     }

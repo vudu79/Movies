@@ -186,7 +186,7 @@ class DetailsFragment : Fragment() {
                 movie = movie,
                 button2Text = "Найти",
                 button1Text = "Убрать",
-                notificationId = 111
+                notificationId = 11
             )
         }
 
