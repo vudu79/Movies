@@ -83,7 +83,6 @@ class MovieRepositoryImpl @Inject constructor(
             .flatMap { resp ->
                 val body = resp.body()
                 if (body != null && resp.isSuccessful) {
-//                    Timber.d("oooo --- $body")
                     Single.just(body)
                 } else {
                     Single.error(Exception("Network error"))

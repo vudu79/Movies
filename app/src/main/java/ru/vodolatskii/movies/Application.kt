@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
@@ -21,6 +22,8 @@ class App : Application() {
         super.onCreate()
         instance = this
         preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         daggerSetup()
         timberSetup()

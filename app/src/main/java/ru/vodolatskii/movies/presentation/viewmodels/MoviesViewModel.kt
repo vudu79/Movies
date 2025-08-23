@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +15,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import ru.vodolatskii.movies.App
-import ru.vodolatskii.movies.common.DayNightThemeManager
+import ru.vodolatskii.movies.common.ThemeManager
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
@@ -22,10 +24,14 @@ import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
 import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
-import timber.log.Timber
+import ru.vodolatskii.remote_module.entity.SunSetDto
 import java.net.URL
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -38,8 +44,8 @@ class MoviesViewModel @Inject constructor(
     ) : ViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
     private val disposable = CompositeDisposable()
 
-    private val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData(false)
-    val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData(DAY_THEME)
+    private val systemThemeLifeData: MutableLiveData<Boolean> = MutableLiveData(true)
+    val dayNightThemeLifeData: MutableLiveData<String> = MutableLiveData(SYSTEM_THEME)
     val movieCountInDBLiveData: MutableLiveData<Int> = MutableLiveData()
     val allMoviesSavingLiveModeData: MutableLiveData<Boolean> = MutableLiveData()
     val ratingSavingModeLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -79,6 +85,7 @@ class MoviesViewModel @Inject constructor(
     val homeUIState: BehaviorSubject<HomeUIState> = BehaviorSubject.create()
     val favoriteUIState: BehaviorSubject<FavoriteUIState> = BehaviorSubject.create()
     val storageUIState: BehaviorSubject<UIStateStorage> = BehaviorSubject.create()
+    val locationSubject: BehaviorSubject<Location> = BehaviorSubject.create()
 
     init {
         setupSettings()
@@ -102,6 +109,20 @@ class MoviesViewModel @Inject constructor(
                     }
                 }
         )
+
+        disposable.add(
+            locationSubject
+                .debounce(1000, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    changeThemeBySunSet(it)
+                }
+        )
+    }
+
+    fun updateLocation(location: Location) {
+        locationSubject.onNext(location)
     }
 
     fun loadNextPage(query: String) {
@@ -222,9 +243,7 @@ class MoviesViewModel @Inject constructor(
                                 } else {
                                     0
                                 }
-                                cachedMovieListSearch.forEach {
-                                    Timber.d("list -- ${it.title}")
-                                }
+
                                 homeUIState.onNext(
                                     HomeUIState.Success(
                                         cachedMovieListSearch.toList(),
@@ -499,16 +518,38 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    fun getSunSetData(lat: Double, long: Double) {
+    private fun changeThemeBySunSet(location: Location) {
+        disposable.add(
+            repository.getSunDataFromApi(location.latitude, location.longitude, getDate())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess {
+                    messageSingleLiveEvent.postValue("Данные успешно получены!")
+                }
+                .doOnError { error ->
+                    messageSingleLiveEvent.postValue("Ошибка на стороне сервера - ${error.message}")
+                }
+                .subscribe { it ->
+                    val currTheme = ThemeManager.getCurrentTheme()
+                    if (isSystemThemeActive()) {
+                        if (isDayNaw(it)) {
+                            if (currTheme == AppCompatDelegate.MODE_NIGHT_YES) ThemeManager.setTheme(
+                                DAY_THEME
+                            )
+                        } else {
+                            if (currTheme == AppCompatDelegate.MODE_NIGHT_NO) ThemeManager.setTheme(
+                                NIGHT_THEME
+                            )
+                        }
+                    }
+                }
+        )
+    }
 
-        repository.getSunDataFromApi(lat, long, getDate())
-            .observeOn(Schedulers.io())
-            .subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe { it ->
-//                Timber.d("восход -- ${it.results.sunset}")
-//                Timber.d("lat -- $lat")
-//                Timber.d("long -- $long")
-            }
+    private fun isDayNaw(dto: SunSetDto): Boolean {
+        val nowTime = LocalTime.now()
+        val sunriseTime = dto.results.sunrise.utcTimeToLocal()
+        return sunriseTime != null && nowTime.isAfter(sunriseTime)
     }
 
 
@@ -558,17 +599,17 @@ class MoviesViewModel @Inject constructor(
     fun putDayNightThemeProperty(theme: String) {
         repository.saveThemeToPreferences(theme)
         getDayNightThemeProperty()
-        DayNightThemeManager.setTheme(theme)
+        ThemeManager.setTheme(theme)
     }
 
-    fun getSystemThemeProperty(): Boolean {
+    fun isSystemThemeActive(): Boolean {
         systemThemeLifeData.value = repository.getSystemThemeFromPreferences()
         return systemThemeLifeData.value ?: false
     }
 
     fun putSystemThemeProperty(theme: Boolean) {
         repository.saveSystemThemeToPreferences(theme)
-        getSystemThemeProperty()
+        isSystemThemeActive()
     }
 
 
@@ -624,33 +665,48 @@ class MoviesViewModel @Inject constructor(
         disposable.clear()
     }
 
-    fun processingBroadCastIntent(intent: Intent?) {
+    fun handleBroadCastIntent(intent: Intent?) {
         when (intent?.action) {
             Intent.ACTION_POWER_CONNECTED -> {
-                if (getSystemThemeProperty()) {
+                if (isSystemThemeActive()) {
                     putDayNightThemeProperty(DAY_THEME)
-                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                    ThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
 
             Intent.ACTION_BATTERY_LOW -> {
-                if (getSystemThemeProperty()) {
+                if (isSystemThemeActive()) {
                     putDayNightThemeProperty(NIGHT_THEME)
-                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                    ThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
 
             Intent.ACTION_BATTERY_OKAY -> {
-                if (getSystemThemeProperty()) {
+                if (isSystemThemeActive()) {
                     putDayNightThemeProperty(DAY_THEME)
-                    DayNightThemeManager.setTheme(getDayNightThemeProperty())
+                    ThemeManager.setTheme(getDayNightThemeProperty())
                 }
             }
         }
     }
 
-    private fun getDate()  = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    private fun getDate() =
+        LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault()))
 
+    fun String.utcTimeToLocal(): LocalTime? {
+        return try {
+            val utcTime = LocalTime.parse(this, DateTimeFormatter.ofPattern("h:mm:ss a", Locale.US))
+            val utcDateTime = ZonedDateTime.now(ZoneId.of("UTC"))
+                .withHour(utcTime.hour)
+                .withMinute(utcTime.minute)
+                .withSecond(utcTime.second)
+
+            val localDateTime = utcDateTime.withZoneSameInstant(ZoneId.systemDefault())
+            localDateTime.toLocalTime()
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     companion object {
         private const val KEY_DEFAULT_CATEGORY = "default_category"

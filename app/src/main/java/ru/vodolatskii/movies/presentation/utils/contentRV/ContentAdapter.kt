@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.utils.RatingDonutView
-import timber.log.Timber
 import java.util.Collections
 
 class ContentAdapter(
@@ -65,17 +64,6 @@ class ContentAdapter(
         }
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
-
-    init {
-        asyncListDiffer.addListListener { previousList, currentList ->
-            previousList.forEach {
-                Timber.d("prev - ${it.title}")
-            }
-            currentList.forEach {
-                Timber.d("curr - ${it.title}")
-            }
-        }
-    }
 
     fun setData(movies: List<Movie>) {
         val list = movies.toMutableList()

@@ -121,7 +121,7 @@ class PreferenceProvider(context: Context) {
         private const val DEFAULT_DATE_SAVE_MOVIE_MODE = 1950
 
         private const val KEY_THEME = "day_night_theme"
-        private const val DEFAULT_THEME = "day"
+        private const val DEFAULT_THEME = "system"
 
         private const val KEY_SYSTEM_THEME = "day_system_theme"
         private const val DEFAULT_SYSTEM_THEME = false

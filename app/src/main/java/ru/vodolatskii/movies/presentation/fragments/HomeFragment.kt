@@ -7,13 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -23,13 +19,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.launch
-import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentHomeBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.SortEvents
@@ -38,7 +31,6 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import timber.log.Timber
 
 
 internal interface ContentAdapterController {
@@ -248,7 +240,6 @@ class HomeFragment : Fragment(), ContentAdapterController {
                 },
                 onLoadMorePage = {
                     val currentSearchViewQuery = binding.homeSearchView.query
-                    Timber.d("home query - $currentSearchViewQuery")
                     viewModel.loadNextPage(query = if (currentSearchViewQuery.isBlank()) "" else currentSearchViewQuery.toString())
                 }
             )

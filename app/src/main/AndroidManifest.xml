@@ -28,7 +28,7 @@
         android:theme="@style/MoviesAppTheme"
         tools:targetApi="31">
         <service
-            android:name=".data.LocationService"
+            android:name=".data.location.LocationService"
             android:enabled="true"
             android:exported="true" />
 
