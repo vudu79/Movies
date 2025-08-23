@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.NotificationsReceiver
+import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -61,19 +62,17 @@ class NotificationHelper(private val context: Context) {
      */
     @SuppressLint("RemoteViewLayout")
     fun showCustomExpandedNotification(
-        title: String,
-        message: String,
-        iconUrl: String,
+        movie: Movie,
         button1Text: String,
         button2Text: String,
         notificationId: Int = 10
     ) {
 
-//        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val intent = Intent(context, MainActivity::class.java).apply {
             setPackage(context.packageName)
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("movie", movie)
 
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -87,17 +86,17 @@ class NotificationHelper(private val context: Context) {
         val customExpandedView =
             RemoteViews(context.packageName, R.layout.custom_notification_layout_exp)
 
-        customNotificationView.setTextViewText(R.id.notification_title, title)
-        customNotificationView.setTextViewText(R.id.notification_message, message)
+        customNotificationView.setTextViewText(R.id.notification_title, movie.title)
+        customNotificationView.setTextViewText(R.id.notification_message, movie.description)
 
-        customExpandedView.setTextViewText(R.id.notification_title, title)
-        customExpandedView.setTextViewText(R.id.notification_message, message)
+        customExpandedView.setTextViewText(R.id.notification_title, movie.title)
+        customExpandedView.setTextViewText(R.id.notification_message, movie.description)
         customExpandedView.setTextViewText(R.id.notification_button1, button1Text)
         customExpandedView.setTextViewText(R.id.notification_button2, button2Text)
 
         val buttonIntent1 = Intent(context, NotificationsReceiver::class.java).apply {
             action = "FIND"
-            putExtra("query", title)
+            putExtra("query", movie.title)
             putExtra("notification_id", notificationId)
         }
         val buttonPendingIntent1 = PendingIntent.getBroadcast(
@@ -123,12 +122,12 @@ class NotificationHelper(private val context: Context) {
         customExpandedView.setOnClickPendingIntent(R.id.notification_button2, buttonPendingIntent2)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val bitmap = getBitmapFromUrlManual(iconUrl) ?: getBitmapFromResource(
+            val bitmap = getBitmapFromUrlManual(movie.posterUrl) ?: getBitmapFromResource(
                 context,
                 R.drawable.outline_cancel_24
             )
 
-            if (bitmap != null){
+            if (bitmap != null) {
                 val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
                 customNotificationView.setImageViewBitmap(R.id.notification_image, resizedBitmap)
                 customExpandedView.setImageViewBitmap(R.id.notification_image, resizedBitmap)

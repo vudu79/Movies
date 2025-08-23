@@ -183,9 +183,7 @@ class DetailsFragment : Fragment() {
 
         binding.detailsFabNotification.setOnClickListener {
             notificationHelper.showCustomExpandedNotification(
-                title = movie.title,
-                message = movie.description,
-                iconUrl = movie.posterUrl,
+                movie = movie,
                 button2Text = "Найти",
                 button1Text = "Убрать",
                 notificationId = 111

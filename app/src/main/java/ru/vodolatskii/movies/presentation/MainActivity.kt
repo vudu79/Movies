@@ -59,8 +59,10 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
         registerReceivers()
 
-        val movie = intent.getParcelableExtra("movie") ?: Movie()
-        passDataForDetailsFragment(movie)
+        val movie = intent.getParcelableExtra<Movie>("movie")
+        if (movie != null) {
+            passDataForDetailsFragment(movie)
+        }
     }
 
     private fun registerReceivers() {
@@ -198,18 +200,16 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    fun passDataForDetailsFragment(movie: Movie) {
+    private fun passDataForDetailsFragment(movie: Movie) {
         val bundle = Bundle()
-        bundle.putParcelable("input", movie)
+        bundle.putParcelable("movie", movie)
 
-        val frag = DetailsFragment()
-        frag.arguments = bundle
-
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.my_nav_host_fragment, frag)
-            .addToBackStack(null)
-            .commit()
+        navController.navigate(
+            R.id.detailsFragment,
+            bundle,
+            null,
+            null
+        )
     }
 
     @Deprecated("Deprecated in Java")
