@@ -40,7 +40,7 @@ class LocationService : Service() {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
-                    1000L * 10,
+                    1000L * 20,
                     0f,
                     listener
                 )

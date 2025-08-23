@@ -71,6 +71,7 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header_main"
         app:itemIconTint="#FFFFFF"
+        app:itemTextColor="@color/white"
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

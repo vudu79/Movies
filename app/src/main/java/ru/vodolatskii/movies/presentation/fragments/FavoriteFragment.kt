@@ -27,6 +27,7 @@ import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoratio
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteAdapter
 import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
 
 
 class FavoriteFragment : Fragment() {
@@ -132,12 +133,15 @@ class FavoriteFragment : Fragment() {
             .subscribe { state ->
                 when (state) {
                     is FavoriteUIState.Success -> {
+                        Timber.d("fav -- ${state.listMovie}")
                         val mutableMoviesList = state.listMovie
                         setFavoriteViewsVisibility(state)
                         favoriteAdapter.setData(mutableMoviesList)
                     }
 
                     is FavoriteUIState.Error -> {
+                        Timber.d("fav -- ${state.message}")
+
                         setFavoriteViewsVisibility(state)
                     }
 
