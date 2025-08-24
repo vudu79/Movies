@@ -23,6 +23,7 @@ import timber.log.Timber
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.random.Random
 
 class NotificationHelper(private val context: Context) {
 
@@ -86,9 +87,10 @@ class NotificationHelper(private val context: Context) {
         buttonIntent1.putExtra("query", movie.title)
         buttonIntent1.putExtra("notification_id", notificationId)
 
+
         val buttonPendingIntent1 = PendingIntent.getBroadcast(
             context,
-            notificationId * 2,
+            getRequestCode(movie),
             buttonIntent1,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -99,7 +101,7 @@ class NotificationHelper(private val context: Context) {
 
         val buttonPendingIntent2 = PendingIntent.getBroadcast(
             context,
-            notificationId * 2 + 1,
+            getRequestCode(movie),
             buttonIntent2,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -178,6 +180,13 @@ class NotificationHelper(private val context: Context) {
         notificationManager.notify(notificationId, notification)
     }
 
+    private fun getRequestCode(movie: Movie): Int {
+        return try {
+            movie.apiId.toInt()
+        } catch (e: Exception) {
+            Random(100).nextInt()
+        }
+    }
 
     fun cancelNotification(notificationId: Int) {
         notificationManager.cancel(notificationId)
