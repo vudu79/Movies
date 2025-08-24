@@ -19,7 +19,6 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
-import timber.log.Timber
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -58,10 +57,6 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-
-    /**
-     * Кастомное уведомление с расширенным layout, картинкой 100x100 и кнопкой действия
-     */
     @SuppressLint("RemoteViewLayout")
     fun showCustomExpandedNotification(
         movie: Movie,
@@ -81,13 +76,10 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-
         val buttonIntent1 = Intent(context, NotificationsReceiver::class.java)
         buttonIntent1.action = "${context.packageName}.FIND"
         buttonIntent1.putExtra("query", movie.title)
         buttonIntent1.putExtra("notification_id", notificationId)
-
-
         val buttonPendingIntent1 = PendingIntent.getBroadcast(
             context,
             getRequestCode(movie),
@@ -98,7 +90,6 @@ class NotificationHelper(private val context: Context) {
         val buttonIntent2 = Intent(context, NotificationsReceiver::class.java)
         buttonIntent2.action = "${context.packageName}.CANCEL"
         buttonIntent2.putExtra("notification_id", notificationId)
-
         val buttonPendingIntent2 = PendingIntent.getBroadcast(
             context,
             getRequestCode(movie),
@@ -126,11 +117,6 @@ class NotificationHelper(private val context: Context) {
             )
             customNotificationView.setImageViewBitmap(R.id.notification_image, bitmap)
             customExpandedView.setImageViewBitmap(R.id.notification_image, bitmap)
-
-//            if (bitmap != null) {
-//                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
-//
-//            }
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.tv_set_icon)
