@@ -116,8 +116,8 @@ class NotificationHelper(private val context: Context) {
         customExpandedView.setTextViewText(R.id.notification_message, movie.description)
         customExpandedView.setTextViewText(R.id.notification_button1, button1Text)
         customExpandedView.setTextViewText(R.id.notification_button2, button2Text)
-        customExpandedView.setOnClickPendingIntent(R.id.notification_button1, buttonPendingIntent1)
-        customExpandedView.setOnClickPendingIntent(R.id.notification_button2, buttonPendingIntent2)
+        customExpandedView.setOnClickPendingIntent(R.id.notification_button1, buttonPendingIntent2)
+        customExpandedView.setOnClickPendingIntent(R.id.notification_button2, buttonPendingIntent1)
 
         CoroutineScope(Dispatchers.IO).launch {
             val bitmap = getBitmapFromUrlManual(movie.posterUrl) ?: getBitmapFromResource(
