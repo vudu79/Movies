@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -23,11 +24,11 @@ import ru.vodolatskii.movies.presentation.utils.RatingDonutView
 import java.util.Collections
 
 class ReminderAdapter(
-    private val onItemClick: (Movie, View) -> Unit,
+    private val onEditButtonClick: (Movie) -> Unit,
     private val onDeleteFromReminded: (Movie) -> Unit,
     private val context: Context
 ) :
-    RecyclerView.Adapter<ReminderAdapter.FavoriteViewHolder>(), ItemTouchHelperListener {
+    RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>(), ItemTouchHelperListener {
 
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
         object : DiffUtil.ItemCallback<Movie>() {
@@ -47,14 +48,10 @@ class ReminderAdapter(
         asyncListDiffer.submitList(list)
     }
 
-    fun getData(): List<Movie> {
-        return asyncListDiffer.currentList
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {
-        return FavoriteViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
+        return ReminderViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.recyclerview_movie_item_layout, parent, false)
+                .inflate(R.layout.recyclerview_reminder_movie_item_layout, parent, false)
         )
     }
 
@@ -62,39 +59,26 @@ class ReminderAdapter(
         return asyncListDiffer.currentList.size
     }
 
-    override fun onBindViewHolder(holder: FavoriteViewHolder, position: Int) {
-        when (holder) {
-            is FavoriteViewHolder -> {
-                val movie = asyncListDiffer.currentList[position]
+    override fun onBindViewHolder(holder: ReminderViewHolder, position: Int) {
 
-                Glide.with(holder.itemView.context)
-                    .load(movie.posterUrl)
-                    .error(R.drawable.baseline_error_outline_24)
-                    .placeholder(R.drawable.baseline_arrow_circle_down_24)
-                    .centerCrop()
-                    .override(200, 200)
-                    .into(holder.imageView)
+        val movie = asyncListDiffer.currentList[position]
 
-                holder.title.text = movie.title
+        Glide.with(holder.itemView.context)
+            .load(movie.posterUrl)
+            .error(R.drawable.baseline_error_outline_24)
+            .placeholder(R.drawable.baseline_arrow_circle_down_24)
+            .centerCrop()
+            .override(200, 200)
+            .into(holder.imageView)
 
-                holder.description.text = movie.description
+        holder.title.text = movie.title
 
-                holder.rating.setProgress((movie.rating * 10).toInt())
-
-                holder.card.setOnClickListener {
-                    ViewCompat.setTransitionName(holder.description, "text_transition_name")
-                    onItemClick(movie, holder.description)
-                }
-                holder.releaseDate.text = "Дата выхода: " + movie.releaseDate
-
-                val genreString = movie.genreListString.toString().replace("[", "").replace("]", "")
-                holder.genres.text = "Жанры: $genreString"
-//                setAnimation(holder.shineView)
-            }
-
-            else -> {
-            }
+        holder.editButton.setOnClickListener {
+            onEditButtonClick(movie)
         }
+
+        holder.remTitle.text = "Напомнить посмотреть"
+        holder.remTime.text = movie.reminderTimeString
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -121,16 +105,13 @@ class ReminderAdapter(
         onItemDismiss(position)
     }
 
-    class FavoriteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView =
             itemView.findViewById(R.id.poster_image)
         val title: TextView = itemView.findViewById(R.id.title)
-        val description: TextView = itemView.findViewById(R.id.description)
-        val releaseDate: TextView = itemView.findViewById(R.id.release_date)
-        val card: CardView = itemView.findViewById(R.id.card)
-        val rating: RatingDonutView = itemView.findViewById(R.id.rating_donut)
-        val genres: TextView = itemView.findViewById(R.id.genre_list)
-//        val shineView: View = itemView.findViewById(R.id.shine)
+        val remTitle: TextView = itemView.findViewById(R.id.remind_title)
+        val remTime: TextView = itemView.findViewById(R.id.remind_time)
+        val editButton: Button = itemView.findViewById(R.id.edit_button)
     }
 
     private fun setAnimation(viewToAnimate: View) {

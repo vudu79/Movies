@@ -77,14 +77,11 @@ class AfterFragment : Fragment() {
     private fun setupFavoriteRV() {
         binding.recyclerViewFav.apply {
             reminderAdapter = ReminderAdapter(
-                onItemClick = { movie, view ->
-//                    (activity as MainActivity).launchDetailsFragment(
-//                        movie,
-//                        view
-//                    )
+                onEditButtonClick = { movie ->
+
                 },
                 onDeleteFromReminded = { movie ->
-//                    viewModel.deleteMovieFromFavorite(movie)
+                   viewModel.updateReminderForMovie(movie.apiId, false,0L,"")
                 },
 
                 context = requireContext()

@@ -254,16 +254,12 @@ class MovieRepositoryImpl @Inject constructor(
         millis: Long,
         str: String
     ) {
-        Completable.fromSingle<Movie> {
-            movieDao.updateReminderForMovie(
-                movieId,
-                isReminder,
-                millis,
-                str
-            )
-        }
-            .subscribeOn(Schedulers.io())
-            .subscribe()
+        movieDao.updateReminderForMovie(
+            movieId,
+            isReminder,
+            millis,
+            str
+        )
     }
 
 

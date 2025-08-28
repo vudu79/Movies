@@ -433,7 +433,16 @@ class MoviesViewModel @Inject constructor(
 
 
     fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long, str: String) {
-        repository.updateReminderForMovie(movieId, isReminder, millis, str)
+        Completable.fromSingle<Movie> {
+            repository.updateReminderForMovie(
+                movieId,
+                isReminder,
+                millis,
+                str
+            )
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe()
     }
 
     fun getReminderMovies() {
