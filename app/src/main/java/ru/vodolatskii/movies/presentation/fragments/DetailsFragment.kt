@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.myapp.AlarmHelper
 import com.example.myapp.NotificationHelper
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
@@ -46,6 +47,7 @@ class DetailsFragment : Fragment() {
     private lateinit var movie: Movie
     private val scope = CoroutineScope(Dispatchers.IO)
     private lateinit var notificationHelper: NotificationHelper
+    private lateinit var alarmHelper: AlarmHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +62,7 @@ class DetailsFragment : Fragment() {
         }
 
         notificationHelper = NotificationHelper(requireContext())
-
+        alarmHelper = AlarmHelper(requireContext())
     }
 
     override fun onCreateView(
@@ -185,6 +187,15 @@ class DetailsFragment : Fragment() {
 
         binding.detailsFabNotification.setOnClickListener {
             DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
+
+                alarmHelper.createAlarm(
+                    movie.copy(
+                        reminderTimeMillis = millis,
+                        reminderTimeString = str,
+                        isReminder = true
+                    )
+                )
+
                 if (!movie.isFavorite) viewModel.updateReminderForMovie(
                     movie.apiId,
                     true,
@@ -202,12 +213,7 @@ class DetailsFragment : Fragment() {
                     }
                     .show()
             }
-//            notificationHelper.showCustomExpandedNotification(
-//                movie = movie,
-//                button2Text = "Найти",
-//                button1Text = "Убрать",
-//                notificationId = 11
-//            )
+
         }
 
 

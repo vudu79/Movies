@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
@@ -17,6 +18,7 @@ import ru.vodolatskii.movies.presentation.adapters.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.adapters.LiftSwipeItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.adapters.ReminderAdapter
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
+import ru.vodolatskii.movies.presentation.utils.DateTimeHelper
 import ru.vodolatskii.movies.presentation.utils.SimpleUIState
 import ru.vodolatskii.movies.presentation.utils.addTo
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
@@ -56,9 +58,8 @@ class AfterFragment : Fragment() {
             .subscribe { state ->
                 when (state) {
                     is SimpleUIState.Success -> {
-                        val mutableMoviesList = state.listMovie
                         setReminderViewsVisibility(state)
-                        reminderAdapter.setData(mutableMoviesList)
+                        reminderAdapter.setData(state.listMovie)
                     }
 
                     is SimpleUIState.Error -> {
@@ -78,7 +79,26 @@ class AfterFragment : Fragment() {
         binding.recyclerViewFav.apply {
             reminderAdapter = ReminderAdapter(
                 onEditButtonClick = { movie ->
+                    DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
+                        if (!movie.isFavorite) viewModel.updateReminderForMovie(
+                            movie.apiId,
+                            true,
+                            millis,
+                            str
+                        )
+                        viewModel.getReminderMovies()
 
+
+                        Snackbar.make(
+                            this,
+                            "Напомнить ${str} ",
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAction(R.string.ok) {
+
+                            }
+                            .show()
+                    }
                 },
                 onDeleteFromReminded = { movie ->
                    viewModel.updateReminderForMovie(movie.apiId, false,0L,"")

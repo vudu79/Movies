@@ -30,22 +30,28 @@ class ReminderAdapter(
 ) :
     RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>(), ItemTouchHelperListener {
 
+    private val movies = mutableListOf<Movie>()
+
     private val diffUtilsCallback: DiffUtil.ItemCallback<Movie> =
         object : DiffUtil.ItemCallback<Movie>() {
             override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return oldItem === newItem
+                return oldItem.apiId == newItem.apiId &&
+                        oldItem.reminderTimeMillis == newItem.reminderTimeMillis
             }
 
             override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return oldItem == newItem
+                return oldItem.apiId == newItem.apiId &&
+                        oldItem.reminderTimeMillis == newItem.reminderTimeMillis
             }
         }
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtilsCallback)
 
-    fun setData(movies: List<Movie>) {
-        val list = movies.toMutableList()
-        asyncListDiffer.submitList(list)
+    fun setData(newMovies: List<Movie>) {
+        movies.clear()
+        movies.addAll(newMovies)
+        asyncListDiffer.submitList(movies)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
