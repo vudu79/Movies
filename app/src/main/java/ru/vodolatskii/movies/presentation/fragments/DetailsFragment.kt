@@ -36,6 +36,7 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentDetailsBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.utils.DateTimeHelper
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 
@@ -182,12 +183,22 @@ class DetailsFragment : Fragment() {
         }
 
         binding.detailsFabNotification.setOnClickListener {
-            notificationHelper.showCustomExpandedNotification(
-                movie = movie,
-                button2Text = "Найти",
-                button1Text = "Убрать",
-                notificationId = 11
-            )
+            DateTimeHelper.showDateTimePicker(requireActivity()){ millis, str ->
+                Snackbar.make(
+                    binding.detailsDescription,
+                    "Напомнить ${str} ",
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAction(R.string.ok) {
+
+                    }
+                    .show()            }
+//            notificationHelper.showCustomExpandedNotification(
+//                movie = movie,
+//                button2Text = "Найти",
+//                button1Text = "Убрать",
+//                notificationId = 11
+//            )
         }
 
 

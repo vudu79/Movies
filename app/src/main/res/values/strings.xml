@@ -64,4 +64,5 @@
     <string name="radio_button_day_theme">Светлая</string>
     <string name="radio_button_night_theme">Темная</string>
     <string name="radio_button_system_theme">Батарея</string>
+    <string name="ok">OK</string>
 </resources>
