@@ -10,7 +10,7 @@ import ru.vodolatskii.movies.data.entity.GenreConverter
 import ru.vodolatskii.movies.data.entity.MovieEntity
 
 
-@Database(entities = [MovieEntity::class], version = 2)
+@Database(entities = [MovieEntity::class], version = 1)
 @TypeConverters(GenreConverter::class)
 abstract class RoomDB : RoomDatabase() {
 

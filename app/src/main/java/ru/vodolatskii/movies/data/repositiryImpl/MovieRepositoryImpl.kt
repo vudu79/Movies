@@ -90,6 +90,7 @@ class MovieRepositoryImpl @Inject constructor(
             }
     }
 
+
     private fun responseMapping(response: Response<KPResponseDto>): Single<MetaWrapper> {
         if (response.isSuccessful && response.body() != null) {
             val resp = response.body()!!
@@ -236,6 +237,33 @@ class MovieRepositoryImpl @Inject constructor(
                 movie.convertEntityToModel()
             }
         }
+    }
+
+    override fun getRemindedMovies(): Single<List<Movie>> {
+        return movieDao.getRemindedMovies().map { list ->
+            list.map { movie ->
+                movie.convertEntityToModel()
+            }
+        }
+    }
+
+
+    override fun updateReminderForMovie(
+        movieId: Long,
+        isReminder: Boolean,
+        millis: Long,
+        str: String
+    ) {
+        Completable.fromSingle<Movie> {
+            movieDao.updateReminderForMovie(
+                movieId,
+                isReminder,
+                millis,
+                str
+            )
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe()
     }
 
 

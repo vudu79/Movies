@@ -67,6 +67,9 @@ interface MovieRepository {
 
     fun getSunDataFromApi(lat: Double, long: Double, date: String): Single<SunSetDto>
 
+    fun getRemindedMovies(): Single<List<Movie>>
+
+    fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long = 0L, str: String = "")
 
 
 //    suspend fun getMoviesByFilter(

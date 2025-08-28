@@ -52,7 +52,8 @@ class DetailsFragment : Fragment() {
 
         movie = arguments?.get("movie") as Movie
 
-        val transition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+        val transition =
+            TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         sharedElementEnterTransition = AutoTransition().apply {
             enterTransition = transition
             duration = 500
@@ -183,7 +184,14 @@ class DetailsFragment : Fragment() {
         }
 
         binding.detailsFabNotification.setOnClickListener {
-            DateTimeHelper.showDateTimePicker(requireActivity()){ millis, str ->
+            DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
+                if (!movie.isFavorite) viewModel.updateReminderForMovie(
+                    movie.apiId,
+                    true,
+                    millis,
+                    str
+                )
+
                 Snackbar.make(
                     binding.detailsDescription,
                     "Напомнить ${str} ",
@@ -192,7 +200,8 @@ class DetailsFragment : Fragment() {
                     .setAction(R.string.ok) {
 
                     }
-                    .show()            }
+                    .show()
+            }
 //            notificationHelper.showCustomExpandedNotification(
 //                movie = movie,
 //                button2Text = "Найти",
@@ -295,7 +304,7 @@ class DetailsFragment : Fragment() {
             binding.progressBar.isVisible = true
             //Создаем через async, так как нам нужен результат от работы, то есть Bitmap
             val job = scope.async {
-                viewModel.loadWallpaper( movie.posterUrl)
+                viewModel.loadWallpaper(movie.posterUrl)
             }
             //Сохраняем в галерею, как только файл загрузится
             saveToGallery(job.await())

@@ -6,23 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentStorageRvBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import ru.vodolatskii.movies.presentation.utils.addTo
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
-import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
+import ru.vodolatskii.movies.presentation.adapters.ContentAdapter
+import ru.vodolatskii.movies.presentation.adapters.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.adapters.LiftSwipeItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 class StorageRVFragment : Fragment() {
@@ -167,7 +163,7 @@ class StorageRVFragment : Fragment() {
             layoutAnimation = anim
             scheduleLayoutAnimation()
 
-            val callback = FavoriteItemTouchHelperCallback(this)
+            val callback = LiftSwipeItemTouchHelperCallback(storageAdapter)
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 

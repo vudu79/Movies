@@ -34,13 +34,13 @@ public final class RoomDB_Impl extends RoomDB {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL, `genres` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `movies` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `api_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `poster_url` TEXT NOT NULL, `rating` REAL NOT NULL, `release_date` TEXT NOT NULL, `release_date_time_stump` INTEGER NOT NULL, `release_date_year` INTEGER NOT NULL, `is_favorite` INTEGER NOT NULL, `genres` TEXT NOT NULL, `is_reminder` INTEGER NOT NULL, `reminder_millis` INTEGER NOT NULL, `reminder_string` TEXT NOT NULL)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_title` ON `movies` (`title`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'af8a76a37483c79c2760945a57d17c85')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '45c35d75962f86eabcd1fd01fa25c35d')");
       }
 
       @Override
@@ -89,7 +89,7 @@ public final class RoomDB_Impl extends RoomDB {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(11);
+        final HashMap<String, TableInfo.Column> _columnsMovies = new HashMap<String, TableInfo.Column>(14);
         _columnsMovies.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("api_id", new TableInfo.Column("api_id", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -101,6 +101,9 @@ public final class RoomDB_Impl extends RoomDB {
         _columnsMovies.put("release_date_year", new TableInfo.Column("release_date_year", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("is_favorite", new TableInfo.Column("is_favorite", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMovies.put("genres", new TableInfo.Column("genres", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("is_reminder", new TableInfo.Column("is_reminder", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("reminder_millis", new TableInfo.Column("reminder_millis", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMovies.put("reminder_string", new TableInfo.Column("reminder_string", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysMovies = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesMovies = new HashSet<TableInfo.Index>(1);
         _indicesMovies.add(new TableInfo.Index("index_movies_title", true, Arrays.asList("title"), Arrays.asList("ASC")));
@@ -113,7 +116,7 @@ public final class RoomDB_Impl extends RoomDB {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "af8a76a37483c79c2760945a57d17c85", "6da3175b6bccfc8e8c770ddfa7ae6a18");
+    }, "45c35d75962f86eabcd1fd01fa25c35d", "f4067b3375e335e236e1244824fa6fe5");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

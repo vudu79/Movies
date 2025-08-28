@@ -18,7 +18,7 @@ import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.common.ThemeManager
 import ru.vodolatskii.movies.domain.MovieRepository
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
+import ru.vodolatskii.movies.presentation.utils.SimpleUIState
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.SingleLiveEvent
 import ru.vodolatskii.movies.presentation.utils.SortEvents
@@ -83,7 +83,8 @@ class MoviesViewModel @Inject constructor(
 
     private val searchSubject: BehaviorSubject<String> = BehaviorSubject.createDefault("")
     val homeUIState: BehaviorSubject<HomeUIState> = BehaviorSubject.create()
-    val favoriteUIState: BehaviorSubject<FavoriteUIState> = BehaviorSubject.create()
+    val favoriteUIState: BehaviorSubject<SimpleUIState> = BehaviorSubject.create()
+    val reminderUIState: BehaviorSubject<SimpleUIState> = BehaviorSubject.create()
     val storageUIState: BehaviorSubject<UIStateStorage> = BehaviorSubject.create()
     val locationSubject: BehaviorSubject<Location> = BehaviorSubject.create()
 
@@ -371,15 +372,15 @@ class MoviesViewModel @Inject constructor(
                 .subscribe(
                     { movies ->
                         if (movies.isEmpty()) {
-                            favoriteUIState.onNext(FavoriteUIState.Error("В избранном пока ничего нет"))
+                            favoriteUIState.onNext(SimpleUIState.Error("В избранном пока ничего нет"))
                         } else {
                             cachedFavoriteMovieList.clear()
                             cachedFavoriteMovieList.addAll(movies)
-                            favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
+                            favoriteUIState.onNext(SimpleUIState.Success(cachedFavoriteMovieList.toList()))
                         }
                     },
                     { error ->
-                        favoriteUIState.onNext(FavoriteUIState.Error("Неизвестная ошибка $error"))
+                        favoriteUIState.onNext(SimpleUIState.Error("Неизвестная ошибка $error"))
                     }
                 )
         )
@@ -403,7 +404,7 @@ class MoviesViewModel @Inject constructor(
                         }
                     },
                     { error ->
-                        favoriteUIState.onNext(FavoriteUIState.Error("Unknown error $error"))
+                        favoriteUIState.onNext(SimpleUIState.Error("Unknown error $error"))
                     }
                 )
         )
@@ -420,7 +421,7 @@ class MoviesViewModel @Inject constructor(
         cachedFavoriteMovieList =
             cachedFavoriteMovieList.filter { movie.apiId != it.apiId && movie.title != it.title }
                 .toMutableSet()
-        favoriteUIState.onNext(FavoriteUIState.Success(cachedFavoriteMovieList.toList()))
+        favoriteUIState.onNext(SimpleUIState.Success(cachedFavoriteMovieList.toList()))
 
         cachedMovieList =
             cachedMovieList.map {
@@ -428,6 +429,31 @@ class MoviesViewModel @Inject constructor(
                 it
             }.toMutableSet()
         loadCurrentPage()
+    }
+
+
+    fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long, str: String) {
+        repository.updateReminderForMovie(movieId, isReminder, millis, str)
+    }
+
+    fun getReminderMovies() {
+        disposable.add(
+            repository.getRemindedMovies()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { movies ->
+                        if (movies.isEmpty()) {
+                            reminderUIState.onNext(SimpleUIState.Error("Напоминаний нет"))
+                        } else {
+                            reminderUIState.onNext(SimpleUIState.Success(movies))
+                        }
+                    },
+                    { error ->
+                        reminderUIState.onNext(SimpleUIState.Error("Неизвестная ошибка $error"))
+                    }
+                )
+        )
     }
 
 

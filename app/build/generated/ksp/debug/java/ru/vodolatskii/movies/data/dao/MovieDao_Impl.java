@@ -47,13 +47,15 @@ public final class MovieDao_Impl implements MovieDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteMovie;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpdateReminderForMovie;
+
   public MovieDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfMovieEntity = new EntityInsertionAdapter<MovieEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`,`is_reminder`,`reminder_millis`,`reminder_string`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -72,13 +74,17 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindLong(10, _tmp);
         final String _tmp_1 = __genreConverter.fromGenres(entity.getGenres());
         statement.bindString(11, _tmp_1);
+        final int _tmp_2 = entity.isReminder() ? 1 : 0;
+        statement.bindLong(12, _tmp_2);
+        statement.bindLong(13, entity.getReminderTimeMillis());
+        statement.bindString(14, entity.getReminderTimeString());
       }
     };
     this.__insertionAdapterOfMovieEntity_1 = new EntityInsertionAdapter<MovieEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR IGNORE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR IGNORE INTO `movies` (`id`,`api_id`,`title`,`description`,`poster_url`,`rating`,`release_date`,`release_date_time_stump`,`release_date_year`,`is_favorite`,`genres`,`is_reminder`,`reminder_millis`,`reminder_string`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -97,6 +103,10 @@ public final class MovieDao_Impl implements MovieDao {
         statement.bindLong(10, _tmp);
         final String _tmp_1 = __genreConverter.fromGenres(entity.getGenres());
         statement.bindString(11, _tmp_1);
+        final int _tmp_2 = entity.isReminder() ? 1 : 0;
+        statement.bindLong(12, _tmp_2);
+        statement.bindLong(13, entity.getReminderTimeMillis());
+        statement.bindString(14, entity.getReminderTimeString());
       }
     };
     this.__preparedStmtOfUpdateMovieToFavorite = new SharedSQLiteStatement(__db) {
@@ -112,6 +122,14 @@ public final class MovieDao_Impl implements MovieDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM movies WHERE title = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfUpdateReminderForMovie = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE movies SET is_reminder = ?, reminder_millis = ?, reminder_string = ? WHERE api_id = ?";
         return _query;
       }
     };
@@ -190,6 +208,33 @@ public final class MovieDao_Impl implements MovieDao {
   }
 
   @Override
+  public void updateReminderForMovie(final long movieId, final boolean isReminder,
+      final long millis, final String str) {
+    __db.assertNotSuspendingTransaction();
+    final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateReminderForMovie.acquire();
+    int _argIndex = 1;
+    final int _tmp = isReminder ? 1 : 0;
+    _stmt.bindLong(_argIndex, _tmp);
+    _argIndex = 2;
+    _stmt.bindLong(_argIndex, millis);
+    _argIndex = 3;
+    _stmt.bindString(_argIndex, str);
+    _argIndex = 4;
+    _stmt.bindLong(_argIndex, movieId);
+    try {
+      __db.beginTransaction();
+      try {
+        _stmt.executeUpdateDelete();
+        __db.setTransactionSuccessful();
+      } finally {
+        __db.endTransaction();
+      }
+    } finally {
+      __preparedStmtOfUpdateReminderForMovie.release(_stmt);
+    }
+  }
+
+  @Override
   public Single<List<MovieEntity>> getAllMovies() {
     final String _sql = "SELECT * FROM movies";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
@@ -210,6 +255,9 @@ public final class MovieDao_Impl implements MovieDao {
           final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
           final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
           final int _cursorIndexOfGenres = CursorUtil.getColumnIndexOrThrow(_cursor, "genres");
+          final int _cursorIndexOfIsReminder = CursorUtil.getColumnIndexOrThrow(_cursor, "is_reminder");
+          final int _cursorIndexOfReminderTimeMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_millis");
+          final int _cursorIndexOfReminderTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_string");
           final List<MovieEntity> _result = new ArrayList<MovieEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final MovieEntity _item;
@@ -239,7 +287,15 @@ public final class MovieDao_Impl implements MovieDao {
             final String _tmp_1;
             _tmp_1 = _cursor.getString(_cursorIndexOfGenres);
             _tmpGenres = __genreConverter.toGenre(_tmp_1);
-            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres);
+            final boolean _tmpIsReminder;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfIsReminder);
+            _tmpIsReminder = _tmp_2 != 0;
+            final long _tmpReminderTimeMillis;
+            _tmpReminderTimeMillis = _cursor.getLong(_cursorIndexOfReminderTimeMillis);
+            final String _tmpReminderTimeString;
+            _tmpReminderTimeString = _cursor.getString(_cursorIndexOfReminderTimeString);
+            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres,_tmpIsReminder,_tmpReminderTimeMillis,_tmpReminderTimeString);
             _result.add(_item);
           }
           if (_result == null) {
@@ -289,6 +345,9 @@ public final class MovieDao_Impl implements MovieDao {
           final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
           final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
           final int _cursorIndexOfGenres = CursorUtil.getColumnIndexOrThrow(_cursor, "genres");
+          final int _cursorIndexOfIsReminder = CursorUtil.getColumnIndexOrThrow(_cursor, "is_reminder");
+          final int _cursorIndexOfReminderTimeMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_millis");
+          final int _cursorIndexOfReminderTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_string");
           final List<MovieEntity> _result = new ArrayList<MovieEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final MovieEntity _item;
@@ -318,7 +377,15 @@ public final class MovieDao_Impl implements MovieDao {
             final String _tmp_1;
             _tmp_1 = _cursor.getString(_cursorIndexOfGenres);
             _tmpGenres = __genreConverter.toGenre(_tmp_1);
-            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres);
+            final boolean _tmpIsReminder;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfIsReminder);
+            _tmpIsReminder = _tmp_2 != 0;
+            final long _tmpReminderTimeMillis;
+            _tmpReminderTimeMillis = _cursor.getLong(_cursorIndexOfReminderTimeMillis);
+            final String _tmpReminderTimeString;
+            _tmpReminderTimeString = _cursor.getString(_cursorIndexOfReminderTimeString);
+            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres,_tmpIsReminder,_tmpReminderTimeMillis,_tmpReminderTimeString);
             _result.add(_item);
           }
           return _result;
@@ -351,6 +418,9 @@ public final class MovieDao_Impl implements MovieDao {
           final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
           final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
           final int _cursorIndexOfGenres = CursorUtil.getColumnIndexOrThrow(_cursor, "genres");
+          final int _cursorIndexOfIsReminder = CursorUtil.getColumnIndexOrThrow(_cursor, "is_reminder");
+          final int _cursorIndexOfReminderTimeMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_millis");
+          final int _cursorIndexOfReminderTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_string");
           final List<MovieEntity> _result = new ArrayList<MovieEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final MovieEntity _item;
@@ -380,7 +450,15 @@ public final class MovieDao_Impl implements MovieDao {
             final String _tmp_1;
             _tmp_1 = _cursor.getString(_cursorIndexOfGenres);
             _tmpGenres = __genreConverter.toGenre(_tmp_1);
-            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres);
+            final boolean _tmpIsReminder;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfIsReminder);
+            _tmpIsReminder = _tmp_2 != 0;
+            final long _tmpReminderTimeMillis;
+            _tmpReminderTimeMillis = _cursor.getLong(_cursorIndexOfReminderTimeMillis);
+            final String _tmpReminderTimeString;
+            _tmpReminderTimeString = _cursor.getString(_cursorIndexOfReminderTimeString);
+            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres,_tmpIsReminder,_tmpReminderTimeMillis,_tmpReminderTimeString);
             _result.add(_item);
           }
           if (_result == null) {
@@ -417,6 +495,86 @@ public final class MovieDao_Impl implements MovieDao {
       _cursor.close();
       _statement.release();
     }
+  }
+
+  @Override
+  public Single<List<MovieEntity>> getRemindedMovies() {
+    final String _sql = "SELECT * FROM movies WHERE is_reminder = 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    return RxRoom.createSingle(new Callable<List<MovieEntity>>() {
+      @Override
+      @Nullable
+      public List<MovieEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfApiId = CursorUtil.getColumnIndexOrThrow(_cursor, "api_id");
+          final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfPosterUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "poster_url");
+          final int _cursorIndexOfRating = CursorUtil.getColumnIndexOrThrow(_cursor, "rating");
+          final int _cursorIndexOfReleaseDate = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date");
+          final int _cursorIndexOfReleaseDateTimeStump = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_time_stump");
+          final int _cursorIndexOfReleaseDateYear = CursorUtil.getColumnIndexOrThrow(_cursor, "release_date_year");
+          final int _cursorIndexOfIsFavorite = CursorUtil.getColumnIndexOrThrow(_cursor, "is_favorite");
+          final int _cursorIndexOfGenres = CursorUtil.getColumnIndexOrThrow(_cursor, "genres");
+          final int _cursorIndexOfIsReminder = CursorUtil.getColumnIndexOrThrow(_cursor, "is_reminder");
+          final int _cursorIndexOfReminderTimeMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_millis");
+          final int _cursorIndexOfReminderTimeString = CursorUtil.getColumnIndexOrThrow(_cursor, "reminder_string");
+          final List<MovieEntity> _result = new ArrayList<MovieEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final MovieEntity _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpApiId;
+            _tmpApiId = _cursor.getLong(_cursorIndexOfApiId);
+            final String _tmpTitle;
+            _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+            final String _tmpDescription;
+            _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            final String _tmpPosterUrl;
+            _tmpPosterUrl = _cursor.getString(_cursorIndexOfPosterUrl);
+            final double _tmpRating;
+            _tmpRating = _cursor.getDouble(_cursorIndexOfRating);
+            final String _tmpReleaseDate;
+            _tmpReleaseDate = _cursor.getString(_cursorIndexOfReleaseDate);
+            final long _tmpReleaseDateTimeStump;
+            _tmpReleaseDateTimeStump = _cursor.getLong(_cursorIndexOfReleaseDateTimeStump);
+            final int _tmpReleaseDateYear;
+            _tmpReleaseDateYear = _cursor.getInt(_cursorIndexOfReleaseDateYear);
+            final boolean _tmpIsFavorite;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsFavorite);
+            _tmpIsFavorite = _tmp != 0;
+            final List<String> _tmpGenres;
+            final String _tmp_1;
+            _tmp_1 = _cursor.getString(_cursorIndexOfGenres);
+            _tmpGenres = __genreConverter.toGenre(_tmp_1);
+            final boolean _tmpIsReminder;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfIsReminder);
+            _tmpIsReminder = _tmp_2 != 0;
+            final long _tmpReminderTimeMillis;
+            _tmpReminderTimeMillis = _cursor.getLong(_cursorIndexOfReminderTimeMillis);
+            final String _tmpReminderTimeString;
+            _tmpReminderTimeString = _cursor.getString(_cursorIndexOfReminderTimeString);
+            _item = new MovieEntity(_tmpId,_tmpApiId,_tmpTitle,_tmpDescription,_tmpPosterUrl,_tmpRating,_tmpReleaseDate,_tmpReleaseDateTimeStump,_tmpReleaseDateYear,_tmpIsFavorite,_tmpGenres,_tmpIsReminder,_tmpReminderTimeMillis,_tmpReminderTimeString);
+            _result.add(_item);
+          }
+          if (_result == null) {
+            throw new EmptyResultSetException("Query returned empty result set: " + _statement.getSql());
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
   }
 
   @Override

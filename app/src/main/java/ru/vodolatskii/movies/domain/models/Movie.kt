@@ -16,8 +16,11 @@ data class Movie(
     val releaseDateTimeStump: Long = 0L,
     val releaseDateYear: Int = -1,
     var isFavorite: Boolean = false,
-//    var genreList: List<String> = emptyList(),
-    var genreListString: List<String> = emptyList()
+    var genreListString: List<String> = emptyList(),
+    var isReminder: Boolean = false,
+    var reminderTimeMillis: Long = 0L,
+    var reminderTimeString: String = ""
+
 ) : Parcelable
 
 fun Movie.convertModelToEntity(): MovieEntity {
@@ -31,6 +34,9 @@ fun Movie.convertModelToEntity(): MovieEntity {
         releaseDateTimeStump = this.releaseDateTimeStump,
         releaseDateYear = this.releaseDateYear,
         isFavorite = this.isFavorite,
-        genres = this.genreListString
+        genres = this.genreListString,
+        isReminder = this.isReminder,
+        reminderTimeMillis = this.reminderTimeMillis,
+        reminderTimeString = this.reminderTimeString
     )
 }

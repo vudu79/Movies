@@ -22,16 +22,6 @@ class GenreConverter {
     }
 }
 
-//data class MovieWithGenre(
-//    @PrimaryKey(autoGenerate = true)
-//    @Embedded val movie: MovieWithoutGenre,
-//    @Relation(
-//        parentColumn = "id",
-//        entityColumn = "idGenre"
-//    )
-//    val genreList: List<Genre>
-//)
-
 @Entity(tableName = "movies", indices = [Index(value = ["title"], unique = true)])
 data class MovieEntity(
     @PrimaryKey(autoGenerate = true)
@@ -46,22 +36,10 @@ data class MovieEntity(
     @ColumnInfo(name = "release_date_year") val releaseDateYear: Int = 0,
     @ColumnInfo(name = "is_favorite") var isFavorite: Boolean = false,
     @ColumnInfo(name = "genres") var genres: List<String>,
+    @ColumnInfo(name = "is_reminder") var isReminder: Boolean = false,
+    @ColumnInfo(name = "reminder_millis") var reminderTimeMillis: Long = 0L,
+    @ColumnInfo(name = "reminder_string") var reminderTimeString: String = ""
 )
-
-//@Entity(
-//    foreignKeys = [ForeignKey(
-//        entity = MovieWithoutGenre::class,
-//        parentColumns = ["id"],
-//        childColumns = ["id_genre_fk"],
-//        onDelete = ForeignKey.CASCADE
-//    )]
-//)
-//data class Genre(
-//    @PrimaryKey(autoGenerate = true)
-//    val idGenre: Long = 0,
-//    @ColumnInfo(name = "id_genre_fk") val idGenreFK: Long,
-//    @ColumnInfo(name = "genre") val genre: Int
-//)
 
 fun MovieEntity.convertEntityToModel(): Movie {
     return Movie(
@@ -74,6 +52,9 @@ fun MovieEntity.convertEntityToModel(): Movie {
         releaseDateTimeStump = this.releaseDateTimeStump,
         releaseDateYear = this.releaseDateYear,
         isFavorite = this.isFavorite,
-        genreListString = this.genres
+        genreListString = this.genres,
+        isReminder = this.isReminder,
+        reminderTimeMillis = this.reminderTimeMillis,
+        reminderTimeString = this.reminderTimeString
     )
 }

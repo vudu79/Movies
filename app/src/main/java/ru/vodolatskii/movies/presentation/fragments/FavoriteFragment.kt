@@ -1,7 +1,6 @@
 package ru.vodolatskii.movies.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,20 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
 import ru.vodolatskii.movies.presentation.MainActivity
-import ru.vodolatskii.movies.presentation.utils.AnimationHelper
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
-import ru.vodolatskii.movies.presentation.utils.FavoriteUIState
+import ru.vodolatskii.movies.presentation.utils.SimpleUIState
 import ru.vodolatskii.movies.presentation.utils.addTo
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
-import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.FavoriteItemTouchHelperCallback
+import ru.vodolatskii.movies.presentation.adapters.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.adapters.FavoriteAdapter
+import ru.vodolatskii.movies.presentation.adapters.LiftSwipeItemTouchHelperCallback
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import timber.log.Timber
 
 
 class FavoriteFragment : Fragment() {
@@ -132,17 +129,17 @@ class FavoriteFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { state ->
                 when (state) {
-                    is FavoriteUIState.Success -> {
+                    is SimpleUIState.Success -> {
                         val mutableMoviesList = state.listMovie
                         setFavoriteViewsVisibility(state)
                         favoriteAdapter.setData(mutableMoviesList)
                     }
 
-                    is FavoriteUIState.Error -> {
+                    is SimpleUIState.Error -> {
                         setFavoriteViewsVisibility(state)
                     }
 
-                    is FavoriteUIState.Loading -> {
+                    is SimpleUIState.Loading -> {
                         setFavoriteViewsVisibility(state)
                     }
                 }
@@ -195,6 +192,11 @@ class FavoriteFragment : Fragment() {
                 onMoveToFavorite = { movie -> },
                 onDeleteFromFavorite = { movie ->
                     viewModel.deleteMovieFromFavorite(movie)
+                    Snackbar.make(
+                        this,
+                        "Удалено ${movie.title} ",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 },
                 onDeleteFromPopular = {},
                 context = requireContext()
@@ -214,7 +216,7 @@ class FavoriteFragment : Fragment() {
             layoutAnimation = anim
             scheduleLayoutAnimation()
 
-            val callback = FavoriteItemTouchHelperCallback(this)
+            val callback = LiftSwipeItemTouchHelperCallback(favoriteAdapter)
             val itemTouchHelper = ItemTouchHelper(callback)
             itemTouchHelper.attachToRecyclerView(this)
 
@@ -228,19 +230,19 @@ class FavoriteFragment : Fragment() {
     }
 
 
-    private fun setFavoriteViewsVisibility(state: FavoriteUIState) {
+    private fun setFavoriteViewsVisibility(state: SimpleUIState) {
         when (state) {
-            is FavoriteUIState.Success -> {
+            is SimpleUIState.Success -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            is FavoriteUIState.Error -> {
+            is SimpleUIState.Error -> {
                 binding.progressCircularFav.visibility = View.GONE
                 binding.recyclerViewFav.visibility = View.VISIBLE
             }
 
-            FavoriteUIState.Loading -> {
+            SimpleUIState.Loading -> {
                 binding.progressCircularFav.visibility = View.VISIBLE
                 binding.recyclerViewFav.visibility = View.GONE
             }

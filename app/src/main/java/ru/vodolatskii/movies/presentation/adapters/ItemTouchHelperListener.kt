@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils.contentRV
+package ru.vodolatskii.movies.presentation.adapters
 
 import ru.vodolatskii.movies.domain.models.Movie
 
