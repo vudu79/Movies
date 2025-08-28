@@ -46,5 +46,10 @@ interface MovieDao {
 
     @Query("UPDATE movies SET is_reminder = :isReminder, reminder_millis = :millis, reminder_string = :str WHERE api_id = :movieId")
     fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long, str: String)
+
+
+    @Query("UPDATE movies SET is_reminder = 0, reminder_millis = 0, reminder_string = '' WHERE api_id <= :millis")
+    suspend fun removeOldReminders(millis: Long)
+
 }
 

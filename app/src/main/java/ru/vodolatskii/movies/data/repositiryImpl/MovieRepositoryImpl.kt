@@ -240,13 +240,17 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override fun getRemindedMovies(): Single<List<Movie>> {
-        return movieDao.getRemindedMovies().map { list ->
-            list.map { movie ->
-                movie.convertEntityToModel()
+        return movieDao.getRemindedMovies()
+            .map { list ->
+                list
+                    .filter {
+                        it.reminderTimeMillis >= System.currentTimeMillis()
+                    }
+                    .map { movie ->
+                        movie.convertEntityToModel()
+                    }
             }
-        }
     }
-
 
     override fun updateReminderForMovie(
         movieId: Long,

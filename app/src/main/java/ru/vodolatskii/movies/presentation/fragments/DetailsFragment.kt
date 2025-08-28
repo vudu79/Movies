@@ -25,7 +25,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.myapp.AlarmHelper
-import com.example.myapp.NotificationHelper
+import ru.vodolatskii.movies.common.NotificationHelper
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -187,33 +187,37 @@ class DetailsFragment : Fragment() {
 
         binding.detailsFabNotification.setOnClickListener {
             DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
-
-                alarmHelper.createAlarm(
-                    movie.copy(
-                        reminderTimeMillis = millis,
-                        reminderTimeString = str,
-                        isReminder = true
+                if (!movie.isReminder) {
+                    alarmHelper.createAlarm(
+                        movie.copy(
+                            reminderTimeMillis = millis,
+                            reminderTimeString = str,
+                            isReminder = true
+                        )
                     )
-                )
-
-                if (!movie.isFavorite) viewModel.updateReminderForMovie(
-                    movie.apiId,
-                    true,
-                    millis,
-                    str
-                )
-
-                Snackbar.make(
-                    binding.detailsDescription,
-                    "Напомнить ${str} ",
-                    Snackbar.LENGTH_SHORT
-                )
-                    .setAction(R.string.ok) {
-
-                    }
-                    .show()
+                    viewModel.updateReminderForMovie(
+                        movie.apiId,
+                        true,
+                        millis,
+                        str
+                    )
+                    Snackbar.make(
+                        binding.detailsDescription,
+                        "Напомнить ${str} ",
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(R.string.ok) {}
+                        .show()
+                } else {
+                    Snackbar.make(
+                        binding.detailsDescription,
+                        "Напоминание уже есть ",
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(R.string.ok) {}
+                        .show()
+                }
             }
-
         }
 
 

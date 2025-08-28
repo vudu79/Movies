@@ -49,6 +49,7 @@ timberkt = "1.5.1"
 room = "2.6.1"
 ksp = "2.0.21-1.0.28"
 swiperefreshlayout = "1.1.0"
+workRuntimeKtx = "2.7.1"
 
 
 [libraries]
@@ -67,6 +68,8 @@ androidx-room-compiler-v230beta02 = { module = "androidx.room:room-compiler", ve
 androidx-room-runtime-v230beta02 = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "roomRuntime" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "core" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRuntimeKtx" }
 appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompatV7" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
 converter-gson-v260 = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGsonVersion" }

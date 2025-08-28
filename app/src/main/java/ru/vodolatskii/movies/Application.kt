@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
+import ru.vodolatskii.movies.common.WorkManagerHelper
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
@@ -15,6 +16,7 @@ class App : Application() {
 
     lateinit var dagger: AppComponent
     private lateinit var preference: SharedPreferences
+    private lateinit var workManagerHelper: WorkManagerHelper
 
     var loadPopularMoviesLimit: Int = 3
 
@@ -22,11 +24,12 @@ class App : Application() {
         super.onCreate()
         instance = this
         preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
+        workManagerHelper = WorkManagerHelper(this)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
         daggerSetup()
         timberSetup()
+        workManagerHelper.startPeriodicWork()
     }
 
     private fun daggerSetup() {
@@ -62,6 +65,7 @@ class App : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
     }
+
 
     companion object {
         lateinit var instance: App

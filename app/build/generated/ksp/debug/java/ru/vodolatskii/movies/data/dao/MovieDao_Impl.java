@@ -49,6 +49,8 @@ public final class MovieDao_Impl implements MovieDao {
 
   private final SharedSQLiteStatement __preparedStmtOfUpdateReminderForMovie;
 
+  private final SharedSQLiteStatement __preparedStmtOfRemoveOldReminders;
+
   public MovieDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfMovieEntity = new EntityInsertionAdapter<MovieEntity>(__db) {
@@ -130,6 +132,14 @@ public final class MovieDao_Impl implements MovieDao {
       @NonNull
       public String createQuery() {
         final String _query = "UPDATE movies SET is_reminder = ?, reminder_millis = ?, reminder_string = ? WHERE api_id = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfRemoveOldReminders = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE movies SET is_reminder = 0, reminder_millis = 0, reminder_string = '' WHERE api_id <= ?";
         return _query;
       }
     };
@@ -232,6 +242,32 @@ public final class MovieDao_Impl implements MovieDao {
     } finally {
       __preparedStmtOfUpdateReminderForMovie.release(_stmt);
     }
+  }
+
+  @Override
+  public Object removeOldReminders(final long millis,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfRemoveOldReminders.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, millis);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfRemoveOldReminders.release(_stmt);
+        }
+      }
+    }, $completion);
   }
 
   @Override

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.example.myapp.AlarmHelper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
@@ -29,6 +30,8 @@ class AfterFragment : Fragment() {
     private lateinit var reminderAdapter: ReminderAdapter
     private lateinit var viewModel: MoviesViewModel
     private val autoDisposable = AutoDisposable()
+    private lateinit var alarmHelper: AlarmHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +50,9 @@ class AfterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
-        setupFavoriteRV()
+        setupReminderRV()
         setupObservers()
+        alarmHelper = AlarmHelper(requireContext())
         viewModel.getReminderMovies()
     }
 
@@ -75,7 +79,7 @@ class AfterFragment : Fragment() {
     }
 
 
-    private fun setupFavoriteRV() {
+    private fun setupReminderRV() {
         binding.recyclerViewFav.apply {
             reminderAdapter = ReminderAdapter(
                 onEditButtonClick = { movie ->
@@ -88,22 +92,21 @@ class AfterFragment : Fragment() {
                         )
                         viewModel.getReminderMovies()
 
-
                         Snackbar.make(
                             this,
                             "Напомнить ${str} ",
                             Snackbar.LENGTH_SHORT
                         )
-                            .setAction(R.string.ok) {
-
-                            }
+                            .setAction(R.string.ok) {}
                             .show()
                     }
                 },
                 onDeleteFromReminded = { movie ->
                    viewModel.updateReminderForMovie(movie.apiId, false,0L,"")
+                    alarmHelper.canselAlarm(
+                        movie
+                    )
                 },
-
                 context = requireContext()
             )
 
