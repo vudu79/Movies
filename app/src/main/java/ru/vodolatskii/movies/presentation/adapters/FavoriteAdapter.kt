@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils.contentRV
+package ru.vodolatskii.movies.presentation.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -48,17 +48,6 @@ class FavoriteAdapter(
     fun setData(movies: List<Movie>) {
         val list = movies.toMutableList()
         asyncListDiffer.submitList(list)
-    }
-
-    fun updateData(movies: List<Movie>) {
-        val list = movies.toMutableList()
-        val currentList = asyncListDiffer.currentList
-        list.addAll(currentList)
-        asyncListDiffer.submitList(list)
-    }
-
-    fun getData(): List<Movie> {
-        return asyncListDiffer.currentList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {

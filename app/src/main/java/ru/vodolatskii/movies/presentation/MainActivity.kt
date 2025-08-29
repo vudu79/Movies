@@ -24,6 +24,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
+import ru.vodolatskii.movies.common.AlarmsReceiver
 import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var appReceiver: BroadcastReceiver
     private lateinit var notificationReceiver: NotificationsReceiver
+    private lateinit var alarmReceiver: AlarmsReceiver
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -77,6 +79,10 @@ class MainActivity : AppCompatActivity() {
         val intentFilters1 = IntentFilter("${this.packageName}.FIND")
         intentFilters1.addAction("${this.packageName}.CANCEL")
         registerReceiver(notificationReceiver, intentFilters1)
+
+        alarmReceiver = AlarmsReceiver()
+        val intentFilters2 = IntentFilter(ACTION)
+        registerReceiver(alarmReceiver, intentFilters2)
     }
 
     private fun setupDrawerMenu() {
@@ -256,6 +262,10 @@ class MainActivity : AppCompatActivity() {
         unregisterReceiver(appReceiver)
         unregisterReceiver(notificationReceiver)
         super.onDestroy()
+    }
+
+    companion object {
+        const val ACTION = "alarm_action"
     }
 }
 

@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils.contentRV
+package ru.vodolatskii.movies.presentation.adapters
 
 import android.content.Context
 import android.view.LayoutInflater

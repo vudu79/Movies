@@ -27,9 +27,9 @@ import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.HomeUIState
 import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.addTo
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentItemTouchHelperCallback
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentRVItemDecoration
+import ru.vodolatskii.movies.presentation.adapters.ContentAdapter
+import ru.vodolatskii.movies.presentation.adapters.ContentItemTouchHelperCallback
+import ru.vodolatskii.movies.presentation.adapters.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 

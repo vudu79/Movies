@@ -14,7 +14,7 @@ import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.CustomListViewAdapter
 import ru.vodolatskii.movies.presentation.utils.DataModel
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
-import ru.vodolatskii.movies.presentation.utils.contentRV.ContentAdapter
+import ru.vodolatskii.movies.presentation.adapters.ContentAdapter
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 class StorageMenuFragment : Fragment() {

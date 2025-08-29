@@ -1,4 +1,4 @@
-package ru.vodolatskii.movies.presentation.utils.contentRV
+package ru.vodolatskii.movies.presentation.adapters
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -7,20 +7,15 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
-import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import ru.vodolatskii.movies.R
 
 
-class ContentItemTouchHelperCallback(
-    private val recyclerView: RecyclerView,
+class LiftSwipeItemTouchHelperCallback(
+    private val adapter: ItemTouchHelperListener,
 ) : ItemTouchHelper.Callback() {
-    private val adapter = recyclerView.adapter as ContentAdapter
     private val background = ColorDrawable()
     private val backgroundColorDelete = Color.parseColor("#f44336")
-    private val backgroundColorToFavorite = Color.parseColor("#2196F3")
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private val textPaint = Paint().apply {
         color = Color.WHITE
@@ -33,15 +28,9 @@ class ContentItemTouchHelperCallback(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        val front = viewHolder.itemView.findViewById<View>(R.id.is_favorite_image)
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-
-        return if (front.visibility == View.VISIBLE) {
-            ItemTouchHelper.ACTION_STATE_IDLE
-        } else {
-            makeMovementFlags(dragFlags, swipeFlags)
-        }
+        val swipeFlags = ItemTouchHelper.START 
+        return makeMovementFlags(dragFlags, swipeFlags)
     }
 
     override fun onMove(
@@ -57,37 +46,9 @@ class ContentItemTouchHelperCallback(
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
-        val swipedMovie = adapter.getData()[viewHolder.adapterPosition]
-
         when (direction) {
             16 -> {
                 adapter.onItemDismiss(position)
-                Snackbar.make(
-                    recyclerView,
-                    "Удалено ${swipedMovie.title} ",
-                    Snackbar.LENGTH_LONG
-                )
-                    .setAction(
-                        "Вернуть?"
-                    ) {
-                        adapter.onItemAdd(swipedMovie, position)
-                    }.show()
-            }
-
-            32 -> {
-//                listener.redrawViewHolder( position)
-                adapter.onItemSwipedToRight(swipedMovie, position)  // заменить
-                Snackbar.make(
-                    recyclerView,
-                    "В избранном ${swipedMovie.title} ",
-                    Snackbar.LENGTH_LONG
-                )
-                    .setAction(
-                        "Убрать",
-                        View.OnClickListener {
-                            adapter.onItemAdd(swipedMovie, position)
-                        })
-                    .show()
             }
         }
     }
@@ -101,8 +62,6 @@ class ContentItemTouchHelperCallback(
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-
-
         val itemView = viewHolder.itemView
         val itemHeight = itemView.bottom - itemView.top
         val isCanceled = dX == 0f && !isCurrentlyActive
@@ -131,31 +90,11 @@ class ContentItemTouchHelperCallback(
             val textX = itemView.right + dX / 2
             val textY = itemView.top + itemHeight / 2 + 10
             c.drawText("Удалить", textX.toFloat(), textY.toFloat(), textPaint)
-        } else {
-            background.color = backgroundColorToFavorite
-            background.setBounds(
-                itemView.left,
-                itemView.top,
-                itemView.left + dX.toInt(),
-                itemView.bottom
-            )
-            background.draw(c)
-            val textX = itemView.left + dX / 2
-            val textY = itemView.top + itemHeight / 2 + 10
-            c.drawText("В избранное", textX.toFloat(), textY.toFloat(), textPaint)
         }
-
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
         c?.drawRect(left, top, right, bottom, clearPaint)
-    }
-
-    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-        super.clearView(recyclerView, viewHolder)
-        viewHolder.itemView.findViewById<View>(R.id.cardview_container).apply {
-            getDefaultUIUtil().clearView(this)
-        }
     }
 }

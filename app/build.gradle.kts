@@ -157,5 +157,11 @@ dependencies {
     //Remote module
     implementation (project(":remote_module"))
 
+// WorkManager
+// Kotlin + coroutines
+    implementation (libs.androidx.work.runtime.ktx)
+// опционально - поддержка RxJava2
+    implementation (libs.androidx.work.rxjava2)
+
 }
 

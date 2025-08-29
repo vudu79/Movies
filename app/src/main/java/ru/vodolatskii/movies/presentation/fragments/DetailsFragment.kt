@@ -24,7 +24,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.myapp.NotificationHelper
+import com.example.myapp.AlarmHelper
+import ru.vodolatskii.movies.common.NotificationHelper
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +37,7 @@ import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentDetailsBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.utils.DateTimeHelper
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 
@@ -45,20 +47,22 @@ class DetailsFragment : Fragment() {
     private lateinit var movie: Movie
     private val scope = CoroutineScope(Dispatchers.IO)
     private lateinit var notificationHelper: NotificationHelper
+    private lateinit var alarmHelper: AlarmHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         movie = arguments?.get("movie") as Movie
 
-        val transition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
+        val transition =
+            TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         sharedElementEnterTransition = AutoTransition().apply {
             enterTransition = transition
             duration = 500
         }
 
         notificationHelper = NotificationHelper(requireContext())
-
+        alarmHelper = AlarmHelper(requireContext())
     }
 
     override fun onCreateView(
@@ -182,12 +186,38 @@ class DetailsFragment : Fragment() {
         }
 
         binding.detailsFabNotification.setOnClickListener {
-            notificationHelper.showCustomExpandedNotification(
-                movie = movie,
-                button2Text = "Найти",
-                button1Text = "Убрать",
-                notificationId = 11
-            )
+            DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
+                if (!movie.isReminder) {
+                    alarmHelper.createAlarm(
+                        movie.copy(
+                            reminderTimeMillis = millis,
+                            reminderTimeString = str,
+                            isReminder = true
+                        )
+                    )
+                    viewModel.updateReminderForMovie(
+                        movie.apiId,
+                        true,
+                        millis,
+                        str
+                    )
+                    Snackbar.make(
+                        binding.detailsDescription,
+                        "Напомнить ${str} ",
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(R.string.ok) {}
+                        .show()
+                } else {
+                    Snackbar.make(
+                        binding.detailsDescription,
+                        "Напоминание уже есть ",
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(R.string.ok) {}
+                        .show()
+                }
+            }
         }
 
 
@@ -284,7 +314,7 @@ class DetailsFragment : Fragment() {
             binding.progressBar.isVisible = true
             //Создаем через async, так как нам нужен результат от работы, то есть Bitmap
             val job = scope.async {
-                viewModel.loadWallpaper( movie.posterUrl)
+                viewModel.loadWallpaper(movie.posterUrl)
             }
             //Сохраняем в галерею, как только файл загрузится
             saveToGallery(job.await())
