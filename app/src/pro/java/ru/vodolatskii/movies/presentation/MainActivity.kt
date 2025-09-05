@@ -29,7 +29,6 @@ import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 import timber.log.Timber
 import javax.inject.Inject

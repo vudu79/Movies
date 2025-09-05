@@ -16,6 +16,20 @@ android {
     namespace = "ru.vodolatskii.movies"
     compileSdk = 34
 
+    flavorDimensions.add("version")
+    productFlavors {
+        create("basic") {
+            dimension = "version"
+            applicationIdSuffix = ".basic"
+            versionNameSuffix = "-basic"
+        }
+        create("pro") {
+            dimension = "version"
+            applicationIdSuffix = ".pro"
+            versionNameSuffix = "-pro"
+        }
+    }
+
     defaultConfig {
         applicationId = "ru.vodolatskii.movies"
         minSdk = 26
@@ -47,6 +61,20 @@ android {
         viewBinding = true
 
     }
+    sourceSets {
+        getByName("basic") {
+            java {
+                srcDirs("src/basic/java")
+            }
+        }
+        getByName("pro") {
+            java {
+                srcDirs("src/pro/java")
+            }
+        }
+    }
+
+
 }
 
 secrets {
@@ -63,6 +91,9 @@ secrets {
     ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
     ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
 }
+
+
+
 
 dependencies {
     implementation(libs.material)
