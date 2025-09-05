@@ -21,12 +21,12 @@
         android:id="@+id/favoriteFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.FavoriteFragment"
         android:label="fragment_favorite"
-        tools:layout="@layout/fragment_favorite" />
+        tools:layout="@layout/fragment_favorite_trial" />
     <fragment
         android:id="@+id/selectionsFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.SelectionsFragment"
         android:label="fragment_selections"
-        tools:layout="@layout/fragment_selections" />
+        tools:layout="@layout/fragment_selections_trial" />
     <fragment
         android:id="@+id/afterFragment"
         android:name="ru.vodolatskii.movies.presentation.fragments.AfterFragment"

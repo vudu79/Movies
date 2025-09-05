@@ -27,6 +27,7 @@ import ru.vodolatskii.movies.data.location.LocationService
 import ru.vodolatskii.movies.data.location.MyLocationListener
 import ru.vodolatskii.movies.databinding.ActivityLaunchBinding
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import java.util.UUID
 import javax.inject.Inject
 
 
@@ -44,6 +45,7 @@ class LaunchActivity : AppCompatActivity() {
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
+
     ) { permissions ->
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
@@ -264,6 +266,7 @@ class LaunchActivity : AppCompatActivity() {
             return InternetType.MOBILE //  xaxaxaxa
         }
     }
+
 
     companion object {
         private const val SOURCE_INTERNET = "internet"

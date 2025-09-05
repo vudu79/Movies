@@ -4,7 +4,8 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
-    id ("kotlin-kapt") // Add this line
+    id ("kotlin-kapt")
+    alias(libs.plugins.google.gms.google.services) // Add this line
 
 }
 
@@ -104,6 +105,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

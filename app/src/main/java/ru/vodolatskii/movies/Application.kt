@@ -1,15 +1,22 @@
 package ru.vodolatskii.movies
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import ru.vodolatskii.movies.common.WorkManagerHelper
 import ru.vodolatskii.movies.di.AppComponent
 import ru.vodolatskii.movies.di.DaggerAppComponent
 import ru.vodolatskii.remote_module.DaggerRemoteComponent
 import timber.log.Timber
+import java.util.UUID
 
 
 class App : Application() {
@@ -25,6 +32,7 @@ class App : Application() {
         instance = this
         preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
         workManagerHelper = WorkManagerHelper(this)
+
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         daggerSetup()
@@ -49,6 +57,7 @@ class App : Application() {
         })
     }
 
+
     // Вызывается при изменении конфигурации, например, поворот
 // Этот метод тоже не обязателен к предопределению
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -66,11 +75,11 @@ class App : Application() {
         super.onTrimMemory(level)
     }
 
-
     companion object {
         lateinit var instance: App
             private set
         private const val SP_FILE_NAME = "settings"
+        private const val DEVICE_UUID = "\"device_uuid\""
     }
 }
 

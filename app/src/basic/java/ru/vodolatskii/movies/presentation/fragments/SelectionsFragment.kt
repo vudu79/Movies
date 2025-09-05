@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import ru.vodolatskii.movies.databinding.FragmentSelectionsBinding
+import ru.vodolatskii.movies.databinding.FragmentSelectionsTrialBinding
 
 class SelectionsFragment : Fragment() {
     private lateinit var binding: FragmentSelectionsBinding
+    private lateinit var bindingTrial: FragmentSelectionsTrialBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +23,7 @@ class SelectionsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = FragmentSelectionsBinding.inflate(inflater, container, false)
         return binding.root
     }

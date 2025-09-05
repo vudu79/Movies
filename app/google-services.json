@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "595314410618",
+    "project_id": "ru-vodolatskii-movies",
+    "storage_bucket": "ru-vodolatskii-movies.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:595314410618:android:2357edacb225ec718267c3",
+        "android_client_info": {
+          "package_name": "ru.vodolatskii.movies.basic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXa2wC4_v_x6x1s0Yl38Z_W7aVFpgrCWo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
