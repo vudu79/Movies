@@ -138,7 +138,6 @@ class MoviesViewModel @Inject constructor(
 
         viewModelScope.launch {
             val result = repository.isTrialExpired()
-            Timber.d("vm - $result")
             trialSubject.onNext(result)
         }
     }
