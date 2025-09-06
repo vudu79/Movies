@@ -71,7 +71,7 @@ interface MovieRepository {
 
     fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long = 0L, str: String = "")
 
-
+   suspend fun isTrialExpired(): Boolean
 //    suspend fun getMoviesByFilter(
 //        rating: Double,
 //        date: Int,

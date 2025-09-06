@@ -1,13 +1,9 @@
 package ru.vodolatskii.movies.presentation
 
-import android.Manifest
 import android.content.BroadcastReceiver
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,7 +12,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +30,6 @@ import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -58,8 +52,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        checkPermissionAndGetPhoneNumber()
-
+//        checkPermissionAndGetPhoneNumber()
 
         App.instance.dagger.inject(this)
         viewModel = viewModelFactory.create(MoviesViewModel::class.java)
@@ -79,7 +72,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerReceivers() {
-        Timber.d("registerReceivers -- ${this.packageName}.FIND")
         appReceiver = AppReceiver()
         val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
         intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
@@ -142,9 +134,6 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
         binding.bottomNavigation.setupWithNavController(navController)
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            Timber.d("dest - $destination")
-        }
     }
 
     private fun setupClickListeners() {
@@ -278,34 +267,34 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun checkPermissionAndGetPhoneNumber() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_NUMBERS), PERMISSION_REQUEST_CODE)
-        } else {
-            getPhoneNumber()
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getPhoneNumber()
-            } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun getPhoneNumber() {
-        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        val phoneNumber = telephonyManager.line1Number
-        if (!phoneNumber.isNullOrEmpty()) {
-            Toast.makeText(this, "Phone number: $phoneNumber", Toast.LENGTH_LONG).show()
-        } else {
-            Toast.makeText(this, "Phone number not available", Toast.LENGTH_LONG).show()
-        }
-    }
+//    private fun checkPermissionAndGetPhoneNumber() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_NUMBERS), PERMISSION_REQUEST_CODE)
+//        } else {
+//            getPhoneNumber()
+//        }
+//    }
+//
+//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == PERMISSION_REQUEST_CODE) {
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                getPhoneNumber()
+//            } else {
+//                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+//
+//    private fun getPhoneNumber() {
+//        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+//        val phoneNumber = telephonyManager.line1Number
+//        if (!phoneNumber.isNullOrEmpty()) {
+//            Toast.makeText(this, "Phone number: $phoneNumber", Toast.LENGTH_LONG).show()
+//        } else {
+//            Toast.makeText(this, "Phone number not available", Toast.LENGTH_LONG).show()
+//        }
+//    }
 
 
     companion object {

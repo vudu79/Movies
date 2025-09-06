@@ -196,5 +196,8 @@ dependencies {
 // опционально - поддержка RxJava2
     implementation (libs.androidx.work.rxjava2)
 
+    implementation(libs.kotlinx.coroutines.play.services)
+
+
 }
 
