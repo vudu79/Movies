@@ -29,9 +29,7 @@ import ru.vodolatskii.movies.common.AppReceiver
 import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
-import ru.vodolatskii.movies.presentation.fragments.DetailsFragment
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -48,8 +46,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     lateinit var viewModel: MoviesViewModel
 
+    private val PERMISSION_REQUEST_CODE = 100
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        checkPermissionAndGetPhoneNumber()
 
         App.instance.dagger.inject(this)
         viewModel = viewModelFactory.create(MoviesViewModel::class.java)
@@ -69,7 +72,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerReceivers() {
-        Timber.d("registerReceivers -- ${this.packageName}.FIND")
         appReceiver = AppReceiver()
         val intentFilters = IntentFilter(Intent.ACTION_BATTERY_LOW)
         intentFilters.addAction(Intent.ACTION_POWER_CONNECTED)
@@ -82,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         alarmReceiver = AlarmsReceiver()
         val intentFilters2 = IntentFilter(ACTION)
-        registerReceiver(alarmReceiver, intentFilters2)
+        registerReceiver(alarmReceiver, intentFilters2, RECEIVER_NOT_EXPORTED)
     }
 
     private fun setupDrawerMenu() {
@@ -263,6 +265,37 @@ class MainActivity : AppCompatActivity() {
         unregisterReceiver(notificationReceiver)
         super.onDestroy()
     }
+
+
+//    private fun checkPermissionAndGetPhoneNumber() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_NUMBERS), PERMISSION_REQUEST_CODE)
+//        } else {
+//            getPhoneNumber()
+//        }
+//    }
+//
+//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == PERMISSION_REQUEST_CODE) {
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                getPhoneNumber()
+//            } else {
+//                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+//
+//    private fun getPhoneNumber() {
+//        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+//        val phoneNumber = telephonyManager.line1Number
+//        if (!phoneNumber.isNullOrEmpty()) {
+//            Toast.makeText(this, "Phone number: $phoneNumber", Toast.LENGTH_LONG).show()
+//        } else {
+//            Toast.makeText(this, "Phone number not available", Toast.LENGTH_LONG).show()
+//        }
+//    }
+
 
     companion object {
         const val ACTION = "alarm_action"

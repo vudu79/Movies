@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
+import ru.vodolatskii.movies.databinding.FragmentFavoriteTrialBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.utils.AutoDisposable
 import ru.vodolatskii.movies.presentation.utils.SimpleUIState
@@ -30,10 +31,11 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 class FavoriteFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding
+    private lateinit var bindingTrial: FragmentFavoriteTrialBinding
     private lateinit var favoriteAdapter: FavoriteAdapter
     private lateinit var viewModel: MoviesViewModel
     private val autoDisposable = AutoDisposable()
-
+    private var isTrialExpired: Boolean = false
 
 //    init {
 //        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
@@ -49,19 +51,26 @@ class FavoriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = (activity as MainActivity).shareMoviesViewModel()
+
+        isTrialExpired = viewModel.trialSubject.value ?: false
+
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-        return binding.root
+        bindingTrial = FragmentFavoriteTrialBinding.inflate(inflater, container, false)
+
+        return if (isTrialExpired) bindingTrial.root else binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //        AnimationHelper.performFragmentCircularRevealAnimation(view, requireActivity(), 2)
-        setupFavoriteRV()
-        setupObservers()
-        setupSearchViewListeners()
-        checkToolBar()
-        viewModel.getFavoriteMovies()
+        if (!isTrialExpired){
+            setupFavoriteRV()
+            setupObservers()
+            setupSearchViewListeners()
+            checkToolBar()
+            viewModel.getFavoriteMovies()
+        }
     }
 
     private fun checkToolBar() {

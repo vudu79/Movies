@@ -9,11 +9,13 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import kotlinx.coroutines.launch
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.common.ThemeManager
 import ru.vodolatskii.movies.domain.MovieRepository
@@ -25,6 +27,7 @@ import ru.vodolatskii.movies.presentation.utils.SortEvents
 import ru.vodolatskii.movies.presentation.utils.StorageSearchEvent
 import ru.vodolatskii.movies.presentation.utils.UIStateStorage
 import ru.vodolatskii.remote_module.entity.SunSetDto
+import timber.log.Timber
 import java.net.URL
 import java.time.LocalDate
 import java.time.LocalTime
@@ -87,6 +90,8 @@ class MoviesViewModel @Inject constructor(
     val reminderUIState: BehaviorSubject<SimpleUIState> = BehaviorSubject.create()
     val storageUIState: BehaviorSubject<UIStateStorage> = BehaviorSubject.create()
     val locationSubject: BehaviorSubject<Location> = BehaviorSubject.create()
+    val trialSubject: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
+
 
     init {
         setupSettings()
@@ -120,6 +125,21 @@ class MoviesViewModel @Inject constructor(
                     changeThemeBySunSet(it)
                 }
         )
+
+        disposable.add(
+            locationSubject
+                .debounce(1000, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    changeThemeBySunSet(it)
+                }
+        )
+
+        viewModelScope.launch {
+            val result = repository.isTrialExpired()
+            trialSubject.onNext(result)
+        }
     }
 
     fun updateLocation(location: Location) {

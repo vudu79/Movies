@@ -13,7 +13,7 @@ import com.example.myapp.AlarmHelper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import ru.vodolatskii.movies.R
-import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
+import ru.vodolatskii.movies.databinding.FragmentAfterBinding
 import ru.vodolatskii.movies.presentation.MainActivity
 import ru.vodolatskii.movies.presentation.adapters.ContentRVItemDecoration
 import ru.vodolatskii.movies.presentation.adapters.LiftSwipeItemTouchHelperCallback
@@ -26,7 +26,7 @@ import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 
 class AfterFragment : Fragment() {
-    private lateinit var binding: FragmentFavoriteBinding
+    private lateinit var binding: FragmentAfterBinding
     private lateinit var reminderAdapter: ReminderAdapter
     private lateinit var viewModel: MoviesViewModel
     private val autoDisposable = AutoDisposable()
@@ -43,7 +43,7 @@ class AfterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = (activity as MainActivity).shareMoviesViewModel()
-        binding = FragmentFavoriteBinding.inflate(inflater, container, false)
+        binding = FragmentAfterBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -80,7 +80,7 @@ class AfterFragment : Fragment() {
 
 
     private fun setupReminderRV() {
-        binding.recyclerViewFav.apply {
+        binding.recyclerViewAfter.apply {
             reminderAdapter = ReminderAdapter(
                 onEditButtonClick = { movie ->
                     DateTimeHelper.showDateTimePicker(requireActivity()) { millis, str ->
@@ -141,18 +141,15 @@ class AfterFragment : Fragment() {
     private fun setReminderViewsVisibility(state: SimpleUIState) {
         when (state) {
             is SimpleUIState.Success -> {
-                binding.progressCircularFav.visibility = View.GONE
-                binding.recyclerViewFav.visibility = View.VISIBLE
+                binding.recyclerViewAfter.visibility = View.VISIBLE
             }
 
             is SimpleUIState.Error -> {
-                binding.progressCircularFav.visibility = View.GONE
-                binding.recyclerViewFav.visibility = View.VISIBLE
+                binding.recyclerViewAfter.visibility = View.VISIBLE
             }
 
             SimpleUIState.Loading -> {
-                binding.progressCircularFav.visibility = View.VISIBLE
-                binding.recyclerViewFav.visibility = View.GONE
+                binding.recyclerViewAfter.visibility = View.GONE
             }
         }
     }

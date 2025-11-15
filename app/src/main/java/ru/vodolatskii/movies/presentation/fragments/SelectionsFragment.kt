@@ -7,16 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import ru.vodolatskii.movies.databinding.FragmentFavoriteBinding
+import ru.vodolatskii.movies.databinding.FragmentFavoriteTrialBinding
 import ru.vodolatskii.movies.databinding.FragmentSelectionsBinding
-import ru.vodolatskii.movies.presentation.utils.AnimationHelper
+import ru.vodolatskii.movies.databinding.FragmentSelectionsTrialBinding
+import ru.vodolatskii.movies.presentation.MainActivity
+import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
 
 class SelectionsFragment : Fragment() {
     private lateinit var binding: FragmentSelectionsBinding
-
-
-//    init {
-//        exitTransition = Fade(Fade.MODE_OUT).apply { duration = 500 }
-//    }
+    private lateinit var bindingTrial: FragmentSelectionsTrialBinding
+    private lateinit var viewModel: MoviesViewModel
+    private var isTrialExpired: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,10 +28,16 @@ class SelectionsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         binding = FragmentSelectionsBinding.inflate(inflater, container, false)
-        return binding.root
+        viewModel = (activity as MainActivity).shareMoviesViewModel()
+
+        isTrialExpired = viewModel.trialSubject.value ?: false
+
+        binding = FragmentSelectionsBinding.inflate(inflater, container, false)
+        bindingTrial = FragmentSelectionsTrialBinding.inflate(inflater, container, false)
+
+        return if (isTrialExpired) bindingTrial.root else binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,8 +54,6 @@ class SelectionsFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
             }
-
         })
-
     }
 }

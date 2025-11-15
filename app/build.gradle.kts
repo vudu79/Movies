@@ -4,7 +4,8 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-parcelize")
     alias(libs.plugins.ksp)
-    id ("kotlin-kapt") // Add this line
+    id ("kotlin-kapt")
+    alias(libs.plugins.google.gms.google.services) // Add this line
 
 }
 
@@ -15,6 +16,20 @@ kapt {
 android {
     namespace = "ru.vodolatskii.movies"
     compileSdk = 34
+
+    flavorDimensions.add("version")
+    productFlavors {
+        create("basic") {
+            dimension = "version"
+            applicationIdSuffix = ".basic"
+            versionNameSuffix = "-basic"
+        }
+        create("pro") {
+            dimension = "version"
+            applicationIdSuffix = ".pro"
+            versionNameSuffix = "-pro"
+        }
+    }
 
     defaultConfig {
         applicationId = "ru.vodolatskii.movies"
@@ -47,6 +62,20 @@ android {
         viewBinding = true
 
     }
+    sourceSets {
+        getByName("basic") {
+            java {
+                srcDirs("src/basic/java")
+            }
+        }
+        getByName("pro") {
+            java {
+                srcDirs("src/pro/java")
+            }
+        }
+    }
+
+
 }
 
 secrets {
@@ -64,6 +93,9 @@ secrets {
     ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
 }
 
+
+
+
 dependencies {
     implementation(libs.material)
 
@@ -73,6 +105,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,19 +118,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     annotationProcessor(libs.compiler)
 
-
     implementation(libs.retrofit)
-//    implementation(libs.retrofit2.converter.gson)
-//    implementation (libs.adapter.rxjava3)
-//    implementation(libs.converter.scalars)
-//    implementation (libs.okhttp.v492)
-//    implementation (libs.logging.interceptor.v492)
-//    implementation(libs.converter.gson.v260)
-//    implementation(libs.gson)
-//    implementation(libs.retrofit2.converter.moshi)
-//    implementation(libs.moshi.kotlin)
-
-
 
     implementation(libs.coordinatorlayout)
     implementation(libs.material)
@@ -162,6 +183,9 @@ dependencies {
     implementation (libs.androidx.work.runtime.ktx)
 // опционально - поддержка RxJava2
     implementation (libs.androidx.work.rxjava2)
+
+    implementation(libs.kotlinx.coroutines.play.services)
+
 
 }
 

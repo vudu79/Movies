@@ -26,6 +26,7 @@ class App : Application() {
         preference = this.getSharedPreferences(SP_FILE_NAME, Context.MODE_PRIVATE)
         workManagerHelper = WorkManagerHelper(this)
 
+
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         daggerSetup()
         timberSetup()
@@ -49,6 +50,7 @@ class App : Application() {
         })
     }
 
+
     // Вызывается при изменении конфигурации, например, поворот
 // Этот метод тоже не обязателен к предопределению
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -66,11 +68,11 @@ class App : Application() {
         super.onTrimMemory(level)
     }
 
-
     companion object {
         lateinit var instance: App
             private set
         private const val SP_FILE_NAME = "settings"
+        private const val DEVICE_UUID = "\"device_uuid\""
     }
 }
 

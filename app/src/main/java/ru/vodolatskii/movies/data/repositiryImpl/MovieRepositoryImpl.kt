@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Response
 import ru.vodolatskii.movies.App
+import ru.vodolatskii.movies.common.CheckTrialHelper
 import ru.vodolatskii.movies.common.ModelConverter
 import ru.vodolatskii.movies.data.dao.MovieDao
 import ru.vodolatskii.movies.data.entity.MovieEntity
@@ -31,6 +32,8 @@ class MovieRepositoryImpl @Inject constructor(
     private val kpApiService: KPApiService,
     private val sunSetService: SunSetApiService,
     private val preferences: PreferenceProvider,
+    private val trialHelper: CheckTrialHelper,
+
 //    private val tmdbApiService: TmdbApiService,
 ) : MovieRepository {
 
@@ -88,6 +91,10 @@ class MovieRepositoryImpl @Inject constructor(
                     Single.error(Exception("Network error"))
                 }
             }
+    }
+
+    override suspend fun isTrialExpired(): Boolean {
+        return trialHelper.isTrialExpired()
     }
 
 
