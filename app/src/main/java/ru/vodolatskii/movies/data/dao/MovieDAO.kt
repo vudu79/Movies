@@ -25,6 +25,10 @@ interface MovieDao {
     )
     suspend fun getMoviesByRatingByYear(rating: Double, year: Int): List<MovieEntity>
 
+    @Query("SELECT * FROM movies WHERE poster_url = :url")
+     fun getMovieByImageUrl(url: String): Single<MovieEntity>
+
+
     @Query("UPDATE movies SET is_favorite = :isFavorite WHERE title = :title")
     fun updateMovieToFavorite(isFavorite: Boolean, title: String)
 

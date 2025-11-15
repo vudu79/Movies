@@ -106,6 +106,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.config)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -185,7 +186,7 @@ dependencies {
     implementation (libs.androidx.work.rxjava2)
 
     implementation(libs.kotlinx.coroutines.play.services)
-
-
+// firebase
+    implementation(libs.firebase.bom)
 }
 

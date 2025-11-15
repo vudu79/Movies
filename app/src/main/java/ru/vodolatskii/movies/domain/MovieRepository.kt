@@ -69,7 +69,14 @@ interface MovieRepository {
 
     fun getRemindedMovies(): Single<List<Movie>>
 
-    fun updateReminderForMovie(movieId: Long, isReminder: Boolean, millis: Long = 0L, str: String = "")
+    fun updateReminderForMovie(
+        movieId: Long,
+        isReminder: Boolean,
+        millis: Long = 0L,
+        str: String = ""
+    )
 
-   suspend fun isTrialExpired(): Boolean
+    suspend fun isTrialExpired(): Boolean
+
+    fun getMovieByImageUrl(url: String): Single<Movie>
 }
