@@ -192,6 +192,12 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
 
+    override fun getMovieByImageUrl(url: String): Single<Movie> {
+        return movieDao.getMovieByImageUrl(url).map {
+            it.convertEntityToModel()
+        }
+    }
+
 //    override suspend fun getMoviesByFilter(
 //        rating: Double,
 //        date: Int,

@@ -22,6 +22,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import ru.vodolatskii.movies.App
 import ru.vodolatskii.movies.R
 import ru.vodolatskii.movies.common.AlarmsReceiver
@@ -30,6 +32,7 @@ import ru.vodolatskii.movies.common.NotificationsReceiver
 import ru.vodolatskii.movies.databinding.ActivityMainBinding
 import ru.vodolatskii.movies.domain.models.Movie
 import ru.vodolatskii.movies.presentation.viewmodels.MoviesViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -60,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        showPromo()
+
         setupDrawerMenu()
         setupObservers()
         setupClickListeners()
@@ -68,6 +73,64 @@ class MainActivity : AppCompatActivity() {
         val movie = intent.getParcelableExtra<Movie>("movie")
         if (movie != null) {
             passDataForDetailsFragment(movie)
+        }
+    }
+
+    private fun showPromo() {
+        if (!App.instance.isPromoShown) {
+            //Получаем доступ к Remote Config
+            val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            //Устанавливаем настройки
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(0)
+                .build()
+            firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
+            //Вызываем метод, который получит данные с сервера и вешаем слушатель
+            firebaseRemoteConfig.fetch()
+                .addOnCompleteListener {
+                    //Если все получилось успешно
+                    if (it.isSuccessful) {
+                        //активируем последний полученный конфиг с сервера
+                        firebaseRemoteConfig.activate()
+                        //Получаем ссылку
+                        val filmLink = firebaseRemoteConfig.getString("url_string")
+                        //Если поле не пустое
+                        if (filmLink.isNotBlank()
+                        ) {
+                            //Ставим флаг, что уже промо показали
+                            App.instance.isPromoShown = true
+
+                            viewModel.getPromoMovieFFromDB(filmLink)
+
+                            //Включаем промо верстку
+                            binding.promoViewGroup.apply {
+                                //Делаем видимой
+                                visibility = View.VISIBLE
+                                //Анимируем появление
+                                animate()
+                                    .setDuration(1500)
+                                    .alpha(1f)
+                                    .start()
+                                //Вызываем метод, который загрузит постер в ImageView
+                                setLinkForPoster(filmLink)
+                                //Кнопка, по нажатии на которую промо уберется (желательно сделать отдельную кнопку с крестиком)
+                                watchButton.setOnClickListener {
+                                    val movie = viewModel.promoMovieLifeData.value
+                                    if (movie != null) {
+                                        launchDetailsFragment(movie)
+                                    } else {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Фильма не в памяти телефона!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    visibility = View.GONE
+                                }
+                            }
+                        }
+                    }
+                }
         }
     }
 
@@ -207,6 +270,19 @@ class MainActivity : AppCompatActivity() {
             bundle,
             null,
             extras
+        )
+    }
+
+    fun launchDetailsFragment(movie: Movie) {
+        val bundle = Bundle()
+        bundle.putParcelable("movie", movie)
+
+
+        navController.navigate(
+            R.id.detailsFragment,
+            bundle,
+            null,
+            null
         )
     }
 

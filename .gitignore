@@ -130,3 +130,4 @@ fabric.properties
 
 app/src/main/java/ru/vodolatskii/movies/common/
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio
+app/google-services.json

@@ -56,6 +56,7 @@ class MoviesViewModel @Inject constructor(
     val contentSourceLiveData: MutableLiveData<String> = MutableLiveData()
     val categoryPropertyLifeData: MutableLiveData<String> = MutableLiveData()
     val requestLanguageLifeData: MutableLiveData<String> = MutableLiveData()
+    val promoMovieLifeData: MutableLiveData<Movie?> = MutableLiveData()
 
     var messageSingleLiveEvent = SingleLiveEvent<String>()
         private set
@@ -339,6 +340,21 @@ class MoviesViewModel @Inject constructor(
                     },
                     { error ->
                         storageUIState.onNext(UIStateStorage.Error("Неизвестная ошибка $error"))
+                    })
+        )
+    }
+
+    fun getPromoMovieFFromDB(url: String) {
+        disposable.add(
+            repository.getMovieByImageUrl(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { movie ->
+                        promoMovieLifeData.setValue(movie)
+                    },
+                    { error ->
+                        promoMovieLifeData.setValue(null)
                     })
         )
     }

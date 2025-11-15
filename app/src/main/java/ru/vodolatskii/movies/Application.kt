@@ -17,7 +17,7 @@ class App : Application() {
     lateinit var dagger: AppComponent
     private lateinit var preference: SharedPreferences
     private lateinit var workManagerHelper: WorkManagerHelper
-
+    var isPromoShown = false
     var loadPopularMoviesLimit: Int = 3
 
     override fun onCreate() {
